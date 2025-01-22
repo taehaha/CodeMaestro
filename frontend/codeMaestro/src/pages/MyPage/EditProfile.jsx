@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import { PropTypes } from "prop-types";
 
 const EditProfile = ({onClose}) => {
     const user = useSelector((state) => state.user.myInfo); 
@@ -20,5 +21,9 @@ const EditProfile = ({onClose}) => {
 
     )
 }
+
+EditProfile.propTypes = {
+    onClose:PropTypes.func.isRequired, // children은 반드시 전달되어야 함
+  };
 
 export default EditProfile;

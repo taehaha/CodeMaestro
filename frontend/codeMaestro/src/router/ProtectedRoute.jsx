@@ -18,8 +18,6 @@ function ProtectedRoute() {
         navigate("/login");
       });
     }
-    // isLoggedIn이 바뀔 때마다 한 번씩만 Alert를 띄우고 싶다면
-    // deps 배열 [isLoggedIn, navigate]로 충분합니다.
   }, [isLoggedIn, navigate]);
 
   // 로그인 전이라면 자식 컴포넌트(=보호된 페이지)는 렌더링하지 않음

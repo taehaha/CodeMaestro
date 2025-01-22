@@ -10,7 +10,7 @@ const RoomCard = ({name, isPassword, thumbnail, participants, languages, tag, ro
     const handlePopup = () => {
 
         if (!participants) {
-            console.log("백엔드: 이 미팅은 리스트 호출 당시엔 진행중이지만, 지금은 회의가 종료되었습니다. 프론트: 넵")
+            console.log("백엔드: 404 보냅니다. 프론트: 넵")
             Swal.fire({
                 title:"존재하지 않는 회의실",
                 text:"미팅이 종료되어, 더이상 존재하지 않는 회의실입니다.",

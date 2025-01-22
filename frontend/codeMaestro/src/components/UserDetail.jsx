@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import Swal from 'sweetalert2';
 
 const UserDetail = ({ user, checkedUsers, setCheckedUsers,addPage }) => {
     
@@ -12,8 +13,25 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers,addPage }) => {
         }
     }
  
+    const handleAdd = () => {
+        Swal.fire({
+            title:'친구 추가',
+            text:`${user.name}님에게 친구 추가를 요청하시겠습니까?`,
+            showCancelButton:true,
+            confirmButtonText:"확인",
+            cancelButtonText:"취소",
+        }).then((isConfirmed)=>{
+            if (isConfirmed) {
+                console.log(`${user.id}한테 친추 axios 보내라.`);
+                
+            }
+        })
+    }
+
     return(
-        <li className="flex py-4 first:pt-0 last:pb-0">
+        <li 
+        className={`flex py-4 first:pt-0 last:pb-0 ${addPage ? 'hover:brightness-75' : ''}`}
+        onClick={addPage ? handleAdd : undefined}>
         <img className="h-10 w-10 rounded-full" src={user.profileimage} alt="profile" />
         <div className="ml-3 overflow-hidden">
             <div>
@@ -22,7 +40,7 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers,addPage }) => {
             </div>
           <p className="text-sm text-slate-500 truncate">{user.profiletext}</p>
         </div>
-            {!addPage && (            <div className="ml-auto my-auto">
+            {!addPage && (<div className="ml-auto my-auto">
             <input
                 type="checkbox"
                 className="checkbox dark:checkbox-warning rounded-sm"

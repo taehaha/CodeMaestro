@@ -11,9 +11,9 @@ export const getMyInfo = createAsyncThunk("user/getMyInfo", async ()=> {
 })
 
 export const loginUser = createAsyncThunk("user/login", async (payload) => {
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   await signin(payload)
-  dispatch(getMyInfo())
+  // dispatch(getMyInfo())
   return true;
 })
 

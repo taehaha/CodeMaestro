@@ -41,18 +41,40 @@ const handleRefresh = () => {
         <SearchBar
         onSearch={(input) => handleSearch(input)}
         onRefresh={()=>{handleRefresh()}}/>
-        <ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto max-h-[220px] mt-3">
-            {fillteredUsers.map((user, index) => (
-                <UserDetail
-                    key={index}
-                    user={user}
-                    checkedUsers={checkedUsers}
-                    setCheckedUsers={setCheckedUsers}
-                    addPage={addPage}
-                />
-                ))
-            }
-        </ul>
+<ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto h-[200px] mt-3">
+  {fillteredUsers.length === 0 ? (
+    <div className="">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-12 w-12 text-slate-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 12h6m-3-3v6m6-9h.01M6 6h.01M18 18h.01M6 18h.01"
+        />
+      </svg>
+      <h2 className="text-lg font-semibold text-slate-700">
+        No Users Found
+      </h2>
+    </div>
+  ) : (
+    fillteredUsers.map((user, index) => (
+      <UserDetail
+        key={index}
+        user={user}
+        checkedUsers={checkedUsers}
+        setCheckedUsers={setCheckedUsers}
+        addPage={addPage}
+      />
+    ))
+  )}
+</ul>
+
         </>
 
     )}

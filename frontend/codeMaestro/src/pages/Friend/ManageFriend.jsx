@@ -1,4 +1,3 @@
-import React from "react";
 import Swal from "sweetalert2";
 
 const ManageFriend = ({openAddFriendPage, checkedUsers}) => {
@@ -13,7 +12,7 @@ const ManageFriend = ({openAddFriendPage, checkedUsers}) => {
         }).then((isConfirmed) => {
             if (isConfirmed) {
             checkedUsers.map((user) => {
-                console.log(`${user.id} axios 보낸다`);
+                console.log(`${user.id} 친삭 axios 보낸다`);
                 
             })
             }
@@ -29,7 +28,7 @@ const ManageFriend = ({openAddFriendPage, checkedUsers}) => {
             className="btn rounded-full w-40 mb-3  bg-error text-white"
             onClick={handleDelete}
             >친구 삭제</button>
-            <button className="btn rounded-full w-40 mb-3">디자인 눈물난다</button>
+            <button className="btn rounded-full w-40 mb-3">Solved.ac 연동중</button>
         </div>
     );
 };

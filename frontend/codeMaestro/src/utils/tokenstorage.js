@@ -1,7 +1,7 @@
 let memoryAccessToken = null;
 
 
-// 여기서 access토큰을 관리한다 함...
+// 여기서 access토큰을 관리해야 안전하다 함...
 // 새로고침시 사라짐, 대신 공격에 안전한 방식
 
 const tokenStorage = {

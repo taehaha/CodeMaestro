@@ -1,14 +1,10 @@
-import { divide } from "lodash"
-import SearchBar from "../../components/SearchBar"
 import UserList from "../../components/UserList";
 import { useState } from "react";
+import { PropTypes } from "prop-types";
+
 const AddFriends = ({onClose}) => {
     const [checkedUsers, setCheckedUsers] = useState([]) // checkedList 상태 관리
     
-    const handleSearch = (e)=>{
-        console.log(e);
-    }
-
     const handleAdd = ()=> {
         console.log(checkedUsers.map((user) => user.id));
     }
@@ -22,17 +18,18 @@ const AddFriends = ({onClose}) => {
             <UserList
             checkedUsers={checkedUsers}
             setCheckedUsers={setCheckedUsers}
-            addFage={true}
+            addPage={true}
             ></UserList>
             <div className="flex justify-end gap-1">
-            <button 
-            className="btn bg-primary text-white"
-            onClick={()=>{handleAdd()}}>추가</button>
-            <button className="btn bg-error text-white" onClick={onClose}>취소</button>
+            <button className="btn bg-error text-white" onClick={onClose}>닫기</button>
             </div>
             </div>
         </div>
     )
 }
+
+AddFriends.propTypes = {
+    onClose:PropTypes.func.isRequired, // children은 반드시 전달되어야 함
+  };
 
 export default AddFriends

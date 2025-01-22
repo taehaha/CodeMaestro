@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useContext } from "react";
 import { NotificationsContext } from "../../context/NotificationContext";
-import { FaUserFriends, FaEnvelope } from "react-icons/fa"; // 아이콘 사용
+import { FaUserFriends, FaEnvelope, FaUsers, FaQuestion } from "react-icons/fa"; // 아이콘 사용
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -24,7 +24,7 @@ const NotificationModal = ({ onClose }) => {
 
   const handleReject = (notification)=>{
     if (notification.type === 'invite') {
-        console.log("아무일도 안일어나고 알림만 지워진다.");
+        console.log("axios에 거절 요청 보내고 다시 get알림 처리한다.");
     }
     else {
         console.log(`${notification.request}번 요청에 거절 axios 보낸다.`);
@@ -55,10 +55,14 @@ const NotificationModal = ({ onClose }) => {
                 {/* 알림 내용 */}
                 <div >
                 <div className="mr-3 text-xl">
-                  {notification.type === "friend" ? (
+                {notification.type === "friend" ? (
                     <FaUserFriends className="text-green-500" />
-                  ) : (
+                  ) : notification.type === "invite" ? (
                     <FaEnvelope className="text-blue-500" />
+                  ) : notification.type === "group" ? (
+                    <FaUsers className="text-purple-500" />
+                  ) : (
+                    <FaQuestion className="text-gray-500" />
                   )}
                 </div>
                   <p className="text-sm">
@@ -66,8 +70,10 @@ const NotificationModal = ({ onClose }) => {
                   </p>
                   <p className="text-xs">
                     {notification.type === "friend"
-                      ? "님의 친구 요청입니다"
-                      : "님의 회의 초대입니다"}
+                      ? ("님의 친구 요청입니다")
+                      : notification.type === "invite" ? 
+                      ("님의 회의 초대입니다") : 
+                      ("님의 그룹 초대입니다")}
                   </p>
                   <div className="flex ml-auto">
                     <button className="btn text-white bg-primary"

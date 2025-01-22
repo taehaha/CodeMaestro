@@ -1,5 +1,4 @@
 import CreateMeetingForm from "./CreateMeetingForm"
-import AudioMockUp from "./AudioMockUp"
 import UserList from "../../components/UserList"
 import { useState } from "react"
 const CreateMeetingPage = () =>{

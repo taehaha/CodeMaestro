@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Cropper from "react-easy-crop";
+import { PropTypes } from "prop-types";
 
 const EditBackgroundImage = ({onClose}) => {
   const [imageSrc, setImageSrc] = useState(null); // 업로드된 이미지 경로
@@ -77,5 +78,10 @@ const EditBackgroundImage = ({onClose}) => {
     </div>
   );
 };
+
+EditBackgroundImage.propTypes = {
+  onClose:PropTypes.func.isRequired, // children은 반드시 전달되어야 함
+};
+
 
 export default EditBackgroundImage;
