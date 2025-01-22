@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { NotificationsContext } from "../../context/NotificationContext";
 import { FaUserFriends, FaEnvelope, FaUsers, FaQuestion } from "react-icons/fa"; // 아이콘 사용
 import { useNavigate } from "react-router-dom";
+import { getNotification } from "../../api/AuthApi";
 import Swal from "sweetalert2";
 
 const NotificationModal = ({ onClose }) => {
@@ -15,21 +16,21 @@ const NotificationModal = ({ onClose }) => {
             text:`초대받은 회의실로 이동합니다`,
         }).then(()=>{
             onClose()
+            console.log("Axios 수락 보내고 알림 갱신한다다");
             navigate(`/meeting/${notification.roomId}`)})
     }
     else {
         console.log(`${notification.request}번 요청에 수락 axios 보낸다.`);
+        
+
     }
+    // getNotification()
   } 
 
   const handleReject = (notification)=>{
-    if (notification.type === 'invite') {
-        console.log("axios에 거절 요청 보내고 다시 get알림 처리한다.");
-    }
-    else {
         console.log(`${notification.request}번 요청에 거절 axios 보낸다.`);
-    }
-  } 
+         // getNotification()
+    } 
 
   return (
     <div className="notification-modal hover:none">
