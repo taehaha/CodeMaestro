@@ -3,13 +3,10 @@ package com.ssafy.codemaestro.domain.auth.controller;
 import com.ssafy.codemaestro.domain.auth.dto.FindPasswordRequestDto;
 import com.ssafy.codemaestro.domain.auth.dto.LogoutResponseDto;
 import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
-import com.ssafy.codemaestro.domain.auth.entity.RefreshEntity;
-import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.service.AuthService;
 import com.ssafy.codemaestro.domain.verify.dto.ValidateEmailPinRequestDto;
 import com.ssafy.codemaestro.domain.verify.dto.VerifyEmailRequestDto;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,32 +15,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-
-/**
- * Spring Security에서 Filter로 처리되는 Endpoint들을 Swagger에 표시하기 위해 사용하는 빈 Controller
- */
 @RestController
 public class AuthController {
     private final AuthService authService;
-    private final RefreshRepository refreshRepository;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(AuthService authService, RefreshRepository refreshRepository, JwtUtil jwtUtil) {
+    public AuthController(AuthService authService, JwtUtil jwtUtil) {
         this.authService = authService;
-        this.refreshRepository = refreshRepository;
         this.jwtUtil = jwtUtil;
     }
-
-    // 로그인
-//    @PostMapping("/auth/signin")
-//    public void signin() {}
 
     // 로그아웃
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(SignUpDto signUpDto) {
-        authService.joinProcess(signUpDto);
+        authService.join(signUpDto);
 
         return ResponseEntity.ok().build();
     }
@@ -55,7 +41,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    // JWT RefreshToken 재발급
+    // JWT AccessToken 및 RefreshToken 재발급
     @PostMapping("/auth/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
@@ -71,37 +57,13 @@ public class AuthController {
             return new ResponseEntity<>("refresh is null", HttpStatus.BAD_REQUEST);
         }
 
-        // token이 유효한지 확인
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            return new ResponseEntity<>("refresh expired", HttpStatus.BAD_REQUEST);
-        }
 
-        // refreshToken이 맞는지 확인
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-            return new ResponseEntity<>("invaild refresh", HttpStatus.BAD_REQUEST);
-        }
+        String[] tokens = authService.reissueAccessAndRefreshToken(refresh);
+        String newAccessToken = tokens[0];
+        String newRefreshToken = tokens[1];
 
-        // DB에 저장되어있는지 확인
-        boolean isExist = refreshRepository.existsByRefreshToken(refresh);
-        if (!isExist) {
-            return new ResponseEntity<>("invaild refresh", HttpStatus.BAD_REQUEST);
-        }
-
-        // Token에서 User 정보 추출
-        String userId = jwtUtil.getId(refresh);
-
-        // 새로 발급할 AccessToken, RefreshToken
-        String newAccess = jwtUtil.createToken("access", userId, 60 * 60 * 10L);
-        String newRefresh = jwtUtil.createToken("refresh", userId, 60 * 60 * 10L);
-
-        refreshRepository.deleteByRefreshToken(refresh);
-        addRefreshEntity(userId, newRefresh, 60 * 60 * 10L);
-
-        response.setHeader("access", newAccess);
-        response.addCookie(jwtUtil.createJwtCookie("refresh", newRefresh));
+        response.setHeader("access", newAccessToken);
+        response.addCookie(jwtUtil.createJwtCookie("refresh", newRefreshToken));
 
         return ResponseEntity.ok().build();
     }
@@ -143,16 +105,5 @@ public class AuthController {
         } else {
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    private void addRefreshEntity(String userId, String refresh, Long expireMs) {
-        Date date = new Date(System.currentTimeMillis() + expireMs);
-
-        RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setEmail(userId);
-        refreshEntity.setRefreshToken(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        refreshRepository.save(refreshEntity);
     }
 }

@@ -1,19 +1,23 @@
 package com.ssafy.codemaestro.domain.auth.service;
 
 import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
+import com.ssafy.codemaestro.domain.auth.entity.RefreshEntity;
 import com.ssafy.codemaestro.domain.auth.entity.VerifyEmailEntity;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.repository.VerifyEmailRepository;
+import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import com.ssafy.codemaestro.domain.auth.util.MailUtil;
 import com.ssafy.codemaestro.domain.user.entity.LoginProvider;
 import com.ssafy.codemaestro.domain.user.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Date;
 
 @Service
 public class AuthService {
@@ -21,19 +25,21 @@ public class AuthService {
     private final RefreshRepository refreshRepository;
     private final VerifyEmailRepository verifyEmailRepository;
 
+    private final JwtUtil jwtUtil;
     private final MailUtil mailUtil;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthService(UserRepository userRepository, RefreshRepository refreshRepository, VerifyEmailRepository verifyEmailRepository, MailUtil mailUtil, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, RefreshRepository refreshRepository, VerifyEmailRepository verifyEmailRepository, JwtUtil jwtUtil, MailUtil mailUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.refreshRepository = refreshRepository;
         this.verifyEmailRepository = verifyEmailRepository;
+        this.jwtUtil = jwtUtil;
         this.mailUtil = mailUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void joinProcess(SignUpDto signUpDto) {
+    public void join(SignUpDto signUpDto) {
         // 유저가 이미 존재하는지 확인
         Boolean isExist = userRepository.existsByEmailAndLoginProvider(signUpDto.getEmail(), LoginProvider.LOCAL);
 
@@ -53,6 +59,39 @@ public class AuthService {
         user.setDescription(signUpDto.getDescription());
 
         userRepository.save(user);
+    }
+
+    public String[] reissueAccessAndRefreshToken(String refreshToken) {
+        // token이 유효한지 확인
+        try {
+            jwtUtil.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            return null;
+        }
+
+        // refreshToken이 맞는지 확인
+        String category = jwtUtil.getCategory(refreshToken);
+        if (!category.equals("refresh")) {
+            return null;
+        }
+
+        // DB에 저장되어있는지 확인
+        boolean isExist = refreshRepository.existsByRefreshToken(refreshToken);
+        if (!isExist) {
+            return null;
+        }
+
+        // Token에서 User 정보 추출
+        String userId = jwtUtil.getId(refreshToken);
+
+        // 새로 발급할 AccessToken, RefreshToken
+        String newAccess = jwtUtil.createToken("access", userId, 60 * 60 * 10L);
+        String newRefresh = jwtUtil.createToken("refresh", userId, 60 * 60 * 10L);
+
+        refreshRepository.deleteByRefreshToken(refreshToken);
+        addRefreshEntity(userId, newRefresh, 60 * 60 * 10L);
+
+        return new String[] { newAccess, newRefresh };
     }
 
     public boolean invaildateRefreshToken(String refreshToken) {
@@ -126,5 +165,16 @@ public class AuthService {
         }
 
         return sb.toString();
+    }
+
+    private void addRefreshEntity(String userId, String refresh, Long expireMs) {
+        Date date = new Date(System.currentTimeMillis() + expireMs);
+
+        RefreshEntity refreshEntity = new RefreshEntity();
+        refreshEntity.setEmail(userId);
+        refreshEntity.setRefreshToken(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        refreshRepository.save(refreshEntity);
     }
 }
