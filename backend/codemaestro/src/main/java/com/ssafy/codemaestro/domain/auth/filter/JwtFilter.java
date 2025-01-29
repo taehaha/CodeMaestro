@@ -3,6 +3,7 @@ package com.ssafy.codemaestro.domain.auth.filter;
 import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
 import com.ssafy.codemaestro.domain.user.entity.User;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
+import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,12 +16,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 public class JwtFilter extends OncePerRequestFilter {
+    private final UserRepository userRepository;
+
     private final JwtUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) {
+    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -63,12 +68,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // email, role 값을 획득
-        String userId = jwtUtil.getId(accessToken);
+        // user Id를 기반으로 User Entity 획득
+        long userId = Long.valueOf(jwtUtil.getId(accessToken));
 
-        User user = new User();
-        user.setId(Long.parseLong(userId));
-
+        User user = userRepository.findById(userId).get();
 
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 

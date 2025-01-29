@@ -38,21 +38,20 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String userId = customUserDetails.getName();
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority authority = iterator.next();
-
-        String role = authority.getAuthority();
+//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+//        GrantedAuthority authority = iterator.next();
+//        String role = authority.getAuthority();
 
         String access = jwtUtil.createToken("access", userId, 600000L);
         String refresh = jwtUtil.createToken("refresh", userId, 86400000L);
 
         addRefreshEntity(userId, refresh, 86400000L);
 
-        response.setHeader("access", access);
-        response.addCookie(jwtUtil.createJwtCookie("refresh", refresh));
-
         response.setStatus(HttpServletResponse.SC_OK);
+
+        //TODO: 리다이렉트할 위치
+        response.sendRedirect("http://localhost:3000/oauth2/signin?refresh=" + refresh);
     }
 
     private void addRefreshEntity(String userId, String refreshToken, Long expireMs) {

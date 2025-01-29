@@ -27,7 +27,7 @@ public class KakaoOAuth2Response implements OAuth2Response {
             String value = String.valueOf(attribute.get(key));
             System.out.println("키 : "+key+", 값 : "+value);
         }
-        return "kakao";
+        return "KAKAO";
     }
 
     @Override

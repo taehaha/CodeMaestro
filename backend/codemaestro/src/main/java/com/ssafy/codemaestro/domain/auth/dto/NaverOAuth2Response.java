@@ -26,7 +26,7 @@ public class NaverOAuth2Response implements OAuth2Response {
             System.out.println("키 : "+key+", 값 : "+value);
         }
 
-        return "naver";
+        return "NAVER";
     }
 
     @Override

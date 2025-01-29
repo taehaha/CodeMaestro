@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.verify.dto;
+package com.ssafy.codemaestro.domain.validation.dto;
 
 import lombok.Getter;
 import lombok.Setter;

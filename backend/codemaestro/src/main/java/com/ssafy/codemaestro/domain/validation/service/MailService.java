@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.verify.service;
+package com.ssafy.codemaestro.domain.validation.service;
 
 import com.ssafy.codemaestro.domain.auth.util.MailUtil;
 import jakarta.mail.MessagingException;

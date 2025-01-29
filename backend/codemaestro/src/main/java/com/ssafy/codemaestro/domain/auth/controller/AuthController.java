@@ -1,11 +1,12 @@
 package com.ssafy.codemaestro.domain.auth.controller;
 
+import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
 import com.ssafy.codemaestro.domain.auth.dto.FindPasswordRequestDto;
 import com.ssafy.codemaestro.domain.auth.dto.LogoutResponseDto;
 import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
 import com.ssafy.codemaestro.domain.auth.service.AuthService;
-import com.ssafy.codemaestro.domain.verify.dto.ValidateEmailPinRequestDto;
-import com.ssafy.codemaestro.domain.verify.dto.VerifyEmailRequestDto;
+import com.ssafy.codemaestro.domain.validation.dto.ValidateEmailPinRequestDto;
+import com.ssafy.codemaestro.domain.validation.dto.VerifyEmailRequestDto;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,13 +32,29 @@ public class AuthController {
     // 로그아웃
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(SignUpDto signUpDto) {
-        boolean success = authService.join(signUpDto);
+        boolean success = authService.signup(signUpDto);
 
         if (success) {
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+    }
+
+    /**
+     * 회원탈퇴
+     */
+    @DeleteMapping("/auth/quit")
+    public ResponseEntity<Void> quit() {
+        // 로그인된 유저 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        long userId = Long.parseLong(userDetails.getUsername());
+
+        // 회원탈퇴
+        authService.quit(userId);
+
+        return ResponseEntity.ok().build();
     }
 
     // 로그아웃

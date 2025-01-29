@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.verify.controller;
+package com.ssafy.codemaestro.domain.validation.controller;
 
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
