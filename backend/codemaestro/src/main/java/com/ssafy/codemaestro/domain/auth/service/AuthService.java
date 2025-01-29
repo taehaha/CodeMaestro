@@ -39,12 +39,12 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void join(SignUpDto signUpDto) {
+    public boolean join(SignUpDto signUpDto) {
         // 유저가 이미 존재하는지 확인
         Boolean isExist = userRepository.existsByEmailAndLoginProvider(signUpDto.getEmail(), LoginProvider.LOCAL);
 
         if (isExist) {
-            return;
+            return false;
         }
 
         // 새로운 유저 생성
@@ -59,6 +59,8 @@ public class AuthService {
         user.setDescription(signUpDto.getDescription());
 
         userRepository.save(user);
+
+        return true;
     }
 
     public String[] reissueAccessAndRefreshToken(String refreshToken) {

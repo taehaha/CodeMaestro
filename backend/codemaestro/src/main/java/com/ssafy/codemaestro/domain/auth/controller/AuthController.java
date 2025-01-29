@@ -29,9 +29,13 @@ public class AuthController {
     // 로그아웃
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(SignUpDto signUpDto) {
-        authService.join(signUpDto);
+        boolean success = authService.join(signUpDto);
 
-        return ResponseEntity.ok().build();
+        if (success) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // 로그아웃
@@ -43,7 +47,7 @@ public class AuthController {
 
     // JWT AccessToken 및 RefreshToken 재발급
     @PostMapping("/auth/reissue")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Void> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
@@ -54,9 +58,8 @@ public class AuthController {
 
         // token이 있는지 확인
         if (refresh == null) {
-            return new ResponseEntity<>("refresh is null", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
 
         String[] tokens = authService.reissueAccessAndRefreshToken(refresh);
         String newAccessToken = tokens[0];
@@ -80,6 +83,7 @@ public class AuthController {
         }
     }
 
+    // 이메일 인증 생성 및 발송
     @PostMapping("/auth/verify/email")
     public ResponseEntity<Void> verifyEmail(@RequestBody VerifyEmailRequestDto dto) {
         String email = dto.getEmail();
@@ -93,6 +97,7 @@ public class AuthController {
         }
     }
 
+    // 이메일에서 얻은 pin 번호로 현재 이메일 인증
     @GetMapping("/auth/verify/email")
     public ResponseEntity<Void> checkVerifyEmail(@RequestBody ValidateEmailPinRequestDto dto) {
         String email = dto.getEmail();
