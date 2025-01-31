@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.auth.repository;
 
-import com.ssafy.codemaestro.domain.auth.entity.VerifyEmailEntity;
+import com.ssafy.codemaestro.global.entity.VerifyEmailEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VerifyEmailRepository extends JpaRepository<VerifyEmailEntity, Long> {

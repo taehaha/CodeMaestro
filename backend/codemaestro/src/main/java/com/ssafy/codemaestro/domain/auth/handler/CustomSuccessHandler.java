@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.handler;
 
 import com.ssafy.codemaestro.domain.auth.dto.CustomOAuth2UserDetails;
-import com.ssafy.codemaestro.domain.auth.entity.RefreshEntity;
+import com.ssafy.codemaestro.global.entity.RefreshEntity;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -9,14 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 
 /**
  * OAuth 성공시 실행되는 Handler

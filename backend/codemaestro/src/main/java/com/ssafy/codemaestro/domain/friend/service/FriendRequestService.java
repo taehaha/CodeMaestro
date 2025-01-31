@@ -2,12 +2,12 @@ package com.ssafy.codemaestro.domain.friend.service;
 
 import com.ssafy.codemaestro.domain.friend.dto.FriendListResponseDto;
 import com.ssafy.codemaestro.domain.friend.dto.FriendRequestDto;
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequest;
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequestStatus;
 import com.ssafy.codemaestro.domain.friend.repository.FriendRequestRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
+import com.ssafy.codemaestro.global.entity.FriendRequest;
+import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.http.HttpStatus;

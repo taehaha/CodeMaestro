@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.friend.dto;
 
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequest;
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequestStatus;
+import com.ssafy.codemaestro.global.entity.FriendRequest;
+import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;

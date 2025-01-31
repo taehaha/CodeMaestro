@@ -1,14 +1,15 @@
 package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinRequestDto;
-import com.ssafy.codemaestro.domain.group.entity.Group;
-import com.ssafy.codemaestro.domain.group.entity.GroupJoinRequest;
-import com.ssafy.codemaestro.domain.group.entity.GroupRequestStatus;
+import com.ssafy.codemaestro.global.entity.Group;
+import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
+import com.ssafy.codemaestro.global.entity.GroupRequestStatus;
 import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
+import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,14 +51,14 @@ public class GroupRequestService {
         );
 
         if (alreadyExists) {
-            throw new IllegalStateException("Group join request already exists");
+            throw new BadRequestException("Group join request already exists");
         }
 
         // User와 Group 조회
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + request.getUserId()));
+                .orElseThrow(() -> new BadRequestException("User not found with id: " + request.getUserId()));
         Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + request.getGroupId()));
+                .orElseThrow(() -> new BadRequestException("Group not found with id: " + request.getGroupId()));
 
         // 요청 생성 및 저장
         GroupJoinRequest groupJoinRequest = new GroupJoinRequest();
@@ -75,7 +76,7 @@ public class GroupRequestService {
         // 요청을 DB에서 찾기
         Optional<GroupJoinRequest> optionalRequest = groupJoinRequestRepository.findById(requestId);
         if (!optionalRequest.isPresent()) {
-            throw new IllegalArgumentException("Group join request not found");
+            throw new BadRequestException("Group join request not found");
         }
 
         GroupJoinRequest request = optionalRequest.get(); // 객체 가져오기
@@ -89,7 +90,7 @@ public class GroupRequestService {
     public void rejectGroupJoinRequest(Long requestId) {
         Optional<GroupJoinRequest> optionalRequest = groupJoinRequestRepository.findById(requestId);
         if(!optionalRequest.isPresent()) {
-            throw new IllegalArgumentException("Group request not found");
+            throw new BadRequestException("Group request not found");
         }
 
         GroupJoinRequest request = optionalRequest.get();

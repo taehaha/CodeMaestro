@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.group.repository;
 
-import com.ssafy.codemaestro.domain.group.entity.GroupMember;
+import com.ssafy.codemaestro.global.entity.GroupMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

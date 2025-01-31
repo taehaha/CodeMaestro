@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.auth.filter;
 
-import com.ssafy.codemaestro.domain.auth.entity.RefreshEntity;
+import com.ssafy.codemaestro.global.entity.RefreshEntity;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import jakarta.servlet.FilterChain;

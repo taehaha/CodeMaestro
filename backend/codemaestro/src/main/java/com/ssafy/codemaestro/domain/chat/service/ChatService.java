@@ -1,8 +1,8 @@
 package com.ssafy.codemaestro.domain.chat.service;
 
 import com.ssafy.codemaestro.domain.chat.dto.ChatDto;
-import com.ssafy.codemaestro.domain.chat.entity.Chat;
-import com.ssafy.codemaestro.domain.chat.entity.ChatRoom;
+import com.ssafy.codemaestro.global.entity.Chat;
+import com.ssafy.codemaestro.global.entity.ChatRoom;
 import com.ssafy.codemaestro.domain.chat.repository.ChatRepository;
 import com.ssafy.codemaestro.domain.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;

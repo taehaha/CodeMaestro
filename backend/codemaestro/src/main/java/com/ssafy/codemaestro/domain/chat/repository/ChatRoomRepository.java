@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.chat.repository;
 
-import com.ssafy.codemaestro.domain.chat.entity.ChatRoom;
+import com.ssafy.codemaestro.global.entity.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /*

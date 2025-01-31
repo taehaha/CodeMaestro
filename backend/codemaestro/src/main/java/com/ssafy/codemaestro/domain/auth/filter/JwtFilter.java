@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.filter;
 
 import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Optional;
 
 public class JwtFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;

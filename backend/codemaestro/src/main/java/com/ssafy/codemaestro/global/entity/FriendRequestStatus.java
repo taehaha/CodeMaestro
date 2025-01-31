@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.friend.entity;
+package com.ssafy.codemaestro.global.entity;
 
 public enum FriendRequestStatus {
     PENDING,

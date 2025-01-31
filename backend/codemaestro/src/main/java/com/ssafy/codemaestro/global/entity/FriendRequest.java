@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.friend.entity;
+package com.ssafy.codemaestro.global.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,11 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "friend_request")
 @EntityListeners(AuditingEntityListener.class)  // Auditing 기능 활성화
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FriendRequest {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

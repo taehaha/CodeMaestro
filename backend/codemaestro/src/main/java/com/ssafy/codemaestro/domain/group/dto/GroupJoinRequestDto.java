@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.group.dto;
 
-import com.ssafy.codemaestro.domain.group.entity.GroupJoinRequest;
+import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

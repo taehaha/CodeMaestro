@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.chat.entity;
+package com.ssafy.codemaestro.global.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.auth.entity;
+package com.ssafy.codemaestro.global.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
