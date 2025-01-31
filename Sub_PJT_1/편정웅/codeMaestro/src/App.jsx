@@ -3,6 +3,7 @@ import './App.css';
 import './index.css';
 // 공통 컴포넌트
 import Header from './components/Header';
+import AutoLogin from './components/AutoLogin';
 // 페이지 컴포넌트
 import CreateMeetingPage from './pages/CreatMeeting/CreateMeetingPage';
 import MeetingPage from './pages/MeetingRoom/MeetingPage';
@@ -39,6 +40,10 @@ function App() {
               <Route path="/meeting/:id" element={<MeetingRoom />} />
               <Route path="/profile" element={<MyPage />} />  
             </Route>
+
+            <Route path="/oauth/kakao" element={<AutoLogin provider="kakao" />} />
+            <Route path="/oauth/naver" element={<AutoLogin provider="naver" />} />
+            <Route path="/oauth/google" element={<AutoLogin provider="google" />} />
           </Routes>
         </main>
       </div> 
