@@ -1,0 +1,115 @@
+/* 모달 전체 배경 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);  /* 어두운 배경 */
+  backdrop-filter: blur(8px);  /* 블러 효과 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 모달 컨테이너 */
+.modal-container {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+  width: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #aaa;
+}
+
+.close-btn:hover {
+  color: black;
+}
+
+/* 제목 스타일 */
+.modal-container h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* 입력 필드 공통 스타일 */
+.modal-container input,
+.modal-container textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.modal-container input:focus,
+.modal-container textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
+}
+
+/* 텍스트 에어리어 크기 조정 */
+.modal-container textarea {
+  height: 100px;
+  resize: none;
+}
+
+/* 버튼 컨테이너 */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* 취소 버튼 */
+.cancel-btn {
+  background: #ccc;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: #bbb;
+}
+
+/* 완료 버튼 */
+.confirm-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #003f7f);
+}

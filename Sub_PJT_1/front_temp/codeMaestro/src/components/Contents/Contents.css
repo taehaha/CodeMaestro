@@ -1,0 +1,105 @@
+.contents {
+  padding: 80px 80px;
+  text-align: center;
+  position: relative;
+}
+
+.contents h2,
+.contents p {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  padding: 60px 10px 10px;
+}
+
+.contents p {
+  font-size: 18px;
+  margin-bottom: 100px;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 300px;
+  position: relative;
+  z-index: 2;
+  align-items: center;
+}
+
+.feature-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 100px;
+  width: 100%;  /* 전체 너비 조정 */
+  max-width: 850px;  /* 레이아웃 최대 너비 */
+}
+
+.feature-wrapper.left {
+  flex-direction: row-reverse; /* 왼쪽 이미지 */
+}
+
+.feature-wrapper.right {
+  flex-direction: row; /* 오른쪽 이미지 */
+}
+
+.feature-image {
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0; /* 기본적으로 투명 */
+  /* transform: translateY(30px);  */
+  transition: opacity 1.3s ease-out, transform 1.3s ease-out;
+}
+
+.feature-image.visible {
+  opacity: 1; /* 서서히 나타남 */
+  /* transform: translateY(0); */
+}
+
+.feature-image:not(.visible) {
+  opacity: 0; /* 다시 투명해짐 */
+  /* transform: translateY(30px); */
+}
+
+
+
+.feature-item {
+  background-color: transparent;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 250px;
+}
+
+.feature-item h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 40px;
+  margin-bottom: 8px;
+}
+
+.feature-item p {
+  font-size: 16px;
+  color: #666;
+  margin-top: 0px;
+}
+
+.feature-item {
+  transition: transform 0.3s ease-in-out;
+}
+
+.feature-item:hover {
+  transform: scale(1.05);
+}
+@media (max-width: 768px) {
+  .feature-wrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .feature-image {
+    width: 150px;
+    height: 150px;
+  }
+}
