@@ -13,6 +13,11 @@ public class SignUpDto {
 
     @Override
     public String toString() {
-        return "JoinDto [email=" + email + ", password=" + password + ", nickname=" + nickname;
+        return "SignUpDto{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

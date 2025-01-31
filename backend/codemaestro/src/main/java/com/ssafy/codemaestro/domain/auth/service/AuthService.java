@@ -55,6 +55,7 @@ public class AuthService {
         // 새로운 유저 생성
         User user = new User();
 
+        System.out.println(signUpDto);
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setNickname(signUpDto.getNickname());

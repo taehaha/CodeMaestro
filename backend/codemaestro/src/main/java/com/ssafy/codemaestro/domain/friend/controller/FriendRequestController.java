@@ -26,6 +26,7 @@ public class FriendRequestController {
     }
 
     // 친구 요청 수락
+    // ddd
     @PostMapping("/requests/{requestId}/accept")
     public ResponseEntity<?> acceptFriendRequest(@PathVariable Long requestId) {
         friendRequestService.acceptFriendRequest(requestId);
