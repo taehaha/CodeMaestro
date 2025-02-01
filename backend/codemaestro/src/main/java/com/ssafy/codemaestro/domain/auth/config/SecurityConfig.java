@@ -92,10 +92,14 @@ public class SecurityConfig {
 
         // 라우팅 관리
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/signin", "/auth/signup", "/" ).permitAll()
+                // 회원 관리 관련 라우팅
+                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/verify/**" ).permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()
-                .requestMatchers("/reissue", "/swagger-ui.html").permitAll()
+                // 스웨거 라우팅
+                .requestMatchers("/swagger-ui.html").permitAll()
+                // 중복검사 라우팅
                 .requestMatchers("/api/exist/**").permitAll()
+                // 위 경로 외 경로는 로그인을 필요로 함
                 .anyRequest().authenticated()
         );
 
