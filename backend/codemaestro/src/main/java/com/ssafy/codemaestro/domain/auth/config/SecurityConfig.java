@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -70,7 +71,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhjost:3000"));
+//                        config.setAllowedOrigins(List.of("http://localhjost:3000"));
                         config.setAllowedOriginPatterns(Collections.singletonList("*"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
@@ -92,6 +93,8 @@ public class SecurityConfig {
 
         // 라우팅 관리
         http.authorizeHttpRequests(auth -> auth
+                //Cors Preflight 허용
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 회원 관리 관련 라우팅
                 .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/verify/**" ).permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()

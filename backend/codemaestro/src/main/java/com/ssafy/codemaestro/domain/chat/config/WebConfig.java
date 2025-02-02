@@ -17,8 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 백엔드 서버 엔드포인트(URL 경로) 지정
-                .allowedOrigins("http://localhost:3000") // 요청 보내는 클라이언트 도메인 지정 - 여기서는 리액트서버
-                .allowedOrigins("http://localhost:5173") // 요청 보내는 클라이언트 도메인 지정 - 여기서는 리액트서버
+                .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:8081") // 요청 보내는 클라이언트 도메인 지정 - 여기서는 리액트서버
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true); // 인증된 요청을 허용 (쿠키, Authorization 헤더 등)
