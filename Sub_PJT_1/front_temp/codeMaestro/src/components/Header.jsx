@@ -7,7 +7,6 @@ import { FaBell } from "react-icons/fa";
 import NotificationModal from '../pages/Notifications/NotificationPage';
 import { NotificationsContext } from '../context/NotificationContext';
 import './Header.css';
-import logo from '../../public/logo.png'
 
 function Header() {
   const navigate = useNavigate();
@@ -44,7 +43,7 @@ function Header() {
   return (
     <header className="header">
       <img 
-      src={logo} 
+      src={'/Logo.png'} 
       alt="Code Maestro"
       onClick={handleLogoClick} 
       className="logo"/>
