@@ -25,6 +25,7 @@
 .menu a {
   text-decoration: none;
   color: black;
+  cursor: pointer;
   font-size: 20px;
   font-weight: 500;
   transition: color 0.3s ease;
