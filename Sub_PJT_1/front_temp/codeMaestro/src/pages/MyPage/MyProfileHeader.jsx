@@ -47,7 +47,7 @@ const MyProfileHeader = ({user, openEditPage, openBackgroundEdit}) => {
 
     );
 }
-MyPageHeader.propTypes = {
+MyProfileHeader.propTypes = {
   user: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

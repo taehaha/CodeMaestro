@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
  * @param {Array} members    - 그룹 멤버 배열 (예: [{ userId, name, profileUrl, role }, ...])
  * @param {string} userRole  - 현재 로그인 유저의 그룹 내 역할 (ADMIN, MEMBER 등)
  */
-function GroupMembers({ members = [], userRole }) {
+function GroupTable({ members, userRole }) {
   const isAdmin = userRole === "ADMIN";
 
   // 유저 탈퇴 버튼 클릭 시 (실제 프로젝트에서는 API 호출)
@@ -27,13 +27,13 @@ function GroupMembers({ members = [], userRole }) {
     const baseColumns = [
       {
         Header: "프로필",
-        accessor: "profileUrl",
+        accessor: "profileImageUrl",
         Cell: ({ row }) => (
           <div className="avatar">
             <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
               <img
                 src={
-                  row.original.profileUrl ||
+                  row.original.profileImageUrl ||
                   "https://via.placeholder.com/150"
                 }
                 alt="profile"
@@ -44,13 +44,14 @@ function GroupMembers({ members = [], userRole }) {
       },
       {
         Header: "이름",
-        accessor: "name",
+        accessor: "userNickname",
       },
       {
         Header: "역할",
         accessor: "role",
       },
-    ];
+    ];         
+    
 
     if (isAdmin) {
       baseColumns.push({
@@ -158,4 +159,4 @@ function GroupMembers({ members = [], userRole }) {
   );
 }
 
-export default GroupMembers;
+export default GroupTable;

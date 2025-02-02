@@ -9,8 +9,16 @@
   list-style: none;
   padding: 10px;
   cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+
+.sidebar-menu li:hover {
+  background-color: #ddd;
+}
+
 
 .sidebar-menu .active {
   font-weight: bold;
+  background-color: #ccc;
 }

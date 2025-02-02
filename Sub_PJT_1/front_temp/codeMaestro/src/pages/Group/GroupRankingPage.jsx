@@ -4,7 +4,7 @@ import LoadAnimation from "../../components/LoadAnimation"
 import SearchGroup from "./SearchGroup";
 import GroupList from "./GroupList";
 import { FaPlus } from "react-icons/fa";
-
+import { getMyGroupList, getGroupList } from "../../api/GroupApi";
 
 const GroupRankingPage = () => {
     const [groups, setGroups] = useState([])
@@ -13,50 +13,6 @@ const GroupRankingPage = () => {
     const [activeTab, setActiveTab] = useState("ranking"); // 현재 활성 탭
     const [showModal, setShowModal] = useState(false)
     // 랭킹 그룹 가져오기
-    const getGroupList = async () => {
-        try {
-            const response = await UserAxios.get('/groups/',{
-                params:{
-                    sort:"rank",
-                    limit:10,
-                    friends:false
-                }
-            })
-    
-            return [{groupId:"12",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-              {groupId:"13",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-              {groupId:"14",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-              {groupId:"15",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-              {groupId:"16",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-              {groupId:"17",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-          ]
-        } catch (error) {
-            console.error("랭킹 불러오는 중 오류 발생", error);
-            return [{groupId:"12",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-                {groupId:"13",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-                {groupId:"14",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-                {groupId:"15",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-                {groupId:"16",name:"더미랭킹그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-                {groupId:"17",name:"더미랭킹그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998},
-            ]
-        }
-    }
-    // 내 그룹 가져오기
-
-    const getMyGroupList = async () => {
-        try {
-            const response = await UserAxios.get('/groups/',{
-                params:{friends:true}
-            })
-    
-            // return response.data // 연결되면 ㄱㄱ
-            return [{name:"더미내그룹", groupImage:'/test_profile.png', groupRanking:1235, points:2345}]
-        } catch (error) {
-            console.error("내 그룹 불러오는 중 오류 발생",error);
-            return [{name:"더미내그룹", groupImage:'/test_profile.png', groupRanking:1235, points:2345}]
-        }
-    }
-
 // useEffect로 데이터 로드
 useEffect(() => {
     const fetchGroups = async () => {

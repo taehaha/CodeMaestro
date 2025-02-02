@@ -1,8 +1,8 @@
 import React from "react";
-import GroupMembers from "./GroupMembers";
+import GroupTable from "./GrouTable";
 
 // axios 연결이 안된 상태라 더미 데이터로 진행합니다.
-function DummyGroupMembersDemo({userRole}) {
+function DummyGroupMembersDemo({userRole, members}) {
   // 테스트용 더미 데이터
   const dummyMembers = React.useMemo(
     () => [
@@ -70,7 +70,7 @@ function DummyGroupMembersDemo({userRole}) {
 
   return (
       <div className="w-3/5 mx-auto">
-        <GroupMembers members={dummyMembers} userRole={userRoles} />
+        <GroupTable members={members} userRole={userRoles} />
       </div>
   );
 }

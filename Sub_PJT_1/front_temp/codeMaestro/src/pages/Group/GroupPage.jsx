@@ -37,49 +37,45 @@ const GroupDetail = () => {
       setLoading(true);
       try {
         // 동시에 두 개의 API 호출
-        const [groupRes, roleRes] = await Promise.all([
-          UserAxios.get(`/groups/${groupId}`),
-          UserAxios.get(`/groups/${groupId}/${user.myInfo.id}`),
-        ]);
+        const result = await UserAxios.get(`/groups/${groupId}`);
         // 그룹 정보 설정
-        setGroup(groupRes.data);
+        setGroup(result.data);
         // 내 역할 설정
-        setUserRole(roleRes.data || ROLE.NONE);
+        setUserRole(result.data.role)
       } catch (error) {
         console.error("API 에러:", error);
   
         // 그룹 정보 에러 시 더미 데이터
         setGroup({
-          id: groupId,
-          name: "Dummy Group",
-          description: "이 그룹은 더미 데이터입니다.",
-          owner_id: 101,
-          current_members: 5,
-           // [
-          //   {
-          //     id:1,
-          //     profilimage_url:'프로필이미지',
-          //     name:'닉네임',
-          //     role:'Member',
-          //   },
-          //   {
-          //     id:2,
-          //     profilimage_url:'프로필이미지2',
-          //     name:'닉네임2',
-          //     role:'Manager',
-          //   },
-          // ],
-          created_at: "2025-01-31T12:00:00Z",
-          imageUrl: null,
-        });
-        // 내 역할 에러
-        setUserRole(ROLE.NONE);
+          "id":3,
+          "name":"더미데이터 그룹",
+          "description":"더미 데이터 그룹입니다.",
+          "ownerId":3,
+          "ownerNickname":"user3",
+          "currentMembers":2,
+          "createdAt":"2025-01-23T15:12:50.068111",
+          "updatedAt":"2025-01-23T17:18:06.077316",
+          "members":[
+            {"userId":1,
+          "userNickname":"더미유저 1",
+          "profileImageUrl":'',
+          "role":"MEMBER",
+          "joinedAt":"2025-01-23T15:12:50.102206"},
+
+          {"userId":3,
+          "userNickname":"더미유저 2",
+          "profileImageUrl":"",
+          "role":"OWNER",
+          "joinedAt":null}
+        ]});
+        //
+        setUserRole(group.role);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [groupId, user.myInfo.id]);
+  }, [groupId]);
 
 
   // 가입 신청
@@ -128,8 +124,8 @@ const GroupDetail = () => {
   }
 
   // 날짜 포맷 (moment 사용 예시)
-  const formattedDate = group?.created_at
-    ? moment(group.created_at).format("YYYY년 M월 D일")
+  const formattedDate = group?.createdAt
+    ? moment(group.createdAt).format("YYYY년 M월 D일")
     : null;
 
   return (
@@ -143,7 +139,7 @@ const GroupDetail = () => {
               <img
                 src={
                   group?.imageUrl ||
-                  "https://placeholder.co/128?text=Group+Avatar"
+                  "https://placeholder.co/128"
                 }
                 alt="Group Avatar"
               />
@@ -153,7 +149,7 @@ const GroupDetail = () => {
           {/* 그룹 정보 텍스트 */}
           <div className="flex flex-col gap-1">
             <h2 className="text-2xl font-bold">
-              {group?.name || `그룹 아이디: ${groupId}`}
+              {group?.name || `그룹 아이디: ${group.name}`}
             </h2>
             {group?.description && (
               <p className="text-gray-600 text-sm">{group.description}</p>
@@ -161,15 +157,15 @@ const GroupDetail = () => {
 
             <div className="flex flex-row items-center gap-4 mt-1">
               {/* 현재 인원 */}
-              {group?.current_members !== undefined && (
+              {group?.currentMembers !== undefined && (
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <FaUserFriends />
-                  <span>멤버: {group.current_members}명</span>
+                  <span>멤버: {group.currentMembers}명</span>
                 </div>
               )}
 
               {/* 생성일 */}
-              {group?.created_at && (
+              {group?.createdAt && (
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <FaCalendarAlt />
                   <span>생성일: {formattedDate}</span>
@@ -202,7 +198,7 @@ const GroupDetail = () => {
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       {activeTab === "members" && (
-        <DummyGroupMembersDemo userRole={userRole} />
+        <DummyGroupMembersDemo userRole={userRole} members={group.members} />
       )}
       {activeTab === "studies" && (
         <div className="text-center text-gray-700">스터디 기록 영역</div>
