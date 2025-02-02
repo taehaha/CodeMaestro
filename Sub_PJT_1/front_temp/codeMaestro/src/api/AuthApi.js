@@ -6,16 +6,25 @@ import axios from "axios";
 export const signup = async (payload) => {
     try {
       console.log(payload);
-  
+      // 1) FormData 객체 생성
+      const formData = new FormData();
+      // 2) 텍스트 필드 추가
+      formData.append("email", payload.email);
+      formData.append("password", payload.password);
+      formData.append("nickname", payload.nickname);
+      formData.append("description", payload.description);
+    
       // JSON 데이터 전송
       const response = await axios.post(
-        "http://192.168.31.194:8080/auth/signup",
-        {
-          email: "dd@dd.com",
-          password: "asd",
-          nickname: "asd21",
-          description: "asdad",
+        "http://192.168.31.58:8080/auth/signup",
+        formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
+        // withCredentials가 필요하다면 설정
+        // withCredentials: true,
+      }
       );
   
       return response.data;
@@ -29,30 +38,35 @@ export const signup = async (payload) => {
     // 1) FormData 객체 생성
     const formData = new FormData();
     // 2) 텍스트 필드 추가
-    formData.append("username", "tt@tt");
-    formData.append("password", "tt");
+    console.log(payload);
+    
+    formData.append("username", payload.username);
+    formData.append("password", payload.password);
   
-    // 만약 파일도 함께 전송해야 한다면 (예: profileImage)
-    // formData.append("profileImage", selectedFile);
   
     // 3) Axios 요청
     const response = await axios.post(
-      "http://192.168.31.194:8080/auth/signin",
+      "http://192.168.31.58:8080/auth/signin",
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         // withCredentials가 필요하다면 설정
-        // withCredentials: true,
+        withCredentials: true,
       }
     );
   
-    console.log(response);
+    return response
   }
+
 export const signout = async () => {
-    const response = await UserAxios.post("/auth/signout")
-    return response.data
+    try {
+      const response = await UserAxios.post("/auth/signout")
+      return response.data
+    } catch (error) {
+      console.log("로그아웃 에러 발생",error);
+    }
 }
 
 // 아직 안정해진게 좀 있음(유저아이디 파라미터로 전해줄 것인가..)
