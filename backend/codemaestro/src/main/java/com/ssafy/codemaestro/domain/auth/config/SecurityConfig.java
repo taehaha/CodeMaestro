@@ -6,9 +6,8 @@ import com.ssafy.codemaestro.domain.auth.filter.LoginFilter;
 import com.ssafy.codemaestro.domain.auth.handler.CustomSuccessHandler;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.service.CustomOauth2UserService;
-import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
+import com.ssafy.codemaestro.global.util.JwtUtil;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +19,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,7 +66,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhjost:3000"));
+                        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5176"));
                         config.setAllowedOriginPatterns(Collections.singletonList("*"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowCredentials(true);

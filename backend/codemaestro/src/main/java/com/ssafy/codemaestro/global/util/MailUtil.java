@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.auth.util;
+package com.ssafy.codemaestro.global.util;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

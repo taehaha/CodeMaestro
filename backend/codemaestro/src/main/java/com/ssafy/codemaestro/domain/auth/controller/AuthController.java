@@ -7,7 +7,7 @@ import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
 import com.ssafy.codemaestro.domain.auth.service.AuthService;
 import com.ssafy.codemaestro.domain.validation.dto.ValidateEmailPinRequestDto;
 import com.ssafy.codemaestro.domain.validation.dto.VerifyEmailRequestDto;
-import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
+import com.ssafy.codemaestro.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    // 로그아웃
+    // 회원가입
     @PostMapping("/auth/signup")
     public ResponseEntity<Void> signup(SignUpDto signUpDto) {
         boolean success = authService.signup(signUpDto);

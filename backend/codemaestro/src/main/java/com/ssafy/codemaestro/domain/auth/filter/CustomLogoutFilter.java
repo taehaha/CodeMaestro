@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.filter;
 
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
-import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
+import com.ssafy.codemaestro.global.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.auth.util;
+package com.ssafy.codemaestro.global.util;
 
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -50,7 +50,7 @@ public class JwtUtil {
         cookie.setMaxAge(24 * 60 * 60);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
-
+        cookie.setAttribute("SameSite","None");
         return cookie;
     }
 }
