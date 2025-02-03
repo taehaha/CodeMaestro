@@ -14,4 +14,7 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     @Query("SELECT g FROM Group g WHERE g.id IN " +
             "(SELECT gm.group.id FROM GroupMember gm WHERE gm.user.id = :userId)")
     List<Group> findGroupsByUserId(@Param("userId") Long userId);
+
+    // 그룹 검색
+    List<Group> findByNameContaining(String groupName);
 }

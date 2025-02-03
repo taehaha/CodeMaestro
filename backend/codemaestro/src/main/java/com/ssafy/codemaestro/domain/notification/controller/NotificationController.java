@@ -19,6 +19,18 @@ public class NotificationController {
     // 보통 사용자가 로그인 시 스트림 구독
     @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe (@PathVariable Long userId) {
-        return sseService.subscribe(userId);
+//        return sseService.subscribe(userId);
+        // 현재 연결된 모든 emitter 정보를 로그로 출력
+        log.info("===== 현재 SSE 연결 상태 =====");
+        log.info("userId: {} 연결 시도", userId);
+        log.info("연결된 emitters: {}", sseService.getEmitters().size());
+
+        SseEmitter emitter = sseService.subscribe(userId);
+
+        // 연결 후 상태
+        log.info("연결 후 emitters: {}", sseService.getEmitters().size());
+        log.info("========================");
+
+        return emitter;
     }
 }

@@ -41,7 +41,6 @@ public class GroupRequestService {
     }
 
     // 그룹 요청 DB 저장
-    @Transactional
     private GroupJoinRequest saveGroupJoinRequest(GroupJoinRequestDto request) {
         // 이미 존재하는 요청 확인
         boolean alreadyExists = groupJoinRequestRepository.existsByUserIdAndGroupIdAndStatus(
