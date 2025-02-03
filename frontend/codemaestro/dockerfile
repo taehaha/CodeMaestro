@@ -1,0 +1,16 @@
+# Node.js 환경에서 React 빌드
+FROM node:18 AS build
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 소스 코드 복사 및 의존성 설치
+COPY package.json package-lock.json ./
+RUN npm install
+
+# 소스 코드 전체 복사 후 빌드 실행
+COPY . .
+RUN npm run build
+
+# 컨테이너가 종료되지 않도록 유지 (Nginx 없이)
+CMD ["tail", "-f", "/dev/null"]
