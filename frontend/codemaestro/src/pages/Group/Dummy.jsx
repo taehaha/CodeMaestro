@@ -22,7 +22,7 @@ function DummyGroupMembersDemo({userRole, members}) {
         userId: 3,
         name: "Charlie",
         profileUrl: "https://randomuser.me/api/portraits/men/12.jpg",
-        role: "ADMIN",
+        role: "MEMBER",
       },
       {
         userId: 1,
@@ -40,7 +40,7 @@ function DummyGroupMembersDemo({userRole, members}) {
         userId: 3,
         name: "Charlie",
         profileUrl: "https://randomuser.me/api/portraits/men/12.jpg",
-        role: "ADMIN",
+        role: "MEMBER",
       },
       {
         userId: 1,
@@ -58,7 +58,7 @@ function DummyGroupMembersDemo({userRole, members}) {
         userId: 3,
         name: "Charlie",
         profileUrl: "https://randomuser.me/api/portraits/men/12.jpg",
-        role: "ADMIN",
+        role: "OWNER",
       },
     ],
     []
@@ -70,7 +70,7 @@ function DummyGroupMembersDemo({userRole, members}) {
 
   return (
       <div className="w-3/5 mx-auto">
-        <GroupTable members={members} userRole={userRoles} />
+        <GroupTable members={dummyMembers} userRole={userRoles} />
       </div>
   );
 }

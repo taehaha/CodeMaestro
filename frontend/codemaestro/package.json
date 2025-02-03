@@ -20,6 +20,7 @@
     "event-source-polyfill": "^1.0.31",
     "formik": "^2.4.6",
     "heroicons": "^2.2.0",
+    "install": "^0.13.0",
     "livekit-client": "^2.8.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",

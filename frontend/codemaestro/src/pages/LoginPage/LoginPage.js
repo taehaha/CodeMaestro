@@ -61,7 +61,7 @@ function LoginPage() {
             <label htmlFor="password">비밀번호</label>
             <Link to="/forgotpassword" className="forgot-password">비밀번호를 잊으셨나요?</Link>
 
-            <input type="password" id="password" placeholder="비밀번호 입력" 
+            <input type="current-password" id="password" placeholder="비밀번호 입력" 
             value={password} onChange={(e) => setPassword(e.target.value)}/>
           </div>
           <button type="submit" className="login-btn">로그인</button>

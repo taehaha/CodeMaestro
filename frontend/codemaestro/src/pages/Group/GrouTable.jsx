@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
  * @param {string} userRole  - 현재 로그인 유저의 그룹 내 역할 (ADMIN, MEMBER 등)
  */
 function GroupTable({ members, userRole }) {
-  const isAdmin = userRole === "ADMIN";
+  const isAdmin = userRole === "OWNER";
 
   // 유저 탈퇴 버튼 클릭 시 (실제 프로젝트에서는 API 호출)
   const handleRemoveMember = (userId) => {

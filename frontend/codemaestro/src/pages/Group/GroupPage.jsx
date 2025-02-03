@@ -16,25 +16,24 @@ const ROLE = {
 
 const GroupDetail = () => {
   const user = useSelector((state) => state.user.myInfo);
-  // 더미데이터 일단 ㄱㄱ
 
   const { groupId } = useParams();
 
-  const [group, setGroup] = useState(null);
+  const [group, setGroup] = useState({name:'12','groupId':1,members:{name:"2",role:"OWNER",id:2}});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
-  const [userRole, setUserRole] = useState(ROLE.NONE);
+  const [userRole, setUserRole] = useState(ROLE.ADMIN);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // 동시에 두 개의 API 호출
         const result = await UserAxios.get(`/groups/${groupId}/detail`);
-        // 그룹 정보 설정
-        console.log(result.data);
-        
+        // 그룹 정보 설정        
         setGroup(result.data);
+        //더미로
+
+
         // 내 역할 설정
           const member = result.data.members.find(member => member.userId === user.userId);
           console.log(member);
@@ -94,18 +93,28 @@ const GroupDetail = () => {
 
   // 그룹 탈퇴
   const handleLeaveGroup = () => {
-    Swal.fire({
-      title: "그룹 탈퇴",
-      text: `정말로 이 그룹에서 탈퇴하시겠습니까?`,
-      showCancelButton: true,
-      confirmButtonText: "탈퇴하기",
-      cancelButtonText: "취소",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // 실제 axios.delete("/groups/{groupId}/members/{userId}")
-        setUserRole(ROLE.NONE);
-      }
-    });
+    if (userRole === ROLE.ADMIN) {
+      Swal.fire({
+        title:"그룹 탈퇴",
+        text:"그룹 소유주는 탈퇴할 수 없습니다! 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요."
+      })
+    }
+
+    else {
+      Swal.fire({
+        title: "그룹 탈퇴",
+        text: `정말로 이 그룹에서 탈퇴하시겠습니까?`,
+        showCancelButton: true,
+        confirmButtonText: "탈퇴하기",
+        cancelButtonText: "취소",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // 실제 axios.delete("/groups/{groupId}/members/{userId}")
+          setUserRole(ROLE.NONE);
+        }
+      });
+    }
+    
   };
 
   // 관리자 전환 (테스트용)
