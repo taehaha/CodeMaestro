@@ -100,7 +100,7 @@ UserAxios.interceptors.response.use(
 // ---------------------------------------
 async function handleLogoutAndRedirect() {
   tokenStorage.removeAccessToken(); // 로컬 토큰 삭제
-
+  
   // 사용자 알림
   await Swal.fire({
     title: "세션 만료",
@@ -111,6 +111,7 @@ async function handleLogoutAndRedirect() {
 
   // 로그인 페이지로 강제 이동
 //   window.location.href = "/login";
+  
   return Promise.reject(); 
 }
 

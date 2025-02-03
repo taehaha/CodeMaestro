@@ -4,6 +4,8 @@ import axios from "axios";
 // 현재 1월 17일 기준 
 
 export const signup = async (payload) => {
+
+  
     try {
       console.log(payload);
       // 1) FormData 객체 생성
@@ -62,7 +64,7 @@ export const signup = async (payload) => {
 
 export const signout = async () => {
     try {
-      const response = await UserAxios.post("/auth/signout")
+      const response = await UserAxios.post("/auth/logout")
       return response.data
     } catch (error) {
       console.log("로그아웃 에러 발생",error);
@@ -84,15 +86,30 @@ export const signout = async () => {
 // 상세 정보는 바로 이렇게 쏘도록 설정.
 
 export const getUserInfo = async () => {
-    const response = await UserAxios.get(`/auth/profile`,{})
+    const response = await UserAxios.get(`/users/profile`,{})
     return response.data
 }
 
-export const getNotification = async () => {
-    try {
-        const response = await UserAxios.get('/auth/notifications', {})
-    return response.data
-    } catch (error) {
-        console.error(error);
-    }
-}
+export const getNotification = async (userId) => {
+  try {
+    const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
+    console.log(response);
+    
+    return response.data;
+  } catch (error) {
+    console.error("알림 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+export const getFriendsNotification = async (userId) => {
+  try {
+    const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
+    console.log(response);
+    
+    return response.data;
+  } catch (error) {
+    console.error("알림 가져오기 실패:", error);
+    throw error;
+  }
+};

@@ -5,6 +5,7 @@ import SearchGroup from "./SearchGroup";
 import GroupList from "./GroupList";
 import { FaPlus } from "react-icons/fa";
 import { getMyGroupList, getGroupList } from "../../api/GroupApi";
+import { useSelector } from "react-redux";
 
 const GroupRankingPage = () => {
     const [groups, setGroups] = useState([])
@@ -12,31 +13,41 @@ const GroupRankingPage = () => {
     const [loading, setLoading] = useState(true); // 로딩 상태에러
     const [activeTab, setActiveTab] = useState("ranking"); // 현재 활성 탭
     const [showModal, setShowModal] = useState(false)
+    const user = useSelector((state) => state.user.myInfo);
+    const userId = user.userId
+    
     // 랭킹 그룹 가져오기
+
 // useEffect로 데이터 로드
 useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        // 로딩 시작
-        setLoading(true);
+  const fetchGroups = async () => {
+    try {
+      // 로딩 시작
+      setLoading(true);
 
-        // 모든 그룹 & 내 그룹 데이터 요청 병렬 처리
-        const myGroup = await getMyGroupList()
+      // 두 API를 병렬로 호출
+      const [rankingGroups, myGroupList] = await Promise.all([
+        getGroupList(),         // 랭킹 그룹 API (쿼리 파라미터로 정렬, 제한, 친구 여부 전달)
+        getMyGroupList(userId),   // 내 그룹 API (userId를 파라미터로 전달)
+      ]);
 
-        // 상태 업데이트
-        setGroups(myGroup);
-        setMyGroups(myGroup);
-      } catch (err) {
-        // 에러 처리
-        console.error(err.message);
-      } finally {
-        // 로딩 종료
-        setLoading(false);
-      }
-    };
+      // 상태 업데이트
+      setGroups(rankingGroups);
+      setMyGroups(myGroupList);
+    } catch (error) {
+      console.error("그룹 데이터를 불러오는 중 오류 발생:", error.message);
+    } finally {
+      // 로딩 종료
+      setLoading(false);
+    }
+  };
 
+  // userId가 존재할 때만 API 호출
+  if (userId) {
     fetchGroups();
-  }, []); // 빈 배열 의존성: 페이지 로드 시 한 번 실행
+  }
+}, [userId]);
+// 빈 배열 의존성: 페이지 로드 시 한 번 실행
 
   if (loading) {
     return (

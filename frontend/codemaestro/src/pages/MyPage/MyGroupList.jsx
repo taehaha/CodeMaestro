@@ -13,16 +13,14 @@ const MyGroupList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate()
   const user = useSelector((state) => state.user.myInfo);
-
+  const userId = user.userId
   useEffect(() => {
     // 로딩 시작
     setIsLoading(true);
     // 그룹 리스트 가져오기
-    const fetchGroups = async () => {
+    const fetchGroups = async (userId) => {
       try {
-        const myGroup = await getMyGroupList(); // 비동기 호출
-        console.log(myGroup);
-        
+        const myGroup = await getMyGroupList(userId); // 비동기 호출        
         setGroups(myGroup);
       } catch (error) {
         console.error("그룹 목록을 가져오는 중 오류 발생:", error);
@@ -31,7 +29,7 @@ const MyGroupList = () => {
         setIsLoading(false); // 로딩 종료
       }
     };
-    fetchGroups();
+    fetchGroups(userId);
   }, []);
 
   const handleCreateGroup = (newGroup) => {

@@ -4,16 +4,20 @@ import { signin, signout, signup, getUserInfo } from "../api/AuthApi";
 import tokenStorage from "../utils/tokenstorage";
 import Swal from "sweetalert2";
 // 1) 로그인
-export const loginUser = createAsyncThunk("user/login", async (payload) => {
-  const response = await signin(payload);
-  const accessToken = response.headers['access'];  
-  if (accessToken) {
-    // 메모리에 저장 (가장 중요한 부분)
-    tokenStorage.setAccessToken(accessToken);
+export const loginUser = createAsyncThunk(
+  "user/login",
+  async (payload, { dispatch }) => {
+    const response = await signin(payload);
+    const accessToken = response.headers["access"];
+    if (accessToken) {
+      tokenStorage.setAccessToken(accessToken);
+      // 로그인 성공 시, 유저 정보를 별도로 불러오기
+      dispatch(getMyInfo());
+    }
+    return response;
   }
+);
 
-  return response; 
-});
 
 // 2) 로그아웃
 export const logoutUser = createAsyncThunk("user/logout", async () => {
@@ -33,6 +37,8 @@ export const logoutUser = createAsyncThunk("user/logout", async () => {
 // 3) 내 정보 조회
 export const getMyInfo = createAsyncThunk("user/getMyInfo", async () => {
   const response = await getUserInfo();
+  console.log(response);
+  
   return response;
 });
 
@@ -58,6 +64,7 @@ const userSlice = createSlice({
       if (action.payload?.status === 200) {
         console.log(action.payload);        
         state.isLoggedIn = true;
+        state.myInfo = getMyInfo();
       }
     });
 

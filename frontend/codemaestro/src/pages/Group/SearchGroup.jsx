@@ -11,16 +11,14 @@ const SearchGroup = () => {
   const getSearchGroup = async (keyword) => {
     setLoading(true);
     try {
-      const result = await UserAxios.get("/groups", {
+      const result = await UserAxios.get("/groups/search", {
         params: {
           // keyword={input} 부분을 keyword: input 으로 수정
-          keyword: keyword,
+          groupName: keyword,
         },
       });
-      // return result.data; // 실제로 서버에서 반환하는 데이터 구조 확인 필요
-      return [{name:"더미검색그룹1", groupImage:'/test_profile.png', groupRanking:1, points:9999},
-        {name:"더미검색그룹2", groupImage:'/test_profile.png', groupRanking:2, points:9998}
-    ]} 
+      return result.data; // 실제로 서버에서 반환하는 데이터 구조 확인 필요
+     } 
     catch (error) {
       console.error("그룹 검색 중 오류:", error);
       // 임시로 빈 배열 반환 또는 에러 상태에 따라 UI 표시

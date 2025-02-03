@@ -1,22 +1,24 @@
+// store.js
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // 로컬 스토리지 사용
+import storage from "redux-persist/lib/storage";
 
-import userSlice from "./userSlice";
-import roomSlice from "./roomSlice";
+// userSlice의 기본 export는 reducer 함수이므로, 이름을 userReducer로 변경
+import userReducer from "./userSlice";
+import roomReducer from "./roomSlice";
 
 const userPersistConfig = {
-  key: "persistedUser", // 저장할 상태의 키
-  storage, // 상태를 저장할 스토리지 (로컬 스토리지)
-};
-
-const roomPersistConfig = {
-  key: "persisredRoom",
+  key: "persistedUser",
   storage,
 };
 
-const persistedUserReducer = persistReducer(userPersistConfig, userSlice);
-const persistedRoomReducer = persistReducer(roomPersistConfig, roomSlice);
+const roomPersistConfig = {
+  key: "persistedRoom",
+  storage,
+};
+
+const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
+const persistedRoomReducer = persistReducer(roomPersistConfig, roomReducer);
 
 const store = configureStore({
   reducer: {
@@ -25,7 +27,7 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // 직렬화 검사 비활성화
+      serializableCheck: false,
     }),
 });
 

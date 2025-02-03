@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 
 const NotificationModal = ({ onClose }) => {
   const { notifications } = useContext(NotificationsContext);
+  console.log(notifications);
+  
   const navigate = useNavigate()
   const handleAccept = (notification)=>{
     if (notification.type === 'invite') {
@@ -24,12 +26,12 @@ const NotificationModal = ({ onClose }) => {
         
 
     }
-    // getNotification()
+    getNotification(3)
   } 
 
   const handleReject = (notification)=>{
         console.log(`${notification.request}번 요청에 거절 axios 보낸다.`);
-         // getNotification()
+         getNotification(3)
     } 
 
   return (
@@ -47,7 +49,7 @@ const NotificationModal = ({ onClose }) => {
 
         {/* 알림 리스트 */}
         <ul className="space-y-3">
-          {notifications.length > 0 ? (
+          {notifications?.length > 0 ? (
             notifications.map((notification, index) => (
               <li
                 key={index}

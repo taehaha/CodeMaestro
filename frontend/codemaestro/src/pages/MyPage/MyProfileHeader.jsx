@@ -24,10 +24,9 @@ const MyProfileHeader = ({user, openEditPage, openBackgroundEdit}) => {
 
         {/* 유저 정보 섹션 (오른쪽) */}
         <div>
-          <p className="text-lg font-semibold">@{user.id}</p>
+          <p className="text-lg font-semibold">@{user.email}</p>
           <div className="flex items-center mt-2 space-x-2">
             <p className="text-xl font-bold">{user.name}</p>
-            <img src={`/solvedac/${user.tier}.svg`} alt="tier" className='w-7'/>
             </div>
           <p className="text-sm mt-2">{user.description}</p>
           {/* 이 박스는 사용자한테만 보여요 or 남의 프로필은 애초에 못봐요 둘 중 하나 정해야 함. */}
@@ -49,10 +48,9 @@ const MyProfileHeader = ({user, openEditPage, openBackgroundEdit}) => {
 }
 MyProfileHeader.propTypes = {
   user: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     description: PropTypes.string,
-    tier: PropTypes.number,
     // profile_image_url : PropTypes.string,
   }).isRequired,
   openEditPage: PropTypes.func.isRequired,

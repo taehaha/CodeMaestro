@@ -11,20 +11,13 @@ import DummyGroupMembersDemo from "./Dummy";
 const ROLE = {
   NONE: "NONE",
   MEMBER: "MEMBER",
-  ADMIN: "ADMIN",
+  ADMIN: "OWNER",
 };
 
 const GroupDetail = () => {
-  // const user = useSelector((state) => state.user.myInfo);
+  const user = useSelector((state) => state.user.myInfo);
   // 더미데이터 일단 ㄱㄱ
-  const user ={myInfo:{
-    id: 'kopybara8421',
-    name: '익명의 카피바라 8421',
-    email: 'test@test.com',
-    description: '오늘도 열심히 코딩합시다',
-    tier: 27,
-    // profile_image_url,
-}}
+
   const { groupId } = useParams();
 
   const [group, setGroup] = useState(null);
@@ -39,37 +32,24 @@ const GroupDetail = () => {
         // 동시에 두 개의 API 호출
         const result = await UserAxios.get(`/groups/${groupId}/detail`);
         // 그룹 정보 설정
+        console.log(result.data);
+        
         setGroup(result.data);
         // 내 역할 설정
-        setUserRole(result.data.role)
-      } catch (error) {
-        console.error("API 에러:", error);
+          const member = result.data.members.find(member => member.userId === user.userId);
+          console.log(member);
+          console.log(user);
+          
+          
+          if (member) {
+            setUserRole(member.role);
+          } else {
+            setUserRole("NONE");
+          }      } catch (error) {
+                  console.error("API 에러:", error);
   
         // 그룹 정보 에러 시 더미 데이터
-        setGroup({
-          "id":3,
-          "name":"더미데이터 그룹",
-          "description":"더미 데이터 그룹입니다.",
-          "ownerId":3,
-          "ownerNickname":"user3",
-          "currentMembers":2,
-          "createdAt":"2025-01-23T15:12:50.068111",
-          "updatedAt":"2025-01-23T17:18:06.077316",
-          "members":[
-            {"userId":1,
-          "userNickname":"더미유저 1",
-          "profileImageUrl":'',
-          "role":"MEMBER",
-          "joinedAt":"2025-01-23T15:12:50.102206"},
-
-          {"userId":3,
-          "userNickname":"더미유저 2",
-          "profileImageUrl":"",
-          "role":"OWNER",
-          "joinedAt":null}
-        ]});
         //
-        setUserRole(group.role);
       } finally {
         setLoading(false);
       }
@@ -79,20 +59,38 @@ const GroupDetail = () => {
 
 
   // 가입 신청
-  const handleJoinRequest = () => {
+  const handleJoinRequest = async () => {
     Swal.fire({
       title: "가입 신청",
       text: `${group?.name || "이 그룹"}에 가입을 신청하시겠습니까?`,
+      input: 'textarea', // 텍스트 입력창 (여러 줄 입력 가능)
+      inputPlaceholder: '가입 신청 메시지를 입력하세요...',
       showCancelButton: true,
       confirmButtonText: "확인",
       cancelButtonText: "취소",
+      preConfirm: (message) => {
+        // 입력값이 없으면 에러 메시지 출력
+        if (!message) {
+          Swal.showValidationMessage('메시지를 입력해주세요.');
+        }
+        return message;
+      }
     }).then((result) => {
       if (result.isConfirmed) {
-        // 실제 axios.post("/groups/join") 예시
-        setUserRole(ROLE.MEMBER);
+        const message = result.value; // 사용자가 입력한 메시지
+        try {
+          UserAxios.post('groups/requests', {
+            userId: user.userId,
+            groupId: group.id,
+            message: message,
+          });
+        } catch (error) {
+          console.error("가입 신청 실패!", error);
+        }
       }
     });
   };
+  
 
   // 그룹 탈퇴
   const handleLeaveGroup = () => {
