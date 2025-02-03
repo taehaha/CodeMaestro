@@ -48,7 +48,8 @@ const MeetingRoom = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         // 모달 닫기 → 회의 목록 페이지로 이동
-        navigate("/meeting");
+        window.location.replace("/meeting");
+
       }
     });
   };

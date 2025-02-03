@@ -4,7 +4,7 @@ import UserAxios from "./userAxios";
     // 더미데이터 아직 사용중임.
     export const getGroupList = async () => {
         try {
-            const response = await UserAxios.get('/groups/',{
+            const response = await UserAxios.get('/groups',{
                 params:{
                     sort:"rank",
                     limit:10,
@@ -27,11 +27,11 @@ import UserAxios from "./userAxios";
 
     export const getMyGroupList = async () => {
         try {
-            const response = await UserAxios.get('/groups', {
+            const response = await UserAxios.get(`/groups`, {
                 // params: { friends: true }
             });
     
-            return response.data; // 백엔드 연결되면 이 코드 활성화;
+            return response.data;
         } catch (error) {
             console.error("내 그룹 불러오는 중 오류 발생", error);
             return [

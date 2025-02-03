@@ -19,9 +19,7 @@ function Header() {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   // 로그아웃
   const handelLogout = () => {
-    tokenStorage.removeAccessToken();
     dispatch(logoutUser());
-    navigate('/login')
   }
   
   const handleLogoClick = () => {

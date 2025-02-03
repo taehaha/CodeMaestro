@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./GroupList.css";
+import "./MyGroupList.css";
 import GroupModal from "./GroupModal";
 import { getMyGroupList } from "../../api/GroupApi";
 import LoadAnimation from "../../components/LoadAnimation";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import UserAxios from "../../api/userAxios";
 import { useSelector } from "react-redux";
-const GroupList = () => {
+const MyGroupList = () => {
   const [groups, setGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,11 +21,12 @@ const GroupList = () => {
     const fetchGroups = async () => {
       try {
         const myGroup = await getMyGroupList(); // 비동기 호출
+        console.log(myGroup);
+        
         setGroups(myGroup);
       } catch (error) {
         console.error("그룹 목록을 가져오는 중 오류 발생:", error);
       } finally {
-        console.log(groups);
         
         setIsLoading(false); // 로딩 종료
       }
@@ -51,7 +52,7 @@ const GroupList = () => {
       cancelButtonText: "취소", // 취소 버튼 텍스트 지정
     }).then((result) => { 
       if (result.isConfirmed) {  // result.isConfirmed가 true일 때만 이동
-        navigate(`/group/${group.groupId}`);
+        navigate(`/group/${group.id}`);
       }
     });
   };
@@ -68,13 +69,13 @@ const GroupList = () => {
       <hr />
       <ul>
         {groups.map((group) => (
-          <li key={group.groupId} className="group-item">
-            <span>{group.name}</span>
-            <span>{group.members}명</span>
-            <div>
-              <button className="enter-btn" onClick={()=>{handleMoveGroup(group)}}>입장</button>
-            </div>
-          </li>
+          <li key={group.id} className="group-item">
+          <span className="group-name">{group.name}</span>
+          <span className="member-count">{group.currentMembers}명</span>
+          <div>
+            <button className="enter-btn" onClick={() => handleMoveGroup(group)}>입장</button>
+          </div>
+        </li>
         ))}
       </ul>
       {isModalOpen && <GroupModal onClose={() => setIsModalOpen(false)} onCreate={handleCreateGroup} />}
@@ -82,4 +83,4 @@ const GroupList = () => {
   );
 };
 
-export default GroupList;
+export default MyGroupList;

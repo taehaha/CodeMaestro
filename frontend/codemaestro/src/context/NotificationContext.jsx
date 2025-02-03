@@ -8,11 +8,7 @@ import { getNotification } from "../api/AuthApi";
 export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState([
-    { request:2, type: "invite", id: "user123", name: "초대자 A", roomId:"A65z5"},
-    { request:3, type: "friend", id: "user456", name: "친구 요청자 B" },
-    { request:4, type: "group", id: "user436", name: "그룹 초대자" },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const token = tokenStorage.getAccessToken()
   const user = useSelector((state) => state.user.myInfo); 
@@ -52,7 +48,7 @@ export const NotificationsProvider = ({ children }) => {
   //   fetchInitialData()  
   //   const eventSource = new EventSourcePolyfill(`https://codemaestro.site/api/subscribe/${user?.id}`, {
   //     headers: {
-  //       Authorization: `Bearer ${token}`, // JWT 토큰
+  //       Authorization: `Access ${token}`, // JWT 토큰
   //     },
   //   });
 

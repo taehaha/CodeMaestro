@@ -2,12 +2,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { signin, signout, signup, getUserInfo } from "../api/AuthApi";
 import tokenStorage from "../utils/tokenstorage";
+import Swal from "sweetalert2";
 // 1) 로그인
 export const loginUser = createAsyncThunk("user/login", async (payload) => {
   const response = await signin(payload);
-  const accessToken = response.headers['access'];
-  console.log(accessToken);
-  
+  const accessToken = response.headers['access'];  
   if (accessToken) {
     // 메모리에 저장 (가장 중요한 부분)
     tokenStorage.setAccessToken(accessToken);
@@ -19,6 +18,15 @@ export const loginUser = createAsyncThunk("user/login", async (payload) => {
 // 2) 로그아웃
 export const logoutUser = createAsyncThunk("user/logout", async () => {
   const res = await signout();
+  tokenStorage.removeAccessToken();
+  Swal.fire({
+    "title":"로그아웃",
+    "text":"로그아웃이 완료되었습니다.",
+  }).then((result)=>{
+    if (result.isConfirmed) {
+      window.location.replace("/");
+    }
+    })
   return res;
 });
 
@@ -48,9 +56,8 @@ const userSlice = createSlice({
     // 로그인 성공
     builder.addCase(loginUser.fulfilled, (state, action) => {
       if (action.payload?.status === 200) {
+        console.log(action.payload);        
         state.isLoggedIn = true;
-        // state.accessToken = action.payload.token; // 제거하거나 사용 안 함
-        state.myInfo = action.payload.user; // 백엔드 응답에 user 정보가 있다면
       }
     });
 
@@ -58,7 +65,6 @@ const userSlice = createSlice({
     builder.addCase(logoutUser.fulfilled, (state) => {
       state.myInfo = null;
       state.isLoggedIn = false;
-      tokenStorage.removeAccessToken();
     });
 
     // 내 정보 조회

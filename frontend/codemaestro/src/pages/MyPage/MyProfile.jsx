@@ -32,8 +32,6 @@ const MyProfile = () => {
   const [checkedUsers, setCheckedUsers] = useState([]);
 
   // 상단 탭 상태
-  const [activeTab, setActiveTab] = useState('profile');
-
   // 모달 열기 함수
   const openAddFriendPage = () => {
     setisAddFriendModalOpen(true);
@@ -73,35 +71,6 @@ const MyProfile = () => {
         openEditPage={openEditPage}
         openBackgroundEdit={openBackgroundEdit}
       />
-
-      {/* 상단 탭 영역 */}
-      <div className="tabs border-b border-gray-300 pt-2">
-        <button
-          className={`tab tab-bordered hover:border-blue-500 hover:text-blue-500 transition-all duration-200 ${
-            activeTab === 'profile' ? 'tab-active border-b-2 border-blue-500 text-blue-500' : ''
-          }`}
-          onClick={() => setActiveTab('profile')}
-        >
-          Profile
-        </button>
-        <button
-          className={`tab tab-bordered hover:border-blue-500 hover:text-blue-500 transition-all duration-200 ${
-            activeTab === 'friends' ? 'tab-active border-b-2 border-blue-500 text-blue-500' : ''
-          }`}
-          onClick={() => setActiveTab('friends')}
-        >
-          Friends
-        </button>
-        <button
-          className={`tab tab-bordered hover:border-blue-500 hover:text-blue-500 transition-all duration-200 ${
-            activeTab === 'settings' ? 'tab-active border-b-2 border-blue-500 text-blue-500' : ''
-          }`}
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </button>
-      </div>
-
       {/* My Friends 섹션 */}
       <p className="header-style-border">My Friends</p>
       <div className="flex flex-col md:flex-row">

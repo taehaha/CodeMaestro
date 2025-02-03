@@ -23,10 +23,26 @@ import ProtectedRoute from './router/ProtectedRoute';
 
 // React Router 관련
 import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { persistor } from './reducer/store';
 // 콘텍스트 api
 import { NotificationsProvider } from './context/NotificationContext';
 
 function App() {
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // purge()는 비동기로 동작하므로, 프로미스 결과는 무시할 수 있음
+      persistor.purge();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // 컴포넌트 언마운트 시 이벤트 제거
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   return (
       <NotificationsProvider>
       <div className="w-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">

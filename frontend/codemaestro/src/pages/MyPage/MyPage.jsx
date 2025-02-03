@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
-import GroupList from "./GroupList";
+import MyGroupList from "./MyGroupList";
 import MyProfile from "./MyProfile";
 import "./MyPage.css";
 
@@ -12,7 +12,7 @@ const MyPage = () => {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="w-full h-full">
         {activeTab === "profile" && <MyProfile />}
-        {activeTab === "group" && <GroupList />}
+        {activeTab === "group" && <MyGroupList />}
       </div>
     </div>
   );

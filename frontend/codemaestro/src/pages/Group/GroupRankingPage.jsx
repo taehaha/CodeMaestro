@@ -21,14 +21,11 @@ useEffect(() => {
         setLoading(true);
 
         // 모든 그룹 & 내 그룹 데이터 요청 병렬 처리
-        const [groupData, myGroupData] = await Promise.all([
-          getGroupList(),
-          getMyGroupList(),
-        ]);
+        const myGroup = await getMyGroupList()
 
         // 상태 업데이트
-        setGroups(groupData);
-        setMyGroups(myGroupData);
+        setGroups(myGroup);
+        setMyGroups(myGroup);
       } catch (err) {
         // 에러 처리
         console.error(err.message);
@@ -77,7 +74,7 @@ useEffect(() => {
               }`}
               onClick={() => handleTabChange("ranking")}
             >
-              랭킹
+              전체 그룹
             </button>
             <button
               className={`tab tab-bordered ${
