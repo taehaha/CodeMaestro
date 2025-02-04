@@ -17,23 +17,30 @@ const GroupModal = ({ onClose, onCreate }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-container">
-        <button className="close-btn" onClick={onClose}>&times;</button>
+        <button className="close-btn" onClick={onClose}>
+          &times;
+        </button>
         <h2>그룹 생성하기</h2>
 
-        <label>그룹명</label>
+        <label>그룹명 (최대 10자)</label>
         <input 
           type="text" 
           placeholder="그룹명을 입력하세요" 
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
+          maxLength={10}
         />
         
-        <label>그룹 설명</label>
+        <label>그룹 설명 (최대 100자)</label>
         <textarea 
           placeholder="그룹 설명을 입력하세요" 
           value={groupDescription}
           onChange={(e) => setGroupDescription(e.target.value)}
+          maxLength={100}
         />
+        <div className="char-count">
+          {groupDescription.length} / 100
+        </div>
 
         <div className="modal-buttons">
           <button className="cancel-btn" onClick={onClose}>취소</button>

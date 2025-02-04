@@ -7,6 +7,7 @@ import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
 
 import UserAxios from "../../api/userAxios";
 import DummyGroupMembersDemo from "./Dummy";
+import GroupManagement from "./GroupManagement";
 
 const ROLE = {
   NONE: "NONE",
@@ -19,10 +20,11 @@ const GroupDetail = () => {
 
   const { groupId } = useParams();
 
-  const [group, setGroup] = useState({name:'12','groupId':1,members:{name:"2",role:"OWNER",id:2}});
+  const [group, setGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -235,13 +237,41 @@ const GroupDetail = () => {
         )}
 
         {userRole === ROLE.ADMIN && (
-          <button className="btn btn-neutral rounded-sm">그룹 관리</button>
+          <button 
+          onClick={() => setIsModalOpen(true)}
+          className=" btn btn-neutral rounded-sm">
+          그룹 관리
+          </button>
         )}
 
         {(userRole === ROLE.MEMBER || userRole === ROLE.ADMIN) && (
-          <button className="btn btn-primary rounded-sm">그룹 초대</button>
+          <button  className="btn btn-primary rounded-sm">그룹 초대</button>
         )}
       </div>
+
+      {/*--- 그룹관리 모달 ---*/}
+      {isModalOpen && (
+        <div className="modal modal-open">
+          <div className="modal-box relative rounded-sm w-full max-w-4xl min-h-[80vh] bg-white shadow-xl">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="btn btn-sm btn-circle absolute right-2 top-2"
+            >
+              ✕
+            </button>
+            <GroupManagement
+            group={group}
+            />
+          </div>
+
+          <div
+            className="modal-backdrop"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+        </div>
+      )}
+
+
 
       {/* --------- 좌측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
       {userRole !== ROLE.NONE && (

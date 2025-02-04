@@ -32,13 +32,15 @@ const MyGroupList = () => {
     fetchGroups(userId);
   }, []);
 
-  const handleCreateGroup = (newGroup) => {
-    UserAxios.post('/groups',{
-      // ownerId:user.id,
+  const handleCreateGroup =  async (newGroup) => {
+    const result = await UserAxios.post('/groups',{
       userId:3,
       name: newGroup.name,
       description: newGroup.description,
     })
+    console.log(result);
+    
+    // window.location.replace("/mypage");
   };
 
   const handleMoveGroup = (group) => {

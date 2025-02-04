@@ -1,5 +1,5 @@
 import React from "react";
-import GroupTable from "./GrouTable";
+import GroupTable from "./GroupTable";
 
 // axios 연결이 안된 상태라 더미 데이터로 진행합니다.
 function DummyGroupMembersDemo({userRole, members}) {
@@ -70,7 +70,7 @@ function DummyGroupMembersDemo({userRole, members}) {
 
   return (
       <div className="w-3/5 mx-auto">
-        <GroupTable members={dummyMembers} userRole={userRoles} />
+        <GroupTable members={members} userRole={userRoles} />
       </div>
   );
 }

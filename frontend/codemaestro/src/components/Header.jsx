@@ -49,7 +49,7 @@ function Header() {
       <button className="hamburger-btn" onClick={toggleMenu}>☰</button>
 
       <nav className={`menu ${menuOpen ? 'open' : ''}`}>
-        <a href="meeting">Meeting</a>
+        <Link to="/meeting">Meeting</Link>
         <Link to="/mypage" onClick={closeMenu}>My Page</Link>
         <a href="product">Product</a>
             <button

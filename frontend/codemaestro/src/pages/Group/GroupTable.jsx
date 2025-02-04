@@ -66,18 +66,7 @@ function GroupTable({ members, userRole }) {
           </button>
         ),
       });
-      baseColumns.push({
-        Header: "권한 설정",
-        id: "grand",
-        Cell: ({ row }) => (
-          <button
-            className="text-gray-400"
-            onClick={() => handleRemoveMember(row.original.userId)}
-          >
-            권한 설정
-          </button>
-        ),
-      });
+
     }
 
     return baseColumns;
