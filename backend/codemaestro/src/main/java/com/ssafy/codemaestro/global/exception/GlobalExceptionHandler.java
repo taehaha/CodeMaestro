@@ -46,7 +46,8 @@ public class GlobalExceptionHandler {
     /* OpenVidu Session이나 Connection을 찾을 수 없을 때 실행되는 Handler */
     @ExceptionHandler({CannotFindSessionException.class, CannotFindConnectionException.class})
     public ResponseEntity<ErrorResponse> handleCannotFindException(Exception ex) {
-        log.error("Cannot find error: ", ex);
+        log.error("Cannot find error: " +
+                "message : " + ex.getMessage());
         return new ResponseEntity<>(
                 new ErrorResponse(ex.getMessage()),
                 HttpStatus.NOT_FOUND

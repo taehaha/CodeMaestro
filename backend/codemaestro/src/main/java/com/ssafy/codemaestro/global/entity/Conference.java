@@ -3,6 +3,10 @@ package com.ssafy.codemaestro.global.entity;
 import com.ssafy.codemaestro.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "conference")
@@ -19,10 +23,22 @@ public class Conference {
     @ManyToOne(fetch = FetchType.LAZY)
     User owner;
 
-    String thumbnail;
+    @Builder.Default
+    @Column(nullable = false)
+    String thumbnailUrl = "http://thisisdefault:1234/";
+
+    @Column(nullable = false)
     String title;
+
+    @Column(nullable = true)
     String description;
-    boolean active;
+
+    @Column(nullable = true)
     String accessCode;
+
+    @Column(nullable = false)
     ProgrammingLanguage programmingLanguage;
+
+    @CreationTimestamp
+    LocalDateTime createdAt;
 }

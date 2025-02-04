@@ -16,9 +16,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -65,16 +68,20 @@ public class OpenViduService {
      */
     @Transactional
     public String initializeConference(User owner, String title, String description, String accessCode, ProgrammingLanguage pl) {
+        // 이미 User가 Connection을 가지고 있으면 throw
+        userConferenceRepository.findByUser(owner).ifPresent(
+                conference -> {
+                    throw new ConnectionAlreadyExistException("유저가 이미 Connection을 가지고 있습니다. : userId : " + owner.getId() + ", conferenceId : " + conference.getId());
+                });
+
         Conference conference = Conference.builder()
                 .owner(owner)
-                .thumbnail(null)
                 .title(title)
                 .description(description)
-                .active(true)
                 .accessCode(accessCode)
                 .programmingLanguage(pl)
                 .build();
-    
+
         conferenceRepository.save(conference);
     
         SessionProperties properties =
@@ -152,63 +159,16 @@ public class OpenViduService {
         return connection;
     }
 
-
-    /**
-     * 활성화된 컨퍼런스에서 참가자의 연결을 끊습니다.
-     *
-     * @param participant 연결을 끊으려는 참가자를 나타내는 사용자 객체
-     * @throws CannotFindSessionException 주어진 참가자에 대한 컨퍼런스를 찾을 수 없는 경우
-     * @throws CannotFindConnectionException 참가자의 연결을 찾을 수 없는 경우
-     * @throws RuntimeException OpenVidu와 관련된 로직 처리 중 문제가 발생한 경우
-     */
-    public void disconnectConference(User participant) {
-        UserConference userConference = userConferenceRepository.findByUser(participant)
-                .orElseThrow(() -> new CannotFindSessionException("User가 참가중인 Conference를 찾을 수 없습니다."));
-
-        Session session = openVidu.getActiveSession(userConference.getConference().getId().toString());
-        Connection connection = session.getConnection(userConference.getConnectionId());
-
-        if (connection == null) throw new CannotFindConnectionException("connection을 찾을 수 없습니다. : connectionId : " + userConference.getConnectionId());
-
-        try {
-            session.forceDisconnect(connection);
-        } catch (OpenViduHttpException | OpenViduJavaClientException e) {
-            log.error("Openvidu disconnectConference 실행 중 오류.");
-            log.error(e.getMessage());
-            throw new RuntimeException("Openvidu 관련 동작 오류.");
-        }
+    public Conference getConference(String conferenceId) {
+        return conferenceRepository.findById(Long.valueOf(conferenceId)).orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
     }
 
-    @Transactional
-    public boolean kickUserFromConference(User user, String conferenceId, Long targetUserId) {
-        Optional<Conference> optionalConference = conferenceRepository.findById(Long.valueOf(conferenceId));
+    public List<Conference> getAllConferences() {
+        return conferenceRepository.findAll();
+    }
 
-        Conference conference = optionalConference.orElseThrow(() -> {
-            return new BadRequestException("Cannot find conference");
-        });
-
-        if (openViduUtil.isModerator(user, conference)) {
-            return false;
-        }
-
+    public int getParticipantNum(String conferenceId) {
         Session session = openVidu.getActiveSession(conferenceId);
-
-        if (session == null) return false;
-
-        Connection targetConnection = null;
-        Optional<UserConference> optionalUserConference = userConferenceRepository.findById(targetUserId);
-        if (optionalUserConference.isPresent()) {
-            targetConnection = session.getConnection(optionalUserConference.get().getConnectionId());
-        }
-
-        try {
-            session.forceDisconnect(targetConnection);
-        } catch (OpenViduJavaClientException | OpenViduHttpException e) {
-            log.error("OpenVidu kickUserFromConference 진행 중 오류.");
-            log.error(e.getMessage());
-            return false;
-        }
-
-        return true;
+        return session.getConnections().size();
     }
 }

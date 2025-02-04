@@ -4,6 +4,7 @@ import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
 import com.ssafy.codemaestro.domain.openvidu.service.OpenViduService;
 import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.Conference;
 import io.openvidu.java.client.Connection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -58,17 +62,58 @@ public class ConferenceController {
         return new ResponseEntity<>((response), HttpStatus.OK);
     }
 
-//    /**
-//     * Conection 제거
-//     * @param userDetails
-//     * @return
-//     */
-//    //TODO: webhook에서 처리하도록 해야할듯?
-//    @DeleteMapping("/{conferneceId}/connection")
-//    public ResponseEntity<Void> disconnectConference(@PathVariable String conferneceId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        User currentUser = userDetails.getUser();
-//        openViduService.disconnectConference(currentUser);
-//
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    /**
+     * 모든 회의의 정보를 가공해서 리턴함
+     * @return
+     */
+    @GetMapping("")
+    public ResponseEntity<List<ConferenceInfoResponse>> getAllConferenceInfo() {
+        List<Conference> conferenceList = openViduService.getAllConferences();
+
+        List<ConferenceInfoResponse> responseList = new ArrayList<>();
+
+        for (Conference conference : conferenceList) {
+            int participantNum = openViduService.getParticipantNum(String.valueOf(conference.getId()));
+
+            ConferenceInfoResponse conferenceInfo = ConferenceInfoResponse.builder()
+                    .conferenceId(conference.getId().toString())
+                    .title(conference.getTitle())
+                    .description(conference.getDescription())
+                    .thumbnailUrl(conference.getThumbnailUrl())
+                    .programmingLanguage(conference.getProgrammingLanguage())
+                    .hostNickName(conference.getOwner().getNickname())
+                    .participantNum(participantNum)
+                    .createdAt(conference.getCreatedAt())
+                    .build();
+
+            responseList.add(conferenceInfo);
+        }
+
+        return new ResponseEntity<>(responseList, HttpStatus.OK);
+    }
+
+    /**
+     * 특정 컨퍼런스의 정보를 반환함
+     * @param conferenceId
+     * @return
+     */
+    @GetMapping("/{conferenceId}")
+    public ResponseEntity<ConferenceInfoResponse> conferenceInfo(@PathVariable String conferenceId) {
+        Conference conference = openViduService.getConference(conferenceId);
+
+        int participantNum = openViduService.getParticipantNum(String.valueOf(conference.getId()));
+
+        ConferenceInfoResponse conferenceInfo = ConferenceInfoResponse.builder()
+                .conferenceId(conferenceId)
+                .title(conference.getTitle())
+                .description(conference.getDescription())
+                .thumbnailUrl(conference.getThumbnailUrl())
+                .programmingLanguage(conference.getProgrammingLanguage())
+                .hostNickName(conference.getOwner().getNickname())
+                .participantNum(participantNum)
+                .createdAt(conference.getCreatedAt())
+                .build();
+
+        return new ResponseEntity<>(conferenceInfo, HttpStatus.OK);
+    }
 }
