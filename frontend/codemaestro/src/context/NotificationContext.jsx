@@ -12,9 +12,32 @@ export const NotificationsContext = createContext();
  * NotificationsProvider 컴포넌트
  * SSE 연결을 통해 실시간 알림을 받아오고, 전역 상태로 관리합니다.
  */
+const dummyNotifications = [
+  {
+    type: "friend",
+    userName: "Alice",
+    message: "Alice님이 친구 요청을 보냈습니다.",
+    request: 101, // 친구 요청 고유 ID (예시)
+  },
+  {
+    type: "group",
+    groupName: "Developers Group",
+    message: "Developers Group에 초대되었습니다.",
+    request: 102, // 그룹 요청 고유 ID (예시)
+  },
+  {
+    type: "invite",
+    name: "Weekly Meeting",
+    request: 103, // 회의 초대 고유 ID (예시)
+    roomId: "meeting-001", // 초대받은 회의실 ID
+  },
+];
+
+
+
 export const NotificationsProvider = ({ children }) => {
   // 알림 데이터를 저장할 상태
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(dummyNotifications);
   // EventSource 인스턴스를 저장할 ref
   const eventSourceRef = useRef(null);
   // 사용자 토큰, 사용자 정보 가져오기
@@ -145,7 +168,7 @@ export const NotificationsProvider = ({ children }) => {
   }, [token, userId]);
 
   return (
-    <NotificationsContext.Provider value={{ notifications }}>
+    <NotificationsContext.Provider value={{ notifications,setNotifications }}>
       {children}
     </NotificationsContext.Provider>
   );
