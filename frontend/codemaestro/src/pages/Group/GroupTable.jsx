@@ -52,25 +52,8 @@ function GroupTable({ members, userRole }) {
       },
     ];         
     
-
-    if (isAdmin) {
-      baseColumns.push({
-        Header: "관리",
-        id: "manage",
-        Cell: ({ row }) => (
-          <button
-            className="text-gray-400"
-            onClick={() => handleRemoveMember(row.original.userId)}
-          >
-            유저 탈퇴
-          </button>
-        ),
-      });
-
-    }
-
     return baseColumns;
-  }, [isAdmin]);
+  }, []);
 
   // react-table 훅
   const {

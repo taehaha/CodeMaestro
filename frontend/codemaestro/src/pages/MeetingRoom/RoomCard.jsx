@@ -44,7 +44,7 @@ const RoomCard = ({
 
   return (
     <div
-      className="card w-64 bg-base-100 shadow-xl cursor-pointer"
+      className="card w-72 bg-base-100 shadow-xl rounded-sm  cursor-pointer"
       onClick={handleCardClick}
     >
       <figure className="relative">

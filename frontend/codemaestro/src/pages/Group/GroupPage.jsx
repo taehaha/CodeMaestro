@@ -109,9 +109,9 @@ const GroupDetail = () => {
         cancelButtonText: "취소",
       }).then((result) => {
         if (result.isConfirmed) {
-          const result = LeaveGroup({groupId,userId:user.userId})
-
-          if (result===200) {
+          const status = LeaveGroup({groupId,userId:user.userId})
+          console.log(status);
+          if (status===200) {
                     Swal.fire({
                       title: "탈퇴 완료",
                       text: "그룹에서 탈퇴했습니다. 메인 페이지로 이동합니다.",

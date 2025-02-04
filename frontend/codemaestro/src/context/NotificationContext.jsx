@@ -1,95 +1,148 @@
 import { createContext, useEffect, useState, useRef } from "react";
-import { EventSourcePolyfill } from "event-source-polyfill";
-import tokenStorage from "../utils/tokenstorage";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { getNotification } from "../api/AuthApi";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import tokenStorage from "../utils/tokenstorage";
+import UserAxios from "../api/userAxios";
 
+// 알림 관련 Context 생성
 export const NotificationsContext = createContext();
 
+/**
+ * NotificationsProvider 컴포넌트
+ * SSE 연결을 통해 실시간 알림을 받아오고, 전역 상태로 관리합니다.
+ */
 export const NotificationsProvider = ({ children }) => {
+  // 알림 데이터를 저장할 상태
   const [notifications, setNotifications] = useState([]);
+  // EventSource 인스턴스를 저장할 ref
   const eventSourceRef = useRef(null);
-
-  // token, 사용자 정보, 로그인 상태
+  // 사용자 토큰, 사용자 정보 가져오기
   const token = tokenStorage.getAccessToken();
-  const user = useSelector((state) => state.user.myInfo);
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  const userId = useSelector((state) => state.user.myInfo?.userId);
 
+  // 알림을 추가하는 헬퍼 함수 (functional update 사용)
+  const addNotification = (type, data) => {
+    setNotifications((prevNotifications) => [
+      ...prevNotifications,
+      { type, data },
+    ]);
+  };
+
+  // disconnect 함수: unsubscribe API 호출 후 SSE 연결 종료
+  const disconnect = () => {
+    // unsubscribe API 호출: 성공 여부와 관계없이 마지막에 SSE 연결 종료
+    UserAxios(`/unsubscribe/${userId}`)
+      .then((result) => {
+        console.log("unsubscribe 성공:", result);
+      })
+      .catch((error) => {
+        console.error("unsubscribe 에러:", error);
+      })
+      .finally(() => {
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+          console.log("SSE 연결 종료됨");
+        }
+      });
+  };
 
   useEffect(() => {
-    // 토큰, 로그인 상태, 사용자 id가 없으면 SSE 연결하지 않음
-    if (!token || !isLoggedIn || !user?.userId) {
+    if (!token || !userId) {
       return;
     }
 
-    // 초기 알림 데이터 fetch
-    const fetchInitialData = async () => {
-      try {
-        const initialNotifications = await getNotification(user.userId);
-        setNotifications(initialNotifications.data);
-      } catch (error) {
-        console.error("Failed to fetch initial notifications:", error);
-      }
-    };
-    fetchInitialData();
+    // SSE 연결 생성 함수
+    const connect = () => {
+      const url = `http://192.168.31.58:8080/subscribe/${userId}`;
 
-    // SSE 연결 설정 (EventSourcePolyfill 사용, URL에 사용자 id 포함)
-    const url = `http://192.168.31.58:8080/subscribe/${user.userId}`;
-    const eventSource = new EventSourcePolyfill(url, {
-      headers: {Access:`${token}`},
-    });
-
-    // eventSource를 ref에 저장 (추후 cleanup 용도)
-    eventSourceRef.current = eventSource;
-
-    // 이벤트 리스너 등록
-    eventSource.addEventListener("connect", (event) => {
-      console.log(event);
-      
-      console.log("연결됨:", event.data);
-    });
-
-    eventSource.addEventListener("lost-data", (event) => {
-      console.log("미수신 데이터 수신:", event.data);
-    });
-
-    eventSource.addEventListener("notification", (event) => {
-      console.log("새로운 알림:", event.data);
-    });
-
-    // 기본 onmessage 이벤트 핸들러 등록
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setNotifications((prev) => {
-          // 기존 알림에 같은 request 값이 있으면 업데이트하지 않음
-          if (prev.some((n) => n.request === data.request)) {
-            return prev;
-          }
-          return [...prev, data];
-        });
-      } catch (error) {
-        console.error("메시지 처리 오류:", error);
-      }
-    };
-
-    // 에러 발생 시 처리 및 필요 시 재연결 로직 구현 가능
-    eventSource.onerror = (error) => {
-      console.error("SSE connection error:", error);
+      // 기존 연결이 있다면 종료
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
       }
-      // 필요하다면 재연결 로직(예: setTimeout)을 구현할 수 있습니다.
+
+      // 새 EventSourcePolyfill 인스턴스 생성
+      const newEventSource = new EventSourcePolyfill(url, {
+        headers: { Access: token },
+        heartbeatTimeout: 120000,
+      });
+
+      // 이벤트 핸들러 등록
+      newEventSource.addEventListener("connect", (event) => {
+        console.log("연결됨:", event.data);
+      });
+
+      // lost-data 이벤트: 데이터 형식에 따라 알림 구분 처리
+      newEventSource.addEventListener("lost-data", (event) => {
+        // 예를 들어, event.data가 문자열 형태라면 JSON.parse가 필요할 수 있음
+        let parsedData;
+        try {
+          parsedData = JSON.parse(event.data);
+        } catch {
+          parsedData = event.data;
+        }
+
+        if (parsedData.groupId) {
+          addNotification("group", parsedData);
+        } else if (parsedData.userName) {
+          addNotification("friend", parsedData);
+        } else {
+          addNotification("invite", parsedData);
+        }
+      });
+
+      // friendRequest 이벤트
+      newEventSource.addEventListener("friendRequest", (event) => {
+        let parsedData;
+        try {
+          parsedData = JSON.parse(event.data);
+        } catch {
+          parsedData = event.data;
+        }
+        addNotification("friend", parsedData);
+      });
+
+      // groupRequest 이벤트
+      newEventSource.addEventListener("groupRequest", (event) => {
+        let parsedData;
+        try {
+          parsedData = JSON.parse(event.data);
+        } catch {
+          parsedData = event.data;
+        }
+        addNotification("group", parsedData);
+      });
+
+      // invite 이벤트
+      newEventSource.addEventListener("invite", (event) => {
+        let parsedData;
+        try {
+          parsedData = JSON.parse(event.data);
+        } catch {
+          parsedData = event.data;
+        }
+        addNotification("invite", parsedData);
+      });
+
+      newEventSource.onerror = (error) => {
+        console.error("SSE 연결 오류:", error);
+        // 필요시 재연결 로직을 추가할 수 있음
+      };
+
+      // 새 인스턴스를 ref에 저장
+      eventSourceRef.current = newEventSource;
     };
 
-    // cleanup: 컴포넌트 언마운트 또는 의존성 변경 시 SSE 연결 종료
+    // SSE 연결 생성
+    connect();
+
+    // cleanup: 컴포넌트 언마운트 시 disconnect 호출하여 unsubscribe 및 연결 종료
     return () => {
       if (eventSourceRef.current) {
-        eventSourceRef.current.close();
+        disconnect();
       }
     };
-  }, [token, isLoggedIn, user?.userId]);
+  }, [token, userId]);
 
   return (
     <NotificationsContext.Provider value={{ notifications }}>

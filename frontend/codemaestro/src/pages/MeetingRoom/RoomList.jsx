@@ -3,7 +3,7 @@ import RoomCard from "./RoomCard";
 
 const RoomList = ({ rooms }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 overflow-y-auto max-h-[400px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 overflow-y-auto max-h-[520px]">
       {rooms.map((room) => (
         <RoomCard
           key={room.id}

@@ -127,7 +127,7 @@ const CreateMeetingForm = () => {
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-200 rounded-md">
+    <div className="w-min-4xl mx-auto p-4 bg-base-200 rounded-md">
       <h2 className="text-xl font-bold mb-4">회의 만들기</h2>
 
       <Formik

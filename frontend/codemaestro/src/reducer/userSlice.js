@@ -36,9 +36,7 @@ export const logoutUser = createAsyncThunk("user/logout", async () => {
 
 // 3) 내 정보 조회
 export const getMyInfo = createAsyncThunk("user/getMyInfo", async () => {
-  const response = await getUserInfo();
-  console.log(response);
-  
+  const response = await getUserInfo();  
   return response;
 });
 
@@ -55,6 +53,13 @@ const userSlice = createSlice({
       // profile_image_url,
   },
     isLoggedIn: false,
+  },
+  reducers: {
+    // 세션 만료 등으로 인한 강제 로그아웃 시 호출하여 상태를 변경할 수 있음
+    setLoggedOut: (state) => {
+      state.myInfo = null;
+      state.isLoggedIn = false;
+    },
   },
 
 
@@ -84,5 +89,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { TempgetMyInfo, logout } = userSlice.actions;
+export const { setLoggedOut, logout } = userSlice.actions;
 export default userSlice.reducer;
