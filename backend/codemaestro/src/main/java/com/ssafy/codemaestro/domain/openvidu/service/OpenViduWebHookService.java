@@ -1,14 +1,14 @@
 package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.google.gson.Gson;
-import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
-import com.ssafy.codemaestro.domain.user.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.entity.UserConference;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
+import com.ssafy.codemaestro.global.util.JwtUtil;
 import io.openvidu.java.client.OpenVidu;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;

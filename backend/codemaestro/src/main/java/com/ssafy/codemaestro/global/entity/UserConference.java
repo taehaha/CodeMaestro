@@ -1,11 +1,10 @@
 package com.ssafy.codemaestro.global.entity;
 
-import com.ssafy.codemaestro.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "user_confernece")
+@Table(name = "user_conference")
 @Getter
 @Setter
 @Builder

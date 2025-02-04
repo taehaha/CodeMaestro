@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.dto;
 
 import com.ssafy.codemaestro.global.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

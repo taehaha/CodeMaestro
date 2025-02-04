@@ -2,9 +2,9 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
-import com.ssafy.codemaestro.domain.user.entity.User;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.entity.UserConference;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionException;

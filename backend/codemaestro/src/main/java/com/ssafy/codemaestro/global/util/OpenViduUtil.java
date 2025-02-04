@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.global.util;
 
-import com.ssafy.codemaestro.domain.user.entity.User;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.User;
 import io.openvidu.java.client.OpenViduRole;
 import org.springframework.stereotype.Component;
 
