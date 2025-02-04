@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.dto;
 
 import com.ssafy.codemaestro.global.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +12,7 @@ import java.util.Collection;
 /**
  * Spring Security에서 자체 로그인을 위한 User 정보를 저장하는 Class.
  */
+@Getter
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
@@ -62,6 +64,4 @@ public class CustomUserDetails implements UserDetails {
 
         return null;
     }
-
-
 }

@@ -33,6 +33,9 @@ dependencies {
     // Mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    // OpenVidu
+    implementation 'io.openvidu:openvidu-java-client:2.31.0'
+
     // Swagger 의존성
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
@@ -48,6 +51,8 @@ dependencies {
     // MySQL 의존성
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.mysql:mysql-connector-j:8.2.0'
+
+
 
     // Test 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
