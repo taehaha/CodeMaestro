@@ -2,10 +2,12 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import tokenStorage from "../utils/tokenstorage";
-
+import { setLoggedOut } from "../reducer/userSlice";
 // =======================================
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
+export const baseURL = "https://api.codemaestro.site/"
+
 const UserAxios = axios.create({
   baseURL: "http://192.168.31.58:8080",  // 실제 API 주소로 변경
   timeout: 3000,                      
@@ -99,6 +101,9 @@ UserAxios.interceptors.response.use(
 // [재발급 실패 or 만료 시 → 로그아웃 & 알림 처리]
 // ---------------------------------------
 async function handleLogoutAndRedirect() {
+  const { default: store } = await import("../reducer/store");
+  //userSlice store userAxios 순환참조를 피하기 위한 동적 호출
+  
   tokenStorage.removeAccessToken(); // 로컬 토큰 삭제
   
   // 사용자 알림
@@ -110,8 +115,8 @@ async function handleLogoutAndRedirect() {
   });
 
   // 로그인 페이지로 강제 이동
-//   window.location.href = "/login";
-  
+  store.dispatch(setLoggedOut());
+  window.location.href = "/login";
   return Promise.reject(); 
 }
 

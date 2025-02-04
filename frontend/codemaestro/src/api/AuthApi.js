@@ -18,7 +18,7 @@ export const signup = async (payload) => {
     
       // JSON 데이터 전송
       const response = await axios.post(
-        "http://192.168.31.58:8080/auth/signup",
+        `http://192.168.31.58:8080/auth/signup`,
         formData,
       {
         headers: {
@@ -48,7 +48,7 @@ export const signup = async (payload) => {
   
     // 3) Axios 요청
     const response = await axios.post(
-      "http://192.168.31.58:8080/auth/signin",
+      `http://192.168.31.58:8080/auth/signin`,
       formData,
       {
         headers: {
@@ -92,9 +92,7 @@ export const getUserInfo = async () => {
 
 export const getNotification = async (userId) => {
   try {
-    const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
-    console.log(response);
-    
+    const response = await UserAxios.get(`/friends/requests/${userId}/pending`);    
     return response.data;
   } catch (error) {
     console.error("알림 가져오기 실패:", error);
@@ -102,14 +100,14 @@ export const getNotification = async (userId) => {
   }
 };
 
-export const getFriendsNotification = async (userId) => {
-  try {
-    const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
-    console.log(response);
+// export const getFriendsNotification = async (userId) => {
+//   try {
+//     const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
+//     console.log(response);
     
-    return response.data;
-  } catch (error) {
-    console.error("알림 가져오기 실패:", error);
-    throw error;
-  }
-};
+//     return response.data;
+//   } catch (error) {
+//     console.error("알림 가져오기 실패:", error);
+//     throw error;
+//   }
+// };

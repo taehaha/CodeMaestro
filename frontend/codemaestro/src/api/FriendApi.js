@@ -25,7 +25,7 @@ export const getFriendsInfo = async (userId) => {
   };
   
   // 친구 추가 요청 (POST)
-  export const addFriend = async (userId) => {
+  export const FriendRequest = async (userId) => {
     try {
       const response = await UserAxios.post(`friend-requests/${userId}`, { userId });
       return response.data;
