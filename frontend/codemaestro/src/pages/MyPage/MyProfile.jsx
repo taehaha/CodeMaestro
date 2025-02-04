@@ -11,15 +11,16 @@ import LoadAnimation from '../../components/LoadAnimation'; // 로딩 애니메�
 
 const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
-  // const user = useSelector((state) => state.user.myInfo);
-  const user = {
-    id: 'kopybara8421',
-    name: '익명의 카피바라 8421',
-    email: 'test@test.com',
-    description: '오늘도 열심히 코딩합시다',
-    tier: 27,
-    // profile_image_url,
-}
+  const user = useSelector((state) => state.user.myInfo);
+
+//   const user = {
+//     id: 'kopybara8421',
+//     name: '익명의 카피바라 8421',
+//     email: 'test@test.com',
+//     description: '오늘도 열심히 코딩합시다',
+//     tier: 27,
+//     // profile_image_url,
+// }
   // 로딩 상태 추가
   const [isLoading, setIsLoading] = useState(true);
 

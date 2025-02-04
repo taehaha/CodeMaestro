@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from 'react';
+import { useDispatch } from "react-redux";
 import { getMyInfo, loginUser } from '../../store/userSlice';
-import tokenStorage from "../../utils/tokenstorage";
 import { Link } from 'react-router-dom';
-import UserAxios from '../../api/userAxios';
 import './LoginPage.css';
 import naver from '../../assets/images/icons/naver.png'
 import kakao from '../../assets/images/icons/kakao.png'
 import google from '../../assets/images/icons/google.png'
-import { signin } from '../../api/AuthApi';
-import axios from 'axios';
 import Swal from "sweetalert2";
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-  const isLoggedIn = useSelector((state) => {
-    return state.user.isLoggedIn});
+
   const dispatch = useDispatch();
   const navigate = useNavigate()
   const [email, setEmail] = useState('');

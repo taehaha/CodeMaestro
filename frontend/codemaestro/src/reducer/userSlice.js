@@ -1,6 +1,6 @@
 // userSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { signin, signout, signup, getUserInfo } from "../api/AuthApi";
+import { signin, signout, getUserInfo } from "../api/AuthApi";
 import tokenStorage from "../utils/tokenstorage";
 import Swal from "sweetalert2";
 // 1) 로그인

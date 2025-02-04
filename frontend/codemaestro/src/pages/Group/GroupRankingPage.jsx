@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import UserAxios from "../../api/userAxios"
 import LoadAnimation from "../../components/LoadAnimation"
 import SearchGroup from "./SearchGroup";
 import GroupList from "./GroupList";
