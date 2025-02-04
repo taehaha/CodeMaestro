@@ -29,10 +29,14 @@ import UserAxios from "./userAxios";
     };
     
 // 그룹 탈퇴퇴
-    export const LeaveGroup = async () => {
+    export const LeaveGroup = async (payload) => {
+        console.log(payload);
+        
         try {
-            const response = await UserAxios.delete(`/groups/leave`, payload)
-            return response.status
+            const response = await UserAxios.delete(`/groups/leave`, {
+                data: payload});
+            return response.status;
+
         } catch (error) {
             console.error("그룹 탈퇴 요청 실패", error);
             return error.response?.status || 500; // 오류 발생 시 상태 코드 반환 (500 기본값)

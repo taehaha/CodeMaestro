@@ -111,3 +111,30 @@ export const getNotification = async (userId) => {
 //     throw error;
 //   }
 // };
+
+export const emailVerification = async (payload) =>{
+  // try {
+    
+  // } catch (error) {
+    
+  // }
+}
+
+export const emailCheck = async (email) =>{
+  try {
+    const result = await UserAxios.get(`/api/exist/email/${email}`)
+    return result.status
+  } catch (error) {
+    console.error("이메일 중복 검사 중 오류 발견", error);
+    
+  }
+}
+
+export const nicknameCheck = async (nickname) =>{
+  try {
+    const result = await UserAxios.get(`/api/exist/nickname/${nickname}`)
+    return result.status
+  } catch (error) {
+    console.error("닉네임 중복 검사 중 오류 발견", error);
+  }
+}
