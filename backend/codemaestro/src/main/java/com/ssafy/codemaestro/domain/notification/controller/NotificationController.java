@@ -21,16 +21,24 @@ public class NotificationController {
     public SseEmitter subscribe (@PathVariable Long userId) {
 //        return sseService.subscribe(userId);
         // 현재 연결된 모든 emitter 정보를 로그로 출력
-        log.info("===== 현재 SSE 연결 상태 =====");
+        log.info("===== SSE 컨트롤러 =====");
         log.info("userId: {} 연결 시도", userId);
-        log.info("연결된 emitters: {}", sseService.getEmitters().size());
+        log.info("연결된 emitters 개수 : {}", sseService.getEmitters().size());
 
         SseEmitter emitter = sseService.subscribe(userId);
 
         // 연결 후 상태
-        log.info("연결 후 emitters: {}", sseService.getEmitters().size());
+        log.info("연결 후 emitters 개수 : {}", sseService.getEmitters().size());
         log.info("========================");
 
         return emitter;
     }
+
+    // 구독 종료
+    @GetMapping("/unsubscribe/{userId}")
+    public void unsubscribe(@PathVariable Long userId) {
+        log.info("사용자 로그아웃 : emitters 연결 종료 시작 : {} ", userId);
+        sseService.removeEmitterIfExists(userId);
+    }
+
 }

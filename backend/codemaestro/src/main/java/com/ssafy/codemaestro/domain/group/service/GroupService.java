@@ -105,14 +105,14 @@ public class GroupService {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new BadRequestException("Group not found"));
 
-        // 그룹장이 탈퇴하려는 경우 Bad_request 반환
+        // 그룹장이 탈퇴하려는 경우 실패
         if (group.getOwner().getId().equals(userId)) {
             throw new BadRequestException("Group owner cannot leave the group");
         }
 
-        groupMemberRepository.delete(groupMember);
         group.setCurrentMembers(group.getCurrentMembers() - 1);
         groupRepository.save(group);
+        groupMemberRepository.delete(groupMember);
     }
 
     // 그룹장 권한 위임

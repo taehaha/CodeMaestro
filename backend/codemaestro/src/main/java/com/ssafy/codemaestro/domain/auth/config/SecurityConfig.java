@@ -92,6 +92,7 @@ public class SecurityConfig {
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()
                 .requestMatchers("/reissue", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/exist/**").permitAll()
+                .requestMatchers("/unsubscribe/**").permitAll() // 로그아웃시, SSE 구독 해제
                 .anyRequest().authenticated()
         );
 
