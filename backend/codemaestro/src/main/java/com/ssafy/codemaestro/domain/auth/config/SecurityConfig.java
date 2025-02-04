@@ -27,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,14 +67,13 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5176"));
-                        config.setAllowedOriginPatterns(Collections.singletonList("*"));
+                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081"));
                         config.setAllowedMethods(Collections.singletonList("*"));
-                        config.setAllowCredentials(true);
                         config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.setExposedHeaders(List.of("access", "Set-Cookie"));
+                        config.setAllowCredentials(true);
                         config.setMaxAge(3600L);
 
-                        config.setExposedHeaders(List.of("access", "Set-Cookie"));
 
                         return config;
                     }
@@ -88,10 +88,18 @@ public class SecurityConfig {
 
         // 라우팅 관리
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/signin", "/auth/signup", "/" ).permitAll()
+                //Cors Preflight 허용
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                // 회원 관리 관련 라우팅
+                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/verify/**" ).permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()
-                .requestMatchers("/reissue", "/swagger-ui.html").permitAll()
+                // 스웨거 라우팅
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // 중복검사 라우팅
                 .requestMatchers("/api/exist/**").permitAll()
+                //OpenVidu WebHook
+                .requestMatchers("/conference/webhook").permitAll()
+                // 위 경로 외 경로는 로그인을 필요로 함
                 .anyRequest().authenticated()
         );
 

@@ -21,7 +21,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("http://localhost:3000")  // React 개발 서버 주소
+                .setAllowedOrigins("http://localhost:3000")
                 .withSockJS();
     }
 

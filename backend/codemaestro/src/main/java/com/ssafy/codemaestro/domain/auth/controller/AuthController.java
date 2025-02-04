@@ -117,7 +117,7 @@ public class AuthController {
     }
 
     // 이메일에서 얻은 pin 번호로 현재 이메일 인증
-    @GetMapping("/auth/verify/email")
+    @PutMapping("/auth/verify/email")
     public ResponseEntity<Void> checkVerifyEmail(@RequestBody ValidateEmailPinRequestDto dto) {
         String email = dto.getEmail();
         String pin = dto.getPin();
