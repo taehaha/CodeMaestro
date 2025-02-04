@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.group.entity;
+package com.ssafy.codemaestro.global.entity;
 
 public enum GroupRequestStatus {
     PENDING,

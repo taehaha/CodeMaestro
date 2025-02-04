@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.codemaestro.domain.boj.dto.BojUserDto;
 import com.ssafy.codemaestro.domain.boj.dto.BojUserResponse;
-import com.ssafy.codemaestro.domain.boj.entity.BojUser;
+import com.ssafy.codemaestro.global.entity.BojUser;
 import com.ssafy.codemaestro.domain.boj.repository.BojUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

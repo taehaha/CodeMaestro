@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.user.entity;
+package com.ssafy.codemaestro.global.entity;
 
 public enum LoginProvider {
     LOCAL,

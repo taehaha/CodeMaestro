@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.friend.repository;
 
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequest;
-import com.ssafy.codemaestro.domain.friend.entity.FriendRequestStatus;
+import com.ssafy.codemaestro.global.entity.FriendRequest;
+import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

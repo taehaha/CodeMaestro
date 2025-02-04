@@ -1,9 +1,9 @@
 package com.ssafy.codemaestro.domain.group.repository;
 
-import com.ssafy.codemaestro.domain.group.entity.Group;
-import com.ssafy.codemaestro.domain.group.entity.GroupJoinRequest;
-import com.ssafy.codemaestro.domain.group.entity.GroupRequestStatus;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.Group;
+import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
+import com.ssafy.codemaestro.global.entity.GroupRequestStatus;
+import com.ssafy.codemaestro.global.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

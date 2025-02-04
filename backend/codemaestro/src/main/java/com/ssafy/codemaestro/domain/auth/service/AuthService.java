@@ -1,14 +1,14 @@
 package com.ssafy.codemaestro.domain.auth.service;
 
 import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
-import com.ssafy.codemaestro.domain.auth.entity.RefreshEntity;
-import com.ssafy.codemaestro.domain.auth.entity.VerifyEmailEntity;
+import com.ssafy.codemaestro.global.entity.RefreshEntity;
+import com.ssafy.codemaestro.global.entity.VerifyEmailEntity;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.domain.auth.repository.VerifyEmailRepository;
-import com.ssafy.codemaestro.domain.auth.util.JwtUtil;
-import com.ssafy.codemaestro.domain.auth.util.MailUtil;
-import com.ssafy.codemaestro.domain.user.entity.LoginProvider;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.util.JwtUtil;
+import com.ssafy.codemaestro.global.util.MailUtil;
+import com.ssafy.codemaestro.global.entity.LoginProvider;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.mail.MessagingException;
@@ -55,6 +55,7 @@ public class AuthService {
         // 새로운 유저 생성
         User user = new User();
 
+        System.out.println(signUpDto);
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setNickname(signUpDto.getNickname());

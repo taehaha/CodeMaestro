@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.validation.service;
 
-import com.ssafy.codemaestro.domain.auth.util.MailUtil;
+import com.ssafy.codemaestro.global.util.MailUtil;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

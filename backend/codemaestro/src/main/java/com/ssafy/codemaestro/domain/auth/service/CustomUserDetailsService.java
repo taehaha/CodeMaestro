@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.service;
 
 import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

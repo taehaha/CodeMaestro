@@ -1,7 +1,6 @@
 package com.ssafy.codemaestro.domain.group.controller;
 
 import com.ssafy.codemaestro.domain.group.dto.*;
-import com.ssafy.codemaestro.domain.group.dto.*;
 import com.ssafy.codemaestro.domain.group.service.GroupRequestService;
 import com.ssafy.codemaestro.domain.group.service.GroupService;
 import lombok.*;
@@ -13,12 +12,33 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/groups")
+@RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
 
     private final GroupService groupService;
     private final GroupRequestService groupRequestService;
+
+    // 전체 그룹 조회
+    @GetMapping
+    public ResponseEntity<List<GroupResponseDto>> getAllGroups() {
+        List<GroupResponseDto> groups = groupService.getAllGroups();
+        return ResponseEntity.ok(groups);
+    }
+
+    // 유저별 참여 그룹 조회
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<GroupResponseDto>> getUserGroups(@PathVariable Long userId) {
+        List<GroupResponseDto> userGroups = groupService.getUserGroups(userId);
+        return ResponseEntity.ok(userGroups);
+    }
+
+    // 그룹 상세 조회
+    @GetMapping("/{groupId}/detail")
+    public ResponseEntity<GroupDetailResponseDto> getGroupsDetails(@PathVariable Long groupId) {
+        GroupDetailResponseDto groupDetail = groupService.getGroupDetails(groupId);
+        return ResponseEntity.ok(groupDetail);
+    }
 
     //  그룹 생성
     @PostMapping
@@ -33,31 +53,10 @@ public class GroupController {
         return ResponseEntity.ok("Group delete Ok");
     }
 
-    // 전체 그룹 조회
-    @GetMapping
-    public ResponseEntity<List<GroupResponseDto>> getAllGroups() {
-        List<GroupResponseDto> groups = groupService.getAllGroups();
-        return ResponseEntity.ok(groups);
-    }
-
-    // 개별 그룹 조회
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<GroupResponseDto>> getUserGroups(@PathVariable Long userId) {
-        List<GroupResponseDto> userGroups = groupService.getUserGroups(userId);
-        return ResponseEntity.ok(userGroups);
-    }
-
-    // 그룹 상세 조회
-    @GetMapping("/{groupId}/detail")
-    public ResponseEntity<GroupDetailResponseDto> getGroupsDetails(@PathVariable Long groupId) {
-        GroupDetailResponseDto groupDetail = groupService.getGroupDetails(groupId);
-        return ResponseEntity.ok(groupDetail);
-    }
-
     // 그룹 탈퇴
     @DeleteMapping("/leave")
-    public ResponseEntity<?> leaveGroup(@RequestParam Long groupId, @RequestParam Long userId) {
-        groupService.leaveGroup(groupId, userId);
+    public ResponseEntity<?> leaveGroup(@RequestBody GroupLeaveRequestDto request) {
+        groupService.leaveGroup(request.getGroupId(), request.getUserId());
         return ResponseEntity.ok("Group leave Ok");
     }
 

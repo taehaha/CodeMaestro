@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.chat.dto;
 
-import com.ssafy.codemaestro.domain.chat.entity.Chat;
+import com.ssafy.codemaestro.global.entity.Chat;
 import lombok.Getter;
 import lombok.Setter;
 

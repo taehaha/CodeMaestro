@@ -1,6 +1,5 @@
-package com.ssafy.codemaestro.domain.group.entity;
+package com.ssafy.codemaestro.global.entity;
 
-import com.ssafy.codemaestro.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

@@ -17,7 +17,7 @@ public class NotificationController {
 
     // 구독 처리
     // 보통 사용자가 로그인 시 스트림 구독
-    @GetMapping("/api/subscribe/{userId}")
+    @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe (@PathVariable Long userId) {
         return sseService.subscribe(userId);
     }

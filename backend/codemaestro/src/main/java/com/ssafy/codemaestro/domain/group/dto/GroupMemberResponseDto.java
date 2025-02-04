@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.group.dto;
 
-import com.ssafy.codemaestro.domain.group.entity.GroupMember;
+import com.ssafy.codemaestro.global.entity.GroupMember;
 import lombok.*;
 import java.time.LocalDateTime;
 

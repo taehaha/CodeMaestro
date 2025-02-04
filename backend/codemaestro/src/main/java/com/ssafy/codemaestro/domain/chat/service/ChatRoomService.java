@@ -1,7 +1,7 @@
 package com.ssafy.codemaestro.domain.chat.service;
 
 import com.ssafy.codemaestro.domain.chat.dto.ChatRoomDto;
-import com.ssafy.codemaestro.domain.chat.entity.ChatRoom;
+import com.ssafy.codemaestro.global.entity.ChatRoom;
 import com.ssafy.codemaestro.domain.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

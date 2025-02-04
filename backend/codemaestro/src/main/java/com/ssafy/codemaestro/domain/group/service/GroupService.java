@@ -4,13 +4,13 @@ import com.ssafy.codemaestro.domain.group.dto.GroupDetailResponseDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupRequestDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupResponseDto;
 import com.ssafy.codemaestro.domain.group.dto.TransferOwnerRequestDto;
-import com.ssafy.codemaestro.domain.group.entity.Group;
-import com.ssafy.codemaestro.domain.group.entity.GroupMember;
-import com.ssafy.codemaestro.domain.group.entity.GroupRole;
 import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
-import com.ssafy.codemaestro.domain.user.entity.User;
+import com.ssafy.codemaestro.global.entity.Group;
+import com.ssafy.codemaestro.global.entity.GroupMember;
+import com.ssafy.codemaestro.global.entity.User;
+import com.ssafy.codemaestro.global.entity.GroupRole;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class GroupService {
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
         System.out.println(groupRequestDto.getUserId());
         User owner = userRepository.findById(groupRequestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
 
         Group group = new Group();
         group.setName(groupRequestDto.getName());
@@ -47,7 +47,7 @@ public class GroupService {
         groupRepository.save(group);
 
         // 생성자는 그룹에 OWNER로 참여
-        GroupMember groupMember = new GroupMember();
+       GroupMember groupMember = new GroupMember();
         groupMember.setUser(owner);
         groupMember.setGroup(group);
         groupMember.setRole(GroupRole.OWNER);
@@ -59,7 +59,7 @@ public class GroupService {
 
     // 그룹 삭제
     public void deleteGroup(Long groupId) {
-        Group group = groupRepository.findById(groupId)
+       Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found"));
 
         groupRepository.delete(group);
@@ -92,7 +92,7 @@ public class GroupService {
     // 그룹 상세 조회
     public GroupDetailResponseDto getGroupDetails(Long groupId) {
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+                .orElseThrow(() -> new BadRequestException("Group not found"));
 
         return new GroupDetailResponseDto(group);
     }
@@ -100,10 +100,10 @@ public class GroupService {
     // 그룹 탈퇴
     public void leaveGroup(Long groupId, Long userId) {
         GroupMember groupMember = groupMemberRepository.findByGroupIdAndUserId(groupId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Group Member not found"));
+                .orElseThrow(() -> new BadRequestException("Group Member not found"));
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+                .orElseThrow(() -> new BadRequestException("Group not found"));
 
         // 그룹장이 탈퇴하려는 경우 Bad_request 반환
         if (group.getOwner().getId().equals(userId)) {
@@ -118,19 +118,19 @@ public class GroupService {
     // 그룹장 권한 위임
     public void transferOwner(TransferOwnerRequestDto request) {
         Group group = groupRepository.findById(request.getGroupId())
-                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+                .orElseThrow(() -> new BadRequestException("Group not found"));
 
         if (!group.getOwner().getId().equals(request.getCurrentOwnerId())) {
-            throw new IllegalArgumentException("Only the current owner can transfer ownership.");
+            throw new BadRequestException("Only the current owner can transfer ownership.");
         }
 
         GroupMember newOwnerMember = groupMemberRepository.findByGroupIdAndUserId(
                         request.getGroupId(), request.getNewOwnerId())
-                .orElseThrow(() -> new IllegalArgumentException("The specified user is not a member of this group."));
+                .orElseThrow(() -> new BadRequestException("The specified user is not a member of this group."));
 
-        GroupMember currentOwnerMember = groupMemberRepository.findByGroupIdAndUserId(
+       GroupMember currentOwnerMember = groupMemberRepository.findByGroupIdAndUserId(
                         request.getGroupId(), request.getCurrentOwnerId())
-                .orElseThrow(() -> new IllegalArgumentException("Current owner not found in group members."));
+                .orElseThrow(() -> new BadRequestException("Current owner not found in group members."));
 
         currentOwnerMember.setRole(GroupRole.MEMBER);
         newOwnerMember.setRole(GroupRole.OWNER);
