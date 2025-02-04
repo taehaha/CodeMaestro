@@ -20,14 +20,15 @@ const GroupManagement = ({group}) => {
   // 그룹 관리자 권한 양도 함수
   const handlePutGroup = (groupId, newOwner) => {
     const payload = {
+      groupId,  
       currentOwnerId: group.ownerId,
-      newOwnerId: newOwner.id,
+      newOwnerId: newOwner.userId,
     };
 
     Swal.fire({
       title: "권한 변경",
       icon: "warning",
-      text: `정말로 그룹 관리자 권한을 ${newOwner.name}님에게 양도하시겠습니까? 이 선택은 되돌릴 수 없습니다.`,
+      text: `정말로 그룹 관리자 권한을 ${newOwner.userNickname}님에게 양도하시겠습니까? 이 선택은 되돌릴 수 없습니다.`,
       showCancelButton: true,
       confirmButtonText: "확인",
       cancelButtonText: "취소",

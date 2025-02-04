@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
+import {LeaveGroup } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
 import DummyGroupMembersDemo from "./Dummy";
@@ -38,9 +39,6 @@ const GroupDetail = () => {
 
         // 내 역할 설정
           const member = result.data.members.find(member => member.userId === user.userId);
-          console.log(member);
-          console.log(user);
-          
           
           if (member) {
             setUserRole(member.role);
@@ -111,8 +109,25 @@ const GroupDetail = () => {
         cancelButtonText: "취소",
       }).then((result) => {
         if (result.isConfirmed) {
-          // 실제 axios.delete("/groups/{groupId}/members/{userId}")
-          setUserRole(ROLE.NONE);
+          const result = LeaveGroup({groupId,userId:user.userId})
+
+          if (result===200) {
+                    Swal.fire({
+                      title: "탈퇴 완료",
+                      text: "그룹에서 탈퇴했습니다. 메인 페이지로 이동합니다.",
+                      icon: "success",
+                      confirmButtonText: "확인",
+                    }).then(() => {
+                      window.location.replace("/");
+                    });
+                  } else {
+                    Swal.fire({
+                      title: "탈퇴 실패",
+                      text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
+                      icon: "error",
+                      confirmButtonText: "확인",
+                    });
+                  }
         }
       });
     }
@@ -243,10 +258,10 @@ const GroupDetail = () => {
           그룹 관리
           </button>
         )}
-
+{/* 
         {(userRole === ROLE.MEMBER || userRole === ROLE.ADMIN) && (
           <button  className="btn btn-primary rounded-sm">그룹 초대</button>
-        )}
+        )} */}
       </div>
 
       {/*--- 그룹관리 모달 ---*/}

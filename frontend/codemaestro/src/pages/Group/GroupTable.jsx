@@ -28,19 +28,19 @@ function GroupTable({ members, userRole }) {
       {
         Header: "프로필",
         accessor: "profileImageUrl",
-        Cell: ({ row }) => (
-          <div className="avatar">
-            <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
-              <img
-                src={
-                  row.original.profileImageUrl ||
-                  "https://via.placeholder.com/150"
-                }
-                alt="profile"
-              />
-            </div>
-          </div>
-        ),
+        // Cell: ({ row }) => (
+        //   <div className="avatar">
+        //     <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
+        //       <img
+        //         src={
+        //           row.original.profileImageUrl ||
+        //           "https://via.placeholder.com/150"
+        //         }
+        //         alt="profile"
+        //       />
+        //     </div>
+        //   </div>
+        // ),
       },
       {
         Header: "이름",
