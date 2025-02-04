@@ -2,10 +2,11 @@ package com.ssafy.codemaestro.domain.group.dto;
 
 import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 
 @AllArgsConstructor
-@Getter
+@Data
 public class GroupJoinRequestDto {
     private Long userId;
     private Long groupId;
@@ -22,5 +23,14 @@ public class GroupJoinRequestDto {
                 entity.getGroup().getId(),
                 entity.getMessage()
         );
+    }
+
+    @Override
+    public String toString() {
+        return "GroupJoinRequestDto{" +
+                "userId=" + userId +
+                ", groupId=" + groupId +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

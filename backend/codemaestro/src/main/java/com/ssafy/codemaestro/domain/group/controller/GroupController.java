@@ -27,7 +27,7 @@ public class GroupController {
     }
 
     // 유저별 참여 그룹 조회
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<GroupResponseDto>> getUserGroups(@PathVariable Long userId) {
         List<GroupResponseDto> userGroups = groupService.getUserGroups(userId);
         return ResponseEntity.ok(userGroups);
@@ -89,33 +89,10 @@ public class GroupController {
         return ResponseEntity.ok("Group Join Request REJECT Ok");
     }
 
-
-    // 대기 중인 요청 조회
-
-
-
-    //    // 그룹 참가 요청
-//    @PostMapping("/{groupId}/join-requests")
-//    public ResponseEntity<JoinRequestResponse> requestToJoin(
-//            @PathVariable Long groupId,
-//            @RequestBody @Valid JoinRequestRequest request) {
-//        return ResponseEntity.ok(groupService.createJoinRequest(groupId, request));
-//    }
-//
-//    // 참가 요청 수락
-//    @PutMapping("/join-requests/{requestId}/accept")
-//    public ResponseEntity<Void> acceptJoinRequest(@PathVariable Long requestId) {
-//        groupService.acceptJoinRequest(requestId);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    // 참가 요청 거절
-//    @PutMapping("/join-requests/{requestId}/reject")
-//    public ResponseEntity<Void> rejectJoinRequest(@PathVariable Long requestId) {
-//        groupService.rejectJoinRequest(requestId);
-//        return ResponseEntity.ok().build();
-//    }
-
-
-//    // 대기 중인 요청 조회
+    // 그룹 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<GroupResponseDto>> searchGroups(@RequestParam(required = false) String groupName) {
+        List<GroupResponseDto> searchGroups = groupService.searchGroups(groupName);
+        return ResponseEntity.ok(searchGroups);
+    }
 }

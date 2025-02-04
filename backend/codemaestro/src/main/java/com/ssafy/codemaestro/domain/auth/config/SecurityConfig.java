@@ -97,6 +97,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // 중복검사 라우팅
                 .requestMatchers("/api/exist/**").permitAll()
+                // 로그아웃 시 SSE 구독 해제
+                .requestMatchers("/unsubscribe/**").permitAll()
                 //OpenVidu WebHook
                 .requestMatchers("/conference/webhook").permitAll()
                 // 위 경로 외 경로는 로그인을 필요로 함
