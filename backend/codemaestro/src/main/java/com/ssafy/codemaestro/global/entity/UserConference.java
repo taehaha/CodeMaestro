@@ -21,4 +21,6 @@ public class UserConference {
 
     @ManyToOne(fetch = FetchType.LAZY)
     User user;
+
+    String connectionId;
 }

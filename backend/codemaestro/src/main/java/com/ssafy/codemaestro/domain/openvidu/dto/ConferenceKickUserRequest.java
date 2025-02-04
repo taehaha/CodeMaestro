@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ConferenceDisconnectRequest {
+public class ConferenceKickUserRequest {
     String conferenceId;
+    Long targetUserId;
 }
