@@ -2,12 +2,14 @@ package com.ssafy.codemaestro.domain.friend.service;
 
 import com.ssafy.codemaestro.domain.friend.dto.FriendListResponseDto;
 import com.ssafy.codemaestro.domain.friend.dto.FriendRequestDto;
+import com.ssafy.codemaestro.domain.friend.dto.FriendResponseDto;
 import com.ssafy.codemaestro.domain.friend.repository.FriendRequestRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.FriendRequest;
 import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
+import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.http.HttpStatus;
@@ -27,17 +29,23 @@ public class FriendRequestService {
     private final NotificationService notificationService;
 
     // 친구 요청
-    @Transactional
     public void sendFriendRequest(FriendRequestDto request) {
         FriendRequest friendRequest = saveFriendRequest(request);
 
+        // sender와 receiver 정보 조회
+        User sender = userRepository.findById(request.getSenderId())
+                .orElseThrow(() -> new BadRequestException("Sender not found"));
+        User receiver = userRepository.findById(request.getReceiverId())
+                .orElseThrow(() -> new BadRequestException("Receiver not found"));
+
         // 알림 전송
-        notificationService.sendFriendRequestNotification(request.getReceiverId(),
-                FriendRequestDto.from(friendRequest));
+        notificationService.sendFriendRequestNotification(
+                request.getReceiverId(),
+                FriendResponseDto.from(friendRequest, sender, receiver)
+        );
     }
 
     // 친구 요청 DB 저장
-    @Transactional
     private FriendRequest saveFriendRequest(FriendRequestDto request) {
         // 이미 존재하는 친구 요청이 있는지 확인
         boolean alreadyExists = friendRequestRepository.existsBySenderIdAndReceiverIdAndStatus(
