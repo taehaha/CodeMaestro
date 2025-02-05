@@ -1,7 +1,9 @@
 package com.ssafy.codemaestro.domain.notification.service;
 
 import com.ssafy.codemaestro.domain.friend.dto.FriendRequestDto;
+import com.ssafy.codemaestro.domain.friend.dto.FriendResponseDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinRequestDto;
+import com.ssafy.codemaestro.domain.group.dto.GroupJoinResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,7 +53,7 @@ import java.util.Queue;
 public class NotificationService {
     private final SseService sseService;
 
-    public void sendFriendRequestNotification(Long userId, FriendRequestDto notification) {
+    public void sendFriendRequestNotification(Long userId, FriendResponseDto notification) {
         try {
             sseService.sendNotification(userId, "friendRequest", notification);
         } catch (Exception e) {
@@ -60,7 +62,7 @@ public class NotificationService {
         }
     }
 
-    public void sendGroupJoinRequestNotification(Long userId, GroupJoinRequestDto notification) {
+    public void sendGroupJoinRequestNotification(Long userId, GroupJoinResponseDto notification) {
         try {
             sseService.sendNotification(userId, "groupRequest", notification);
         } catch (Exception e) {

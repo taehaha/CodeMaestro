@@ -18,12 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
-    /**
-     * 개인 정보 조회
-     * @AuthenticationPrincipal 어노테이션을 사용하여 JWT 토큰이나 세션에서 인증된 사용자 정보를 가져옴
-     * @param userDetails
-     * @return
-     */
+
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> getUserProfile(
             @AuthenticationPrincipal UserDetails userDetails) {

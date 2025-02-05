@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinRequestDto;
+import com.ssafy.codemaestro.domain.group.dto.GroupJoinResponseDto;
 import com.ssafy.codemaestro.global.entity.Group;
 import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
 import com.ssafy.codemaestro.global.entity.GroupRequestStatus;
@@ -36,7 +37,7 @@ public class GroupRequestService {
         Long groupOwnerId = groupJoinRequest.getGroup().getOwner().getId(); // 그룹장의 ID 가져오기
         notificationService.sendGroupJoinRequestNotification(
                 groupOwnerId, // 그룹장에게 알림
-                GroupJoinRequestDto.from(groupJoinRequest)
+                GroupJoinResponseDto.from(groupJoinRequest)
         );
     }
 
