@@ -5,6 +5,7 @@ import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
 import com.ssafy.codemaestro.global.entity.User;
+import com.ssafy.codemaestro.global.entity.UserConference;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
 import com.ssafy.codemaestro.global.exception.openvidu.ConnectionAlreadyExistException;
 import com.ssafy.codemaestro.global.exception.openvidu.InvaildAccessCodeException;
@@ -17,19 +18,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class OpenViduService {
+public class ConferenceService {
     private final ConferenceRepository conferenceRepository;
     private final UserConferenceRepository userConferenceRepository;
 
     private final OpenViduUtil openViduUtil;
 
     @Autowired
-    public OpenViduService(OpenViduUtil openViduUtil, UserConferenceRepository userConferenceRepository, ConferenceRepository conferenceRepository) {
+    public ConferenceService(OpenViduUtil openViduUtil, UserConferenceRepository userConferenceRepository, ConferenceRepository conferenceRepository) {
         this.openViduUtil = openViduUtil;
         this.userConferenceRepository = userConferenceRepository;
         this.conferenceRepository = conferenceRepository;
@@ -57,7 +59,7 @@ public class OpenViduService {
      * OpenVidu를 사용해 회의 세션을 생성하며 해당 세션의 ID를 반환합니다.
      * 사용자가 이미 기존 연결을 보유하고 있는 경우 예외를 발생시킵니다.
      *
-     * @param owner        회의를 소유할 사용자.
+     * @param moderator        회의를 소유할 사용자.
      * @param title        회의 제목.
      * @param description  회의 설명.
      * @param accessCode   회의 액세스 코드.
@@ -67,15 +69,15 @@ public class OpenViduService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User owner, String title, String description, String accessCode, ProgrammingLanguage pl) {
+    public String initializeConference(User moderator, String title, String description, String accessCode, ProgrammingLanguage pl) {
         // 이미 User가 Connection을 가지고 있으면 throw
-        userConferenceRepository.findByUser(owner).ifPresent(
+        userConferenceRepository.findByUser(moderator).ifPresent(
                 conference -> {
-                    throw new ConnectionAlreadyExistException("유저가 이미 Connection을 가지고 있습니다. : userId : " + owner.getId() + ", conferenceId : " + conference.getId());
+                    throw new ConnectionAlreadyExistException("유저가 이미 Connection을 가지고 있습니다. : userId : " + moderator.getId() + ", conferenceId : " + conference.getId());
                 });
 
         Conference conference = Conference.builder()
-                .owner(owner)
+                .moderator(moderator)
                 .title(title)
                 .description(description)
                 .accessCode(accessCode)
@@ -132,8 +134,6 @@ public class OpenViduService {
         Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
                 .orElseThrow(() -> new CannotFindSessionException("conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
 
-        System.out.println("방 번호 : " + conferenceId + " 비밀번호 : " + conference.getAccessCode() + " 입력된 비밀번호 : " + accessCode);
-
         if (!openViduUtil.isAccessCodeCorrect(accessCode, conference)) {
             throw new InvaildAccessCodeException("방 번호 : " + conferenceId + " 비밀번호 : " + conference.getAccessCode() + " 입력된 비밀번호 : " + accessCode);
         }
@@ -172,5 +172,12 @@ public class OpenViduService {
     public int getParticipantNum(String conferenceId) {
         Session session = openVidu.getActiveSession(conferenceId);
         return session.getConnections().size();
+    }
+
+    public List<User> getParticipants(String conferenceId) {
+        Long conferenceIdLong = Long.valueOf(conferenceId);
+        return userConferenceRepository.findByConference_Id(conferenceIdLong).stream()
+                .map(UserConference::getUser)
+                .collect(Collectors.toList());
     }
 }
