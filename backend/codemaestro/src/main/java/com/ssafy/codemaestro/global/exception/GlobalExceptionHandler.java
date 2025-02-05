@@ -4,6 +4,7 @@ import com.ssafy.codemaestro.global.dto.ErrorResponse;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionException;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
 import com.ssafy.codemaestro.global.exception.openvidu.ConnectionAlreadyExistException;
+import com.ssafy.codemaestro.global.exception.openvidu.InvaildAccessCodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
                 new ErrorResponse(ex.getMessage()),
                 HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler(InvaildAccessCodeException.class)
+    public ResponseEntity<ErrorResponse> handleInvaildAccessCodeException(Exception ex) {
+        log.error("Invaild access code error: " +
+                "message : " + ex.getMessage());
+        return new ResponseEntity<>(
+                new ErrorResponse(ex.getMessage()),
+                HttpStatus.FORBIDDEN
         );
     }
 }

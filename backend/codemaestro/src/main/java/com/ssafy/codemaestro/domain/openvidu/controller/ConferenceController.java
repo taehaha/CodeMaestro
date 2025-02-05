@@ -47,16 +47,16 @@ public class ConferenceController {
     /**
      * Connection token을 생성해서 반환해줌.
      * DB에 상태를 업데이트 해주지 않는다. -> WebHook에서 처리해줌
-     * @param conferenceId
-     * @param userDetails
      * @return
      */
     @PostMapping("/{conferenceId}/issue-token")
-    public ResponseEntity<ConferenceConnectResponse> issueToken(@PathVariable String conferenceId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        System.out.println("ISSUE TOKEN IN");
+    public ResponseEntity<ConferenceConnectResponse> issueToken(@PathVariable String conferenceId,
+                                                                @RequestBody(required = false) ConferenceIssueTokenRequest dto,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
+        String accessCode = dto.getAccessCode();
 
-        Connection connection = openViduService.issueToken(currentUser, conferenceId);
+        Connection connection = openViduService.issueToken(currentUser, conferenceId, accessCode);
 
         ConferenceConnectResponse response = new ConferenceConnectResponse(connection.getToken());
         return new ResponseEntity<>((response), HttpStatus.OK);

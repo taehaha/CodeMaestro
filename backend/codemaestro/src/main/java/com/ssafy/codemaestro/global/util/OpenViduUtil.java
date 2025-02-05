@@ -16,4 +16,14 @@ public class OpenViduUtil {
     public boolean isModerator(User participant, Conference conference) {
         return conference.getOwner().getId().equals(participant.getId());
     }
+
+    public boolean isAccessCodeCorrect(String accessCode, Conference conference) {
+        String conferenceAccessCode = conference.getAccessCode();
+
+        if (conferenceAccessCode == null || conferenceAccessCode.isBlank()) return true;
+        else if (accessCode != null) {
+            return conferenceAccessCode.equals(accessCode);
+        }
+        return false;
+    }
 }
