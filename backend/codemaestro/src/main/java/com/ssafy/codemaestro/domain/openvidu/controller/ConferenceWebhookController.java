@@ -35,7 +35,7 @@ public class ConferenceWebhookController {
 
         } else if ("sessionDestroyed".equals(event)) {
             String sessionId = (String) eventInfo.get("sessionId");
-            openViduWebHookService.onSessionDestroyed(Long.valueOf(sessionId));
+            openViduWebHookService.onSessionDestroyed(sessionId);
 
         } else if ("participantJoined".equals(event)) {
             String sessionId = (String) eventInfo.get("sessionId");
