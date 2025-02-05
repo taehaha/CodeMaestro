@@ -18,7 +18,7 @@ public class UserConference {
     @ManyToOne(fetch = FetchType.LAZY)
     Conference conference;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     User user;
 
     String connectionId;

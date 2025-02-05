@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class OpenViduUtil {
     public OpenViduRole determineRole(User participant, Conference conference) {
-        return conference.getOwner().getId().equals(participant.getId())
+        return conference.getModerator().getId().equals(participant.getId())
                 ? OpenViduRole.MODERATOR
                 : OpenViduRole.PUBLISHER;
     }
 
     public boolean isModerator(User participant, Conference conference) {
-        return conference.getOwner().getId().equals(participant.getId());
+        return conference.getModerator().getId().equals(participant.getId());
     }
 
     public boolean isAccessCodeCorrect(String accessCode, Conference conference) {

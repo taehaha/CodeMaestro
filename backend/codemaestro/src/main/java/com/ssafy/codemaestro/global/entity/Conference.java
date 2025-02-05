@@ -2,7 +2,6 @@ package com.ssafy.codemaestro.global.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,7 @@ public class Conference {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    User owner;
+    User moderator;
 
     @Builder.Default
     @Column(nullable = false)

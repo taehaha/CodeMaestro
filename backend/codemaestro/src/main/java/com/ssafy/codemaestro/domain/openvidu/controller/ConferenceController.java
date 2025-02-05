@@ -2,7 +2,7 @@ package com.ssafy.codemaestro.domain.openvidu.controller;
 
 import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
-import com.ssafy.codemaestro.domain.openvidu.service.OpenViduService;
+import com.ssafy.codemaestro.domain.openvidu.service.ConferenceService;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.User;
 import io.openvidu.java.client.Connection;
@@ -20,11 +20,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/conference")
 public class ConferenceController {
-    private final OpenViduService openViduService;
+    private final ConferenceService conferenceService;
 
     @Autowired
-    public ConferenceController(OpenViduService openViduService) {
-        this.openViduService = openViduService;
+    public ConferenceController(ConferenceService conferenceService) {
+        this.conferenceService = conferenceService;
     }
 
     @PostMapping("/create")
@@ -32,7 +32,7 @@ public class ConferenceController {
         // 현재 유저 정보 가져오기
         User currentUser = userDetails.getUser();
         String conferenceId =
-                openViduService.initializeConference(
+                conferenceService.initializeConference(
                         currentUser,
                         dto.getTitle(),
                         dto.getDescription(),
@@ -56,7 +56,7 @@ public class ConferenceController {
         User currentUser = userDetails.getUser();
         String accessCode = dto.getAccessCode();
 
-        Connection connection = openViduService.issueToken(currentUser, conferenceId, accessCode);
+        Connection connection = conferenceService.issueToken(currentUser, conferenceId, accessCode);
 
         ConferenceConnectResponse response = new ConferenceConnectResponse(connection.getToken());
         return new ResponseEntity<>((response), HttpStatus.OK);
@@ -68,12 +68,12 @@ public class ConferenceController {
      */
     @GetMapping("")
     public ResponseEntity<List<ConferenceInfoResponse>> getAllConferenceInfo() {
-        List<Conference> conferenceList = openViduService.getAllConferences();
+        List<Conference> conferenceList = conferenceService.getAllConferences();
 
         List<ConferenceInfoResponse> responseList = new ArrayList<>();
 
         for (Conference conference : conferenceList) {
-            int participantNum = openViduService.getParticipantNum(String.valueOf(conference.getId()));
+            int participantNum = conferenceService.getParticipantNum(String.valueOf(conference.getId()));
 
             ConferenceInfoResponse conferenceInfo = ConferenceInfoResponse.builder()
                     .conferenceId(conference.getId().toString())
@@ -81,7 +81,7 @@ public class ConferenceController {
                     .description(conference.getDescription())
                     .thumbnailUrl(conference.getThumbnailUrl())
                     .programmingLanguage(conference.getProgrammingLanguage())
-                    .hostNickName(conference.getOwner().getNickname())
+                    .hostNickName(conference.getModerator().getNickname())
                     .participantNum(participantNum)
                     .createdAt(conference.getCreatedAt())
                     .build();
@@ -99,9 +99,9 @@ public class ConferenceController {
      */
     @GetMapping("/{conferenceId}")
     public ResponseEntity<ConferenceInfoResponse> conferenceInfo(@PathVariable String conferenceId) {
-        Conference conference = openViduService.getConference(conferenceId);
+        Conference conference = conferenceService.getConference(conferenceId);
 
-        int participantNum = openViduService.getParticipantNum(String.valueOf(conference.getId()));
+        int participantNum = conferenceService.getParticipantNum(String.valueOf(conference.getId()));
 
         ConferenceInfoResponse conferenceInfo = ConferenceInfoResponse.builder()
                 .conferenceId(conferenceId)
@@ -109,11 +109,16 @@ public class ConferenceController {
                 .description(conference.getDescription())
                 .thumbnailUrl(conference.getThumbnailUrl())
                 .programmingLanguage(conference.getProgrammingLanguage())
-                .hostNickName(conference.getOwner().getNickname())
+                .hostNickName(conference.getModerator().getNickname())
                 .participantNum(participantNum)
                 .createdAt(conference.getCreatedAt())
                 .build();
 
         return new ResponseEntity<>(conferenceInfo, HttpStatus.OK);
     }
+
+//    @PutMapping("/{conferenceId}/moderator")
+//    public ResponseEntity<Void> moderator(@PathVariable String conferenceId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+//
+//    }
 }
