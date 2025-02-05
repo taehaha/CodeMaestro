@@ -35,6 +35,7 @@ public class Conference {
     @Column(nullable = true)
     String accessCode;
 
+    //TODO: 자유 태그로 바꾸기
     @Column(nullable = false)
     ProgrammingLanguage programmingLanguage;
 

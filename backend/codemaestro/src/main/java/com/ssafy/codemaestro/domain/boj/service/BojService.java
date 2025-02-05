@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 public class BojService {
 
-    private final WebClient webClient;
+    private final WebClient solvedAcWebClient;
     private final BojUserRepository bojUserRepository;
 
     private static final String SOLVED_AC_API_URL = "https://solved.ac/api/v3";
@@ -60,7 +60,7 @@ public class BojService {
 
     // solved.ac.API 티어 받아오기
     public BojUserDto fetchUserInfoFromSolvedAc(String bojId) {
-        return webClient.get()
+        return solvedAcWebClient.get()
                 .uri(SOLVED_AC_API_URL + "/user/show?handle={bojId}", bojId)
                 .retrieve() // HTTP 응답 받기
                 .bodyToMono(String.class)  // 응답 -> String으로 반환
