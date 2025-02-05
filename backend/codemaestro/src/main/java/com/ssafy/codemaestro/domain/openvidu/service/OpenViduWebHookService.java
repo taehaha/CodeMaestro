@@ -50,11 +50,11 @@ public class OpenViduWebHookService {
     }
 
     @Transactional
-    public void onSessionDestroyed(Long sessionId) {
+    public void onSessionDestroyed(String sessionId) {
         log.debug("OpenVidu Webhook : Session Destroyed:");
 
-        userConferenceRepository.deleteByConferenceId(sessionId);
-        conferenceRepository.deleteById(sessionId);
+        userConferenceRepository.deleteByConferenceId(Long.valueOf(sessionId));
+        conferenceRepository.deleteById(Long.valueOf(sessionId));
     }
 
     @Transactional
@@ -93,8 +93,7 @@ public class OpenViduWebHookService {
 
     private Map<String, Object> clientDataParser(String string) {
         Gson gson = new Gson();
-        Map<String, Object> map = gson.fromJson(string, Map.class);
 
-        return map;
+        return gson.fromJson(string, Map.class);
     }
 }
