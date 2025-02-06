@@ -117,13 +117,29 @@ public class ConferenceController {
         return new ResponseEntity<>(conferenceInfo, HttpStatus.OK);
     }
 
-    @PutMapping("/{conferenceId}/moderator")
+    /**
+     * 특정 회의의 관리자를 업데이트합니다.
+     *
+     * @param conferenceId 회의의 고유 식별자
+     * @param newModeratorUserId 새로운 관리자의 사용자 ID를 포함한 요청 데이터
+     * @param userDetails 현재 로그인된 사용자의 인증 정보
+     * @return 작업 결과를 나타내는 HTTP 상태를 포함한 ResponseEntity
+     */
+    @PatchMapping("/{conferenceId}/moderator/{newModeratorUserId}")
     public ResponseEntity<Void> moderator(@PathVariable String conferenceId,
-                                          @RequestBody ConferenceChangeModeratorRequest dto,
+                                          @PathVariable Long newModeratorUserId,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        conferenceService.changeModerator(conferenceId, dto.getNewModeratorUserId(), currentUser);
+        conferenceService.changeModerator(conferenceId, newModeratorUserId, currentUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+//    @DeleteMapping("/{conferenceId}/user/{targetUserId}")
+//    public ResponseEntity<Void> kickOut(@PathVariable String conferenceId,
+//                                        @PathVariable Long targetUserId,
+//                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        User currentUser = userDetails.getUser();
+//        conferenceService.
+//    }
 }
