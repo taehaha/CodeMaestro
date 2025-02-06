@@ -18,7 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
-
+    // 개인정보 조회
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> getUserProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
