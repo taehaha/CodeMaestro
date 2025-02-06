@@ -1,0 +1,49 @@
+.group-list {
+  flex: 1;
+  padding: 20px;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.create-group {
+  background: gray;
+  padding: 5px 10px;
+  color: white;
+  border-radius: 5px;
+}
+
+.group-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+.group-item .group-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 그룹 인원수 영역은 고정된 너비로 지정 */
+.group-item .member-count {
+  width: 60px; /* 원하는 너비로 조정 */
+}
+
+.enter-btn {
+  background: #555;
+  color: white;
+  padding: 5px;
+  margin-right: 5px;
+}
+
+.leave-btn {
+  background: rgb(255, 88, 88);
+  color: white;
+  padding: 5px;
+}
