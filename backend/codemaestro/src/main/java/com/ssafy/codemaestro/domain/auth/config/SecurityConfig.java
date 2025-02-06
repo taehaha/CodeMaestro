@@ -125,7 +125,8 @@ public class SecurityConfig {
                                 .userService(customOauth2UserService))
                         .successHandler(customSuccessHandler)
                 )
-                .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint()); // 로그인 상태가 아니면 401 반환
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint()));
+//                .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint()); // 로그인 상태가 아니면 401 반환
 
         return http.build();
     }

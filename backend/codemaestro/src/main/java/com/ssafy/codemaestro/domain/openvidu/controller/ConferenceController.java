@@ -117,8 +117,13 @@ public class ConferenceController {
         return new ResponseEntity<>(conferenceInfo, HttpStatus.OK);
     }
 
-//    @PutMapping("/{conferenceId}/moderator")
-//    public ResponseEntity<Void> moderator(@PathVariable String conferenceId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-//
-//    }
+    @PutMapping("/{conferenceId}/moderator")
+    public ResponseEntity<Void> moderator(@PathVariable String conferenceId,
+                                          @RequestBody ConferenceChangeModeratorRequest dto,
+                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User currentUser = userDetails.getUser();
+        conferenceService.changeModerator(conferenceId, dto.getNewModeratorUserId(), currentUser);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

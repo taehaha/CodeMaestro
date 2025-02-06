@@ -12,9 +12,12 @@ import java.util.Optional;
 @Repository
 public interface UserConferenceRepository extends JpaRepository<UserConference, Long> {
     Optional<UserConference> findByUser(User user);
+
     void deleteByUserId(Long userId);
     void deleteByConferenceId(Long conferenceId);
     void deleteByConnectionId(String connectionId);
 
     List<UserConference> findByConference_Id(Long conferenceId);
+    
+    
 }
