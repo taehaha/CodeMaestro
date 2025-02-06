@@ -51,7 +51,7 @@ function Header() {
       <nav className={`menu ${menuOpen ? 'open' : ''}`}>
         <Link to="/meeting">Meeting</Link>
         <Link to="/mypage" onClick={closeMenu}>My Page</Link>
-        <a href="product">Product</a>
+        <Link to="/boards">Community</Link>
             <button
               onClick={toggleNotifications}
               className="btn text-2xl btn-ghost relative"

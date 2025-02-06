@@ -1,24 +1,32 @@
-.sidebar {
-  width: 250px;
-  background: #f4f4f4;
-  padding: 20px;
-  min-height: 100vh;
+/* 기존 Sidebar를 탭 스타일로 변경 */
+.sidebar-menu {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  width: 1300px;
 }
 
-.sidebar-menu li {
-  list-style: none;
-  padding: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-
-.sidebar-menu li:hover {
-  background-color: #ddd;
-}
-
-
-.sidebar-menu .active {
+.sidebar-item {
+  padding: 12px 50px;
+  font-size: 16px;
   font-weight: bold;
-  background-color: #ccc;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  color: #666;
 }
+
+.sidebar-item:hover,
+.sidebar-item:focus {
+  color: #000;
+}
+
+.sidebar-item.active {
+  color: #007bff;
+  border-bottom: 3px solid #007bff;
+  font-weight: bold;
+}
+

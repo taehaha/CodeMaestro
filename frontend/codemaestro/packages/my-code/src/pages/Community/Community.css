@@ -1,0 +1,119 @@
+.community-container {
+  width: 70%;
+  margin: auto;
+  font-family: "Arial", sans-serif;
+}
+
+.community-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 40px;
+}
+
+.community-subtitle {
+  color: gray;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.community-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  gap: 20px;
+}
+
+.create-post-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+}
+
+.create-post-btn:hover {
+  background-color: #0056b3;
+}
+
+.nav-menu {
+  margin-left: 50px;
+}
+
+.nav-menu a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  padding: 20px;
+}
+
+.search-bar {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.search-bar input {
+  width: 90%;
+  padding: 6px 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.no-results {
+  text-align: center;
+  color: #777;
+  margin-top: 20px;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-item {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.post-title {
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  color: black;
+}
+
+.post-title:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  font-size: 12px;
+  color: gray;
+  margin-top: 5px;
+  display: flex;
+  gap: 10px;
+}
+
+.post-author {
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.post-comments {
+  font-size: 14px;
+  margin-top: 10px;
+  color: gray;
+}
+
+.post-time {
+  font-size: 12px;
+  color: #666;
+}

@@ -14,12 +14,20 @@
   align-items: center;
   justify-content: center;
   background-color: #ffffff;
-  padding: 40px;
+  padding: 35px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  max-width: 500px;
+  max-width: 600px;
+  height: auto;
   width: 100%;
+}
+
+.email-auth-box h2 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
 }
 
 .progress-bar {
@@ -34,6 +42,10 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.signup-form {
+  margin-top: 20px;
 }
 
 .signup-form.step-2 {
@@ -63,13 +75,16 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 110%;
+  width: 100%;
   max-width: 500px;
 }
 
-.form-group {
-  position: relative;
-  margin-bottom: 20px;
+.form-group input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .duplication-btn {
@@ -90,18 +105,20 @@
   transition: all 0.3s ease-in-out;
 }
 
-.input-group {
+.input-group, .input-group2 {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
 }
 
-.input-group input {
+.input-group2 input {
   flex-grow: 1;
   padding: 8px;
   font-size: 14px;
   width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
 }
 
 .check-btn,

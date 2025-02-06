@@ -1,0 +1,65 @@
+.post-create-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-create-title {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-title-input,
+.post-content-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.post-content-input {
+  min-height: 200px;
+  resize: none;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.cancel-btn {
+  background-color: #f8f9fa;
+}
+
+.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}

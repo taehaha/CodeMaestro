@@ -1,0 +1,44 @@
+.friends-list {
+  padding: 20px;
+}
+
+.friends-list h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.remove-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background: darkred;
+}
+
+.no-friends {
+  color: gray;
+  font-size: 14px;
+  margin-top: 10px;
+}
+.friends-list-container {
+  width: 100%;
+  min-height: 650px; /* 기존보다 높이 증가 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+  border-radius: 12px;
+  background: #f9f9f9;
+}

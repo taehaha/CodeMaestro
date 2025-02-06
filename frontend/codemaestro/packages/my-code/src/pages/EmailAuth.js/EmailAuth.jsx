@@ -129,7 +129,7 @@ const handleComplete = async (e) => {
             <form className="signup-form" onSubmit={handleSubmit}>
                 <div className="form-row">
                   <label htmlFor="email">이메일</label>
-                  <div className="input-group">
+                  <div className="input-group2">
                     <input
                       type="email"
                       id="email"
@@ -145,7 +145,7 @@ const handleComplete = async (e) => {
                 </div>
               <div className="form-row">
                 <label htmlFor="code">인증번호</label>
-                <div className="input-group">
+                <div className="input-group2">
                   <input
                     type="text"
                     id="code"

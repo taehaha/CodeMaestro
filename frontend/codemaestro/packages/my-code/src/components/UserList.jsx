@@ -27,7 +27,7 @@ const UserList = ({ checkedUsers, setCheckedUsers, addPage, searchTerm }) => {
   // };
 
   return (
-    <ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto h-[300px] mt-3">
+    <ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto mt-3">
       {filteredUsers.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-4">
           <svg
