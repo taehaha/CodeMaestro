@@ -2,40 +2,40 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
+import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
+import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.entity.UserConference;
+import com.ssafy.codemaestro.global.exception.BadRequestException;
+import com.ssafy.codemaestro.global.exception.NotFoundException;
+import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionException;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
 import com.ssafy.codemaestro.global.exception.openvidu.ConnectionAlreadyExistException;
 import com.ssafy.codemaestro.global.exception.openvidu.InvaildAccessCodeException;
 import com.ssafy.codemaestro.global.util.OpenViduUtil;
 import io.openvidu.java.client.*;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ConferenceService {
+    private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
     private final UserConferenceRepository userConferenceRepository;
 
     private final OpenViduUtil openViduUtil;
-
-    @Autowired
-    public ConferenceService(OpenViduUtil openViduUtil, UserConferenceRepository userConferenceRepository, ConferenceRepository conferenceRepository) {
-        this.openViduUtil = openViduUtil;
-        this.userConferenceRepository = userConferenceRepository;
-        this.conferenceRepository = conferenceRepository;
-    }
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -141,8 +141,17 @@ public class ConferenceService {
         /* OpenVidu Connection Token 발급 */
         OpenViduRole role = openViduUtil.determineRole(participant, conference);
 
+        ConnectionDataVo connectionVo =
+                ConnectionDataVo.builder()
+                        .userId(participant.getId().toString())
+                        .nickname(participant.getNickname())
+                        .profileImageUrl(participant.getProfileImageUrl())
+                        .description(participant.getDescription())
+                        .build();
+
         ConnectionProperties properties = new ConnectionProperties.Builder()
                 .role(role)
+                .data(connectionVo.toJson())
                 .build();
 
         Connection connection;
@@ -179,5 +188,36 @@ public class ConferenceService {
         return userConferenceRepository.findByConference_Id(conferenceIdLong).stream()
                 .map(UserConference::getUser)
                 .collect(Collectors.toList());
+    }
+
+    public void changeModerator(String conferenceId, Long newModeratorUserId, User user) {
+        User newModeartorUser = userRepository.findById(newModeratorUserId)
+                .orElseThrow(() -> new NotFoundException("User를 찾을 수 없습니다. : userId : " + newModeratorUserId));
+
+        userConferenceRepository.findByUser(newModeartorUser)
+                .orElseThrow(() -> new CannotFindConnectionException(newModeratorUserId, "Connection을 찾을 수 없습니다."));
+
+        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
+                .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
+
+        if (!openViduUtil.isModerator(user, conference)) {
+            throw new BadRequestException("요청자가 현재 Moderator가 아닙니다. : userId" + user.getId());
+        }
+
+        conference.setModerator(newModeartorUser);
+        conferenceRepository.save(conference);
+
+        // Openvidu Signaling
+        Session session = openVidu.getActiveSession(conferenceId);
+
+        HttpStatusCode signalResponseStatus = openViduUtil.sendChangeModeratorSignal(
+                conferenceId,
+                session.getConnections(),
+                newModeartorUser
+        ).getStatusCode();
+
+        if (signalResponseStatus.is4xxClientError()) {
+            throw new BadRequestException("Signaling에서 오류가 생겼습니다.");
+        }
     }
 }
