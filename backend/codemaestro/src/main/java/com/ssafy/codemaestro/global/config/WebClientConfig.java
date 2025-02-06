@@ -42,7 +42,7 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .baseUrl(OPENVIDU_URL)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic ", encodedAuthorization)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuthorization)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .filters(exchangeFilterFunctions -> exchangeFilterFunctions.add(this::logRequest))
                 .build();
