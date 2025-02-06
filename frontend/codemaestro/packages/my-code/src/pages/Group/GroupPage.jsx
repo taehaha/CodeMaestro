@@ -9,6 +9,7 @@ import {LeaveGroup } from "../../api/GroupApi";
 import UserAxios from "../../api/userAxios";
 import DummyGroupMembersDemo from "./Dummy";
 import GroupManagement from "./GroupManagement";
+import GroupStudiesPage from "./GroupStudies";
 
 const ROLE = {
   NONE: "NONE",
@@ -225,7 +226,9 @@ const GroupDetail = () => {
         <DummyGroupMembersDemo userRole={userRole} members={group.members} />
       )}
       {activeTab === "studies" && (
-        <div className="text-center text-gray-700">스터디 기록 영역</div>
+        <div className="text-center text-gray-700">
+          <GroupStudiesPage></GroupStudiesPage>
+        </div>
       )}
 
       {/* --------- 우측 하단 액션 영역 --------- */}
