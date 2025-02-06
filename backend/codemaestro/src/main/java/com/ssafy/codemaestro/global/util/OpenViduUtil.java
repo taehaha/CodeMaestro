@@ -3,12 +3,9 @@ package com.ssafy.codemaestro.global.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.User;
 import io.openvidu.java.client.Connection;
-import io.openvidu.java.client.OpenViduRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -22,12 +19,6 @@ import java.util.List;
 public class OpenViduUtil {
     private final WebClient openviduWebClient;
     private final ObjectMapper objectMapper;
-
-    public OpenViduRole determineRole(User participant, Conference conference) {
-        return conference.getModerator().getId().equals(participant.getId())
-                ? OpenViduRole.MODERATOR
-                : OpenViduRole.PUBLISHER;
-    }
 
     public boolean isModerator(User participant, Conference conference) {
         return conference.getModerator().getId().equals(participant.getId());
@@ -44,8 +35,6 @@ public class OpenViduUtil {
     }
 
     public ResponseEntity<Void> sendChangeModeratorSignal(String sessionId, List<Connection> connectionList, User newModerator) {
-        List<String> connectionIdList = connectionList.stream().map(Connection::getConnectionId).toList();
-
         ObjectNode jsonBody = objectMapper.createObjectNode();
         ArrayNode connectionIds = objectMapper.createArrayNode();
 
