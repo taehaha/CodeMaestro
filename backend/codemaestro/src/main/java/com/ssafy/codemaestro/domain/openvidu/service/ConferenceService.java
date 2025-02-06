@@ -139,8 +139,6 @@ public class ConferenceService {
         }
 
         /* OpenVidu Connection Token 발급 */
-        OpenViduRole role = openViduUtil.determineRole(participant, conference);
-
         ConnectionDataVo connectionVo =
                 ConnectionDataVo.builder()
                         .userId(participant.getId().toString())
@@ -150,7 +148,7 @@ public class ConferenceService {
                         .build();
 
         ConnectionProperties properties = new ConnectionProperties.Builder()
-                .role(role)
+                .role(OpenViduRole.MODERATOR)
                 .data(connectionVo.toJson())
                 .build();
 
@@ -220,4 +218,8 @@ public class ConferenceService {
             throw new BadRequestException("Signaling에서 오류가 생겼습니다.");
         }
     }
+
+//    public void kickUser(Long targetUserId) {
+//
+//    }
 }
