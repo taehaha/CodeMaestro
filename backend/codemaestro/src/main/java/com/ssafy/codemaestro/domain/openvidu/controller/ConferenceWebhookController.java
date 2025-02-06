@@ -40,8 +40,8 @@ public class ConferenceWebhookController {
         } else if ("participantJoined".equals(event)) {
             String sessionId = (String) eventInfo.get("sessionId");
             String connectionId = (String) eventInfo.get("connectionId");
-            String clientData = (String) eventInfo.get("clientData");
-            openViduWebHookService.onParticipantJoined(clientData, sessionId, connectionId);
+            String serverData = (String) eventInfo.get("serverData");
+            openViduWebHookService.onParticipantJoined(serverData, sessionId, connectionId);
 
         } else if ("participantLeft".equals(event)) {
             String connectionId = (String) eventInfo.get("connectionId");

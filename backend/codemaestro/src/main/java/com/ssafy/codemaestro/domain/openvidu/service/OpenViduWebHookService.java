@@ -3,6 +3,7 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 import com.google.gson.Gson;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
+import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.User;
@@ -57,17 +58,12 @@ public class OpenViduWebHookService {
         conferenceRepository.deleteById(Long.valueOf(sessionId));
     }
 
-    @Transactional
-    public void onParticipantJoined(String clientData, String sessionId, String connectionId) {
-        Map<String, Object> map = clientDataParser(clientData);
-
-        String accessToken = (String) map.get("accessToken");
-
+    public void onParticipantJoined(String serverDataJson, String sessionId, String connectionId) {
+        log.debug("OpenVidu Webhook : Participant Joined:");
+        ConnectionDataVo connectionVo = ConnectionDataVo.fromJson(serverDataJson);
         // AccessToken에서 유저 ID 파싱
-        String participantId = jwtUtil.getId(accessToken);
-
-        log.debug("OpenVidu Webhook : Participant Joined: userId : " + participantId);
-
+        String participantId = connectionVo.getUserId();
+        log.debug("Connection 정보 : " + connectionVo);
         User participant = userRepository.findById(Long.valueOf(participantId)).orElseThrow(
                 () -> new RuntimeException("OpenVidu WebHook : User not found")
         );
@@ -82,18 +78,13 @@ public class OpenViduWebHookService {
                 .build();
 
         userConferenceRepository.save(newUserConference);
+        log.debug("참가자 정보 저장 완료");
     }
 
     @Transactional
     public void onParticipantLeft(String connectionId) {
-        log.debug("OpenVidu Webhook : Participant Joined:");
+        log.debug("OpenVidu Webhook : Participant Left:");
 
         userConferenceRepository.deleteByConnectionId(connectionId);
-    }
-
-    private Map<String, Object> clientDataParser(String string) {
-        Gson gson = new Gson();
-
-        return gson.fromJson(string, Map.class);
     }
 }

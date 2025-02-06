@@ -22,4 +22,14 @@ public class UserConference {
     User user;
 
     String connectionId;
+
+    @Override
+    public String toString() {
+        return "UserConference{" +
+                "id=" + id +
+                ", conference=" + conference +
+                ", user=" + user +
+                ", connectionId='" + connectionId + '\'' +
+                '}';
+    }
 }
