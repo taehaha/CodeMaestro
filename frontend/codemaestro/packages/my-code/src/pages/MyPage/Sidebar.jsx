@@ -1,32 +1,91 @@
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import EditProfile from "./EditProfile";
+import EditPassword from "./EditPassword";
+import FriendsList from "./FriendsList";
+import MyGroupList from "./MyGroupList"
+import RecordingsList from "./RecordingsList";
 import "./Sidebar.css";
 
-const Sidebar = ({ activeTab, setActiveTab }) => {
+const Sidebar = ({ onSelect, user }) => {
+  const [selectedTab, setSelectedTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("");
+
+  const handleTabClick = (tab) => {
+    setSelectedTab(tab);
+    onSelect(tab);
+
+    if (tab === "profile") {
+      // 🔥 프로필을 처음 클릭한 경우만 기본값 설정
+      setActiveTab((prev) => (selectedTab !== "profile" ? "" : prev));
+    } else {
+      setActiveTab(""); // 다른 탭을 클릭하면 프로필 탭 초기화
+    }
+  };
+
   return (
-    <div className="sidebar">
-      <ul className="sidebar-menu">
-        <li 
-          className={activeTab === "profile" ? "active" : ""}
-          onClick={() => setActiveTab("profile")}
+    <div className="sidebar-container">
+      <div className="sidebar-menu">
+        <button
+          className={`sidebar-item ${selectedTab === "profile" ? "active" : ""}`} 
+          onClick={() => handleTabClick("profile")}
         >
-          회원정보
-        </li>
-        <li>회의 녹화 리스트</li>
-        <li>친구 목록</li>
-        <li 
-          className={activeTab === "group" ? "active" : ""}
-          onClick={() => setActiveTab("group")}
+          프로필
+        </button>
+        <button 
+          className={`sidebar-item ${selectedTab === "friends" ? "active" : ""}`} 
+          onClick={() => handleTabClick("friends")}
+        >
+          친구 목록
+        </button>
+        <button 
+          className={`sidebar-item ${selectedTab === "groups" ? "active" : ""}`} 
+          onClick={() => handleTabClick("groups")}
         >
           그룹 목록
-        </li>
-      </ul>
+        </button>
+        <button 
+          className={`sidebar-item ${selectedTab === "recordings" ? "active" : ""}`} 
+          onClick={() => handleTabClick("recordings")}
+        >
+          녹화 목록
+        </button>
+      </div>
+
+      {/* 🔥 선택된 탭에 따라 콘텐츠 표시 */}
+      <div className="tab-content">
+        {selectedTab === "profile" && (
+          <>
+            <div className="tab-buttons">
+              <button 
+                onClick={() => setActiveTab("profile")} 
+                className={`tab-button ${activeTab === "profile" ? "active" : ""}`}
+              >
+                프로필 수정
+              </button>
+              <button 
+                onClick={() => setActiveTab("password")} 
+                className={`tab-button ${activeTab === "password" ? "active" : ""}`}
+              >
+                비밀번호 수정
+              </button>
+            </div>
+
+            {activeTab === "profile" && <EditProfile user={user} />}
+            {activeTab === "password" && <EditPassword />}
+          </>
+        )}
+        {selectedTab === "friends" && <FriendsList />}
+        {selectedTab === "groups" && <GroupList />}
+        {selectedTab === "recordings" && <RecordingsList />}
+      </div>
     </div>
   );
 };
 
-Sidebar.PropTypes = {
-  activeTab : PropTypes.string,
-  setActiveTab : PropTypes.func,
-}
+Sidebar.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired, // user 데이터를 필수 prop으로 요구
+};
 
 export default Sidebar;

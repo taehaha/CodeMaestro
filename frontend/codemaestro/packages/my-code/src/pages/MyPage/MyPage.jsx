@@ -1,18 +1,37 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
-import MyGroupList from "./MyGroupList";
 import MyProfile from "./MyProfile";
+import FriendsList from "./FriendsList";
+import MyGroupList from "./MyGroupList";
+import RecordingsList from "./RecordingsList";
 import "./MyPage.css";
 
 const MyPage = () => {
-  const [activeTab, setActiveTab] = useState("profile"); // 기본값을 그룹 목록으로 설정
+  const [selectedTab, setSelectedTab] = useState("profile");
+  const [profileTab, setProfileTab] = useState("editProfile");
+
+  const renderContent = () => {
+    switch (selectedTab) {
+      case "profile":
+        return <MyProfile />;
+      case "friends":
+        return <FriendsList />;
+      case "groups":
+        return <MyGroupList />;
+      case "recordings":
+        return <RecordingsList />;
+      default:
+        return <MyProfile />;
+    }
+  };
 
   return (
     <div className="mypage-container">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="w-full h-full">
-        {activeTab === "profile" && <MyProfile />}
-        {activeTab === "group" && <MyGroupList />}
+      {/* <div className="tab-container"> */}
+        {/* <Sidebar onSelect={setSelectedTab} /> */}
+      {/* </div> */}
+      <div className="content-area">
+        {renderContent()}
       </div>
     </div>
   );

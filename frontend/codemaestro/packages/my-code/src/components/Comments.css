@@ -1,0 +1,29 @@
+.comment-actions {
+  margin-top: 5px;
+}
+
+.comment-edit-btn,
+.comment-delete-btn,
+.comment-save-btn {
+  margin-left: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.comment-edit-btn {
+  background-color: #ffc107;
+  color: black;
+}
+
+.comment-delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.comment-save-btn {
+  background-color: #28a745;
+  color: white;
+}

@@ -1,4 +1,48 @@
-.mypage-container {
+/* .mypage-container {
   display: flex;
   min-height: 100vh;
+} */
+
+.profile-content {
+  display: flex;
+  justify-content: flex-start; /* 유저 정보와 사이드바를 자연스럽게 정렬 */
+  align-items: flex-start;
+  max-width: 1200px; /* 전체 너비 조절 */
+  margin: 20px auto;
 }
+
+/* 유저 정보 영역이 차지하는 공간을 늘림 */
+.user-info {
+  flex: 1; /* 유저 정보가 왼쪽에서 차지하는 공간 */
+}
+
+.sidebar {
+  width: 250px;
+  background: #f4f4f4;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.sidebar-menu li {
+  list-style: none;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.sidebar-menu li:hover {
+  background: #ddd;
+}
+
+.sidebar-menu .active {
+  /* background: #007bff; */
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+
+/* .content-area {
+  flex: 1;
+  padding: 0px 10px;
+  padding-right: 25px;
+} */

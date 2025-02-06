@@ -60,6 +60,8 @@
   float: right;
   text-decoration: none;
   margin-left: 10px;
+  position: relative;
+  top: -5px;
 }
 
 .forgot-password:hover {
@@ -90,7 +92,7 @@
 .social-login::after {
   content: ''; /* 선을 추가하기 위한 빈 콘텐츠 */
   position: absolute;
-  top: 15%; /* 텍스트와 같은 높이에 위치 */
+  top: 13%; /* 텍스트와 같은 높이에 위치 */
   width: 35%; /* 선의 길이 (필요 시 조정 가능) */
   height: 1px; /* 선의 두께 */
   background-color: #ddd; /* 선 색상 */
@@ -127,7 +129,7 @@
   color: #666;
 }
 
-.social-item img {
+.social-icons img {
   width: 50px; /* 이미지 크기 */
   height: 50px;
   border-radius: 50%; /* 둥근 이미지 */

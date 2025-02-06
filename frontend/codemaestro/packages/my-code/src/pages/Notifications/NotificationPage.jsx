@@ -4,6 +4,7 @@ import { NotificationsContext } from "../../context/NotificationContext";
 import { FaUserFriends, FaEnvelope, FaUsers, FaQuestion } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { AcceptGroupRequest, RejectGroupRequest } from "../../api/GroupApi";
 // 실제 axios 요청은 아래와 같이 처리할 예정
 // import UserAxios from "../../api/userAxios";
 
@@ -18,13 +19,10 @@ const NotificationModal = ({ onClose }) => {
         title: "요청 수락",
         text: "초대받은 회의실로 이동합니다",
       }).then(() => {
-        // TODO: invite 요청 수락 axios 요청이 필요한 경우 아래 주석 참고하여 추가
-        // UserAxios.post('/accept-invite', { request: notification.request })
-        //   .then(response => { ... })
-        //   .catch(error => { ... });
         console.log("invite 수락 처리 후 이동");
         navigate(`/meeting/${notification.roomId}`);
       });
+
     } else if (notification.type === "friend") {
       // TODO: 친구 요청 수락 axios 요청 (예: UserAxios.post('/accept-friend', { request: notification.request }))
       console.log(`${notification.request}번 친구 요청 수락 axios 요청 보내기`);
