@@ -1,5 +1,6 @@
-import UserAxios from "./userAxios";
+import UserAxios,{baseURL} from "./userAxios";
 import axios from "axios";
+
 // *중요: 모든 주소는 api 요청 정해지면 수정될 수 있음!!!
 // 현재 1월 17일 기준 
 
@@ -18,7 +19,7 @@ export const signup = async (payload) => {
     
       // JSON 데이터 전송
       const response = await axios.post(
-        `http://192.168.31.58:8080/auth/signup`,
+        `${baseURL}/auth/signup`,
         formData,
       {
         headers: {
@@ -48,7 +49,7 @@ export const signup = async (payload) => {
   
     // 3) Axios 요청
     const response = await axios.post(
-      `http://192.168.31.58:8080/auth/signin`,
+      `${baseURL}/auth/signin`,
       formData,
       {
         headers: {
@@ -64,7 +65,7 @@ export const signup = async (payload) => {
 
 export const signout = async () => {
     try {
-      const response = await UserAxios.post("/auth/logout")
+      const response = await UserAxios.delete("/auth/logout")
       return response.data
     } catch (error) {
       console.log("로그아웃 에러 발생",error);
@@ -100,17 +101,6 @@ export const getNotification = async (userId) => {
   }
 };
 
-// export const getFriendsNotification = async (userId) => {
-//   try {
-//     const response = await UserAxios.get(`/friends/requests/${userId}/pending`);
-//     console.log(response);
-    
-//     return response.data;
-//   } catch (error) {
-//     console.error("알림 가져오기 실패:", error);
-//     throw error;
-//   }
-// };
 
 export const emailVerification = async (payload) =>{
   // try {

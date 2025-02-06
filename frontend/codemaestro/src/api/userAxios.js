@@ -6,10 +6,10 @@ import { setLoggedOut } from "../reducer/userSlice";
 // =======================================
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
-export const baseURL = "https://api.codemaestro.site/"
-
+export const baseURL = "https://api.codemaestro.site"
+// export const baseURL = "http://172.20.10.3"
 const UserAxios = axios.create({
-  baseURL: "http://192.168.31.58:8080",  // 실제 API 주소로 변경
+  baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 3000,                      
   withCredentials: true,                // 쿠키 전송 허용
 });
@@ -20,7 +20,7 @@ const UserAxios = axios.create({
 //    - 불필요한 인터셉터를 배제해 별도로 관리
 // =======================================
 const RefreshAxios = axios.create({
-  baseURL: "http://192.168.31.58:8080",
+  baseURL: baseURL,
   timeout: 3000,
   withCredentials: true,
 });
@@ -103,7 +103,7 @@ UserAxios.interceptors.response.use(
 async function handleLogoutAndRedirect() {
   const { default: store } = await import("../reducer/store");
   //userSlice store userAxios 순환참조를 피하기 위한 동적 호출
-  
+
   tokenStorage.removeAccessToken(); // 로컬 토큰 삭제
   
   // 사용자 알림
