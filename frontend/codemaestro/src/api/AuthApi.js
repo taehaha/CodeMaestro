@@ -72,23 +72,25 @@ export const signout = async () => {
     }
 }
 
-// 아직 안정해진게 좀 있음(유저아이디 파라미터로 전해줄 것인가..)
-// URL은 임시 URL 수정사항 있을시 URL만 바꿀 수 있도록 
-
-// 2안
-// export const getMyInfo = async () => {
-//     const response = await UserAxios.get(`/profile/`,{
-        // headers: {
-        //     Authorization: `Bearer ${tokenStorage.getAccessToken()}`,
-        //   },})
-//     return response.data
-// }
-
-// 상세 정보는 바로 이렇게 쏘도록 설정.
-
+// 유저 정보 관련 : get, put, delete
 export const getUserInfo = async () => {
     const response = await UserAxios.get(`/users/profile`,{})
     return response.data
+}
+
+export const putUserInfo = async (payload) => {
+  try {
+    const response = await UserAxios.put('/users/profile', payload);
+    return response.data;
+  } catch (error) {
+    console.error('유저 정보 수정 중 에러 발생:', error);
+    throw error;
+  }
+};
+
+export const deleteUserInfo = async () => {
+  const response = await UserAxios.delete( `/auth/quit`, {})
+  return response.data
 }
 
 export const getNotification = async (userId) => {
