@@ -28,7 +28,8 @@ const CreateMeetingForm = () => {
       // 1) url(랜덤링크) 생성
       const roomUrl = generateRandomLink();
       const inviteLink = `http://localhost:5174/meeting/${roomUrl}`;
-
+      console.log(values);
+      
       // 2) FormData로 변환 (multipart/form-data)
       const formData = new FormData();
       formData.append("title", values.title);
@@ -36,6 +37,7 @@ const CreateMeetingForm = () => {
       formData.append("language", values.language);
       formData.append("tags", values.tags || "");
       formData.append("url", roomUrl);
+      formData.append("visible", values.isVisible || "");
 
       // 비밀방 => password (없으면 null)
       formData.append("entry_password", values.isPrivate ? values.entry_password : "");
@@ -137,6 +139,7 @@ const CreateMeetingForm = () => {
           language: "",
           tags: "",
           isPrivate: false,
+          isVisible: true,
           entry_password: "",
           thumbnail: null,
         }}
@@ -221,7 +224,13 @@ const CreateMeetingForm = () => {
                 <p className="text-sm mt-1">선택된 파일: {values.thumbnail.name}</p>
               )}
             </div>
-
+            {/*공개 여부 체크 */
+            <div className="form-control">
+              <label className="label cursor-pointer">
+              <span className="label-text font-semibold">공개 여부</span>
+                <Field type="checkbox" name="isVisible" className="toggle toggle-primary" />
+                </label>
+              </div>}
             {/* 비밀방 체크 */}
             <div className="form-control">
               <label className="label cursor-pointer">

@@ -21,7 +21,7 @@ const MyGroupList = () => {
     const fetchGroups = async (userId) => {
       try {
         const myGroup = await getMyGroupList(userId); // 비동기 호출        
-        setGroups(myGroup);
+        setGroups(myGroup || []);
       } catch (error) {
         console.error("그룹 목록을 가져오는 중 오류 발생:", error);
       } finally {
@@ -33,8 +33,10 @@ const MyGroupList = () => {
   }, []);
 
   const handleCreateGroup =  async (newGroup) => {
+    console.log(userId, newGroup);
+    
     const result = await UserAxios.post('/groups',{
-      userId:3,
+      uesrId:userId,
       name: newGroup.name,
       description: newGroup.description,
     })

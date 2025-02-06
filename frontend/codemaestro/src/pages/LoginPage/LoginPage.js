@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import { getMyInfo, loginUser } from '../../store/userSlice';
 import { Link } from 'react-router-dom';
 import './LoginPage.css';

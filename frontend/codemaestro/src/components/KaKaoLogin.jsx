@@ -1,8 +1,8 @@
+import { baseURL } from "../api/userAxios"
+
 const KaKaoLoginButton = () => {
 
-    const KAKAO_API = import.meta.env.VITE_KAKAO_API_KEY
-    const KAKAO_REDIRECT = import.meta.env.VITE_KAKAO_REDIRECT_URL
-    const URL_KAKAO = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_API}&redirect_uri=${KAKAO_REDIRECT}&response_type=code`
+    const URL_KAKAO = `${baseURL}/oauth2/authorization/kakao`
     
     const handleKakaoLogin = () => {
         window.location.href= URL_KAKAO

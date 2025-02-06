@@ -66,7 +66,9 @@ function Header() {
             </button>
 
                     {showNotifications && (
-            <NotificationModal onClose={toggleNotifications}/>
+                      <div>
+                        <NotificationModal onClose={toggleNotifications}/>
+                      </div>
       )}
         {isLoggedIn ? (
           <button className='header-logout-btn' onClick={handelLogout}>Log out</button>

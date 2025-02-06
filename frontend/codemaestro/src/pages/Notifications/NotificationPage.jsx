@@ -67,7 +67,7 @@ const NotificationModal = ({ onClose }) => {
       <div className="flex justify-between items-center border-b pb-3 mb-3">
         <h3 className="text-lg font-bold">알림</h3>
         <button
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500"
           onClick={onClose}
         >
           ✖
@@ -80,9 +80,9 @@ const NotificationModal = ({ onClose }) => {
           notifications.map((notification, index) => (
             <li
               key={index}
-              className="flex items-center p-3 rounded-sm border border-gray-200 duration-200 bg-gray-50"
+              className="flex items-center p-2 rounded-sm border border-gray-200 bg-gray-50"
             >
-              <div className="mr-4 text-xl hover:brightness-100">
+              <div className="mr-2 text-xl">
                 {notification.type === "friend" ? (
                   <FaUserFriends className="text-green-500" />
                 ) : notification.type === "invite" ? (
@@ -112,13 +112,13 @@ const NotificationModal = ({ onClose }) => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-blue-500 text-white rounded-sm hover:bg-blue-600 transition-colors duration-200"
                   onClick={() => handleAccept(notification)}
                 >
                   수락
                 </button>
                 <button
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors duration-200"
                   onClick={() => handleReject(notification)}
                 >
                   거절
