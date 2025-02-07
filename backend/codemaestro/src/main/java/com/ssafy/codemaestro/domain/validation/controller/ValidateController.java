@@ -7,35 +7,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ExistCheckController {
+@RequestMapping("/api/validate")
+public class ValidateController {
     UserRepository userRepository;
 
     @Autowired
-    public ExistCheckController(UserRepository userRepository) {
+    public ValidateController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/api/exist/email/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<Void> email(@PathVariable String email) {
 
 
         boolean isExist = userRepository.existsByEmail(email);
 
-        if (isExist) {
-            return new ResponseEntity<>(HttpStatus.FOUND);
+        if (!isExist) {
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.FOUND);
         }
     }
 
-    @GetMapping("/api/exist/nickname/{nickname}")
+    @GetMapping("/nickname/{nickname}")
     public ResponseEntity<Void> nickname(@PathVariable String nickname) {
         boolean isExist = userRepository.existsByNickname(nickname);
 
-        if (isExist) {
-            return new ResponseEntity<>(HttpStatus.FOUND);
+        if (!isExist) {
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.FOUND);
         }
     }
 }
