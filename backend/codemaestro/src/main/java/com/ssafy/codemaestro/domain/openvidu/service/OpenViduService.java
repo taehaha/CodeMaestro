@@ -79,7 +79,6 @@ public class OpenViduService {
                 .title(title)
                 .description(description)
                 .accessCode(accessCode)
-                .programmingLanguage(pl)
                 .build();
 
         conferenceRepository.save(conference);
