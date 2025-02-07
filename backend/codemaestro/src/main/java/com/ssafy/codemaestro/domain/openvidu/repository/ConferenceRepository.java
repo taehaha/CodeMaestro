@@ -10,5 +10,7 @@ import java.util.List;
 
 @Repository
 public interface ConferenceRepository extends JpaRepository<Conference, Long> {
-    List<Conference> findByModerator(User moderator);
+    boolean existsByIdAndModerator(Long id, User moderator);
+
+    Conference findByModerator(User moderator);
 }

@@ -221,7 +221,7 @@ public class ConferenceService {
 
     public void kick(String conferenceId, User requestUser, Long targetUserId) {
         // 요청자가 권한이 있는지 확인
-        if (conferenceRepository.findByModerator(requestUser) == null) {
+        if (!conferenceRepository.existsByIdAndModerator(Long.valueOf(conferenceId), requestUser)) {
             throw new BadRequestException("권한이 없습니다. userId : " + requestUser.getId());
         }
 
