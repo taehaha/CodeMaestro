@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
@@ -30,7 +31,18 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> updateUserProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody @Valid UserProfileUpdateDto userProfileUpdateDto) {
+            @ModelAttribute UserProfileUpdateDto userProfileUpdateDto,
+            @RequestParam(required = false) MultipartFile profileImage,
+            @RequestParam(required = false) MultipartFile profileBackgroundImage) {
+
+        // 파일이 전송된 경우에만 DTO 설정
+        if(profileImage != null) {
+            userProfileUpdateDto.setProfileImage(profileImage);
+        }
+        if(profileBackgroundImage != null) {
+            userProfileUpdateDto.setProfileBackgroundImage(profileBackgroundImage);
+        }
+
         Long userId = Long.parseLong(userDetails.getUsername());
         UserProfileResponseDto updateUserProfile = userService.updateUserProfile(userId, userProfileUpdateDto);
         return ResponseEntity.ok(updateUserProfile);
