@@ -67,7 +67,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081", "https://www.codemaestro.site"));
+                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081", "https://www.codemaestro.site", "http://localhost:5173"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("access", "Set-Cookie"));
