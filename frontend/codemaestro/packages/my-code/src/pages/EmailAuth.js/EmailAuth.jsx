@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import axios from "axios";
 import UserAxios from "../../api/userAxios";
-import { signup } from "../../api/AuthApi";
+import { signup, emailCheck, nicknameCheck } from "../../api/AuthApi";
 import "./EmailAuth.css";
 
 const EmailAuth = () => {
@@ -15,7 +15,34 @@ const EmailAuth = () => {
   const [password, setpassword] = useState("")
   const [description, setdescription] = useState("")
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  
+  //   // 필드 검증
+  //   if (!email || !code) {
+  //     setMessage("모든 필드를 입력하세요.");
+  //     return;
+  //   }
+  
+  //   try {
+  //     const res = await emailcheck(email);
+  
+  //     if (res.status === 200) {
+  //       setMessage("이메일 인증이 완료되었습니다.");
+  //       setStep(2);
+  //     }
+  //   } catch (error) {
+  //     // error.response.status가 400이면 중복 이메일 등 에러 처리
+  //     if (error.response && error.response.status === 400) {
+  //       setMessage(error.response.data.message || "중복된 이메일입니다. 다른 이메일을 사용하세요.");
+  //     } else {
+  //       setMessage("이메일 인증에 실패했습니다. 다시 시도해주세요.");
+  //     }
+  //   }
+  // };
+  
 
+// 더미처리용
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && code) {
@@ -58,9 +85,9 @@ const handleNicknameCheck = async (e) => {
   }
 
   try {
-    const response = await UserAxios.get("/api/exist/nickname/" + nickname);
+    const response = await nicknameCheck(nickname)
 
-    if (response.data.available) {
+    if (response.status===200) {
       setIsNicknameAvailable(true);
       setNicknameMessage("사용 가능한 닉네임입니다.");
     } else {
