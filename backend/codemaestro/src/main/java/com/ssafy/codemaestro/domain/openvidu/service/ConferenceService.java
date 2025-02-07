@@ -247,4 +247,43 @@ public class ConferenceService {
             throw new RuntimeException("Openvidu 관련 동작 오류");
         }
     }
+
+    public void unpublish(String conferenceId, User requestUser, Long targetUserId) {
+        // 요청자가 권한이 있는지 확인
+        if (!conferenceRepository.existsByIdAndModerator(Long.valueOf(conferenceId), requestUser)) {
+            throw new BadRequestException("권한이 없습니다. userId : " + requestUser.getId());
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new NotFoundException("대상 유저를 찾을 수 없습니다. user Id : " + targetUserId));
+
+        String targetUserConnectionId = userConferenceRepository.findByUser(targetUser)
+                .orElseThrow(() -> new CannotFindConnectionException(targetUserId, "유저가 컨퍼런스에 연결되있지 않습니다. : userId: " + targetUserId + " conferenceId :  " + conferenceId))
+                .getConnectionId();
+
+        Session session = openVidu.getActiveSession(conferenceId);
+        Connection targetConnection = session.getConnection(targetUserConnectionId);
+
+        try {
+            session.fetch();
+
+            List<Publisher> publisherList = targetConnection.getPublishers();
+            log.debug("Publisher List is Empty : " + publisherList.isEmpty());
+
+            Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
+            if (publisher == null) {
+                throw new BadRequestException("Publish가 없습니다.");
+            }
+
+            session.forceUnpublish(publisher);
+        } catch (OpenViduHttpException e) {
+            log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
+            log.error(e.getMessage());
+            throw new RuntimeException("Openvidu 관련 동작 오류");
+        } catch (OpenViduJavaClientException e) {
+            log.error("OpenVidu Java Client 오류.");
+            log.error(e.getMessage());
+            throw new RuntimeException("Openvidu 관련 동작 오류");
+        }
+    }
 }
