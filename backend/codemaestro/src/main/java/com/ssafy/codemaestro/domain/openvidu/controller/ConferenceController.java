@@ -126,7 +126,7 @@ public class ConferenceController {
      * @return 작업 결과를 나타내는 HTTP 상태를 포함한 ResponseEntity
      */
     @PatchMapping("/{conferenceId}/moderator/{newModeratorUserId}")
-    public ResponseEntity<Void> moderator(@PathVariable String conferenceId,
+    public ResponseEntity<Void> moderator(@PathVariable  String conferenceId,
                                           @PathVariable Long newModeratorUserId,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
@@ -135,11 +135,15 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    @DeleteMapping("/{conferenceId}/user/{targetUserId}")
-//    public ResponseEntity<Void> kickOut(@PathVariable String conferenceId,
-//                                        @PathVariable Long targetUserId,
-//                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        User currentUser = userDetails.getUser();
-//        conferenceService.
-//    }
+    @DeleteMapping("/{conferenceId}/user/{targetUserId}")
+    public ResponseEntity<Void> kickOut(@PathVariable String conferenceId,
+                                        @PathVariable Long targetUserId,
+                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User currentUser = userDetails.getUser();
+        conferenceService.kick(conferenceId, currentUser, targetUserId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
 }
