@@ -1,7 +1,8 @@
+version: "3.9"
+
 services:
   backend:
     build: ./backend/codemaestro
-    container_name: codemaestro-backend
     restart: always
     ports:
       - "${SPRING_BOOT_PORT:-9090}:8080"
@@ -12,11 +13,16 @@ services:
       - SPRING_DATASOURCE_DRIVER=${SPRING_DATASOURCE_DRIVER}
       - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
       - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
-      
+    profiles:
+      - backend
+      - prod
+
   frontend:
     build:
       context: ./frontend/codemaestro
-    container_name: codemaestro-frontend
     restart: always
     ports:
       - "3000:3000"
+    profiles:
+      - frontend
+      - prod
