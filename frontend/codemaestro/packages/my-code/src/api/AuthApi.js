@@ -80,13 +80,29 @@ export const getUserInfo = async () => {
 
 export const putUserInfo = async (payload) => {
   try {
-    const response = await UserAxios.put('/users/profile', payload);
-    return response.data;
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // 기존 payload의 키값을 유지하며 FormData에 추가
+    Object.keys(payload).forEach((key) => {
+      formData.append(key, payload[key]);
+    });
+
+    // 요청 전송
+    const response = await UserAxios.put('/users/profile', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    getUserInfo()
+    return response;
   } catch (error) {
     console.error('유저 정보 수정 중 에러 발생:', error);
     throw error;
   }
 };
+
 
 export const deleteUserInfo = async () => {
   const response = await UserAxios.delete( `/auth/quit`, {})

@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import { putUserInfo } from "../../api/AuthApi";
 import getCroppedImg from "./getCroppedImg";
 import Swal from "sweetalert2";
-
+import { useSelector, useDispatch } from 'react-redux';
+import { getMyInfo } from "../../reducer/userSlice";
 const INITIAL_CROP = { x: 0, y: 0 };
 const INITIAL_ZOOM = 1;
 
@@ -37,8 +38,10 @@ const EditBackgroundImage = ({ onClose }) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
+  const dispatch = useDispatch();
   // 저장 버튼 핸들러
   const handleSave = useCallback(async () => {
+    
     if (!imageSrc || !croppedAreaPixels) return;
     try {
       // 크롭된 이미지 Data URL 생성
@@ -47,18 +50,21 @@ const EditBackgroundImage = ({ onClose }) => {
 
       // 프로필 배경 이미지만 업데이트하도록 서버에 요청 (부분 업데이트)
       const responseData = await putUserInfo({
-        profileBackgroundImgUrl: croppedImage,
+        profileBackgroundImage: croppedImage,
       });
 
       // API 모듈화 상태에 따라 응답 구조가 달라질 수 있으므로 적절히 수정
       if (responseData === 200 || responseData.status === 200) {
+
         await Swal.fire({
           title: "변경 완료",
           text: "프로필 배경이 변경되었습니다.",
           icon: "success",
           confirmButtonColor: "#3085d6",
         });
-        // 성공 시 새로고침
+        // 성공 시 새로고침s
+ 
+        await dispatch(getMyInfo());
         window.location.reload();
       } else {
         await Swal.fire({
