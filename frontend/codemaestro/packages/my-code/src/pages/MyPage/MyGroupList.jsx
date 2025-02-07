@@ -57,7 +57,7 @@ const MyGroupList = () => {
         navigate(`/group/${group.id}`);
       }
     });
-  };
+    
   if (isLoading) {
     return <LoadAnimation />; // 로딩 중일 때 로딩 애니메이션 표시
   }
@@ -83,6 +83,6 @@ const MyGroupList = () => {
       {isModalOpen && <GroupModal onClose={() => setIsModalOpen(false)} onCreate={handleCreateGroup} />}
     </div>
   );
-};
+};}
 
 export default MyGroupList;

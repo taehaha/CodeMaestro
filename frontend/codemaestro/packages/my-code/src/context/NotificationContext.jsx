@@ -1,174 +1,192 @@
-import { createContext, useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import React, { createContext, useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import tokenStorage from "../utils/tokenstorage";
-import UserAxios from "../api/userAxios";
 import { baseURL } from "../api/userAxios";
-// 알림 관련 Context 생성
+
+// 알림 Context 생성
 export const NotificationsContext = createContext();
 
-/**
- * NotificationsProvider 컴포넌트
- * SSE 연결을 통해 실시간 알림을 받아오고, 전역 상태로 관리합니다.
- */
+// 임시 알림 데이터 (예시)
 const dummyNotifications = [
   {
     type: "friend",
     userName: "Alice",
     message: "Alice님이 친구 요청을 보냈습니다.",
-    request: 101, // 친구 요청 고유 ID (예시)
+    request: 101,
   },
   {
     type: "group",
     groupName: "Developers Group",
     message: "Developers Group에 초대되었습니다.",
-    request: 102, // 그룹 요청 고유 ID (예시)
+    request: 102,
   },
   {
     type: "invite",
     name: "Weekly Meeting",
-    request: 103, // 회의 초대 고유 ID (예시)
-    roomId: "meeting-001", // 초대받은 회의실 ID
+    request: 103,
+    roomId: "meeting-001",
   },
 ];
 
-
-
 export const NotificationsProvider = ({ children }) => {
-  // 알림 데이터를 저장할 상태
   const [notifications, setNotifications] = useState(dummyNotifications);
-  // EventSource 인스턴스를 저장할 ref
   const eventSourceRef = useRef(null);
-  // 사용자 토큰, 사용자 정보 가져오기
-  const token = tokenStorage.getAccessToken();
+  // 마지막으로 사용한 토큰과 userId를 저장해 불필요한 재연결을 방지
+  const prevCredentialsRef = useRef({ token: null, userId: null });
+
+  // Redux로부터 userId를 가져오고, tokenStorage에서 토큰을 가져옵니다.
   const userId = useSelector((state) => state.user.myInfo?.userId);
+  const token = tokenStorage.getAccessToken();
 
-  // 알림을 추가하는 헬퍼 함수 (functional update 사용)
+  // 알림 추가 함수
   const addNotification = (type, data) => {
-    setNotifications((prevNotifications) => [
-      ...prevNotifications,
-      { type, data },
-    ]);
+    setNotifications((prev) => [...prev, { type, data }]);
   };
 
-  // disconnect 함수: unsubscribe API 호출 후 SSE 연결 종료
-  const disconnect = () => {
-    // unsubscribe API 호출: 성공 여부와 관계없이 마지막에 SSE 연결 종료
-    UserAxios(`/unsubscribe/${userId}`)
-      .then((result) => {
-        console.log("unsubscribe 성공:", result);
-      })
-      .catch((error) => {
-        console.error("unsubscribe 에러:", error);
-      })
-      .finally(() => {
-        if (eventSourceRef.current) {
-          eventSourceRef.current.close();
-          console.log("SSE 연결 종료됨");
-        }
+  // SSE 연결 해제 및 unsubscribe API 호출 (Fetch API 사용)
+  const disconnect = async () => {
+    try {
+      const currentToken = await tokenStorage.getAccessToken();
+      const response = await fetch(`${baseURL}/unsubscribe/${userId}`, {
+        method: "GET", // 서버 요구사항에 맞게 GET 또는 POST로 변경
+        headers: {
+          Access: currentToken, // 필요한 경우 "Authorization": `Bearer ${currentToken}` 등으로 수정
+          "Content-Type": "application/json",
+        },
       });
-  };
-
-  useEffect(() => {
-    if (!token || !userId) {
-      return;
-    }
-
-    // SSE 연결 생성 함수
-    const connect = () => {
-      const url = `${baseURL}/subscribe/${userId}`;
-
-      // 기존 연결이 있다면 종료
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("unsubscribe 에러:", response.status, errorText);
+      } else {
+        const result = await response.json();
+        console.log("unsubscribe 성공:", result);
+      }
+    } catch (error) {
+      console.error("unsubscribe 에러:", error);
+    } finally {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
+        console.log("SSE 연결 종료됨");
       }
+    }
+  };
 
-      // 새 EventSourcePolyfill 인스턴스 생성
-      const newEventSource = new EventSourcePolyfill(url, {
-        headers: { Access: token },
-        heartbeatTimeout: 120000,
-      });
+  // SSE 연결 생성 함수
+  const connect = () => {
+    const url = `${baseURL}/subscribe/${userId}`;
 
-      // 이벤트 핸들러 등록
-      newEventSource.addEventListener("connect", (event) => {
-        console.log("연결됨:", event.data);
-      });
+    // 기존 연결이 있으면 종료
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
 
-      // lost-data 이벤트: 데이터 형식에 따라 알림 구분 처리
-      newEventSource.addEventListener("lost-data", (event) => {
-        // 예를 들어, event.data가 문자열 형태라면 JSON.parse가 필요할 수 있음
-        let parsedData;
-        try {
-          parsedData = JSON.parse(event.data);
-        } catch {
-          parsedData = event.data;
-        }
+    const es = new EventSourcePolyfill(url, {
+      headers: { Access: token },
+      heartbeatTimeout: 120000,
+    });
 
-        if (parsedData.groupId) {
-          addNotification("group", parsedData);
-        } else if (parsedData.userName) {
-          addNotification("friend", parsedData);
-        } else {
-          addNotification("invite", parsedData);
-        }
-      });
+    // 연결 성공 이벤트
+    es.addEventListener("connect", (event) => {
+      console.log("연결됨:", event.data);
+    });
 
-      // friendRequest 이벤트
-      newEventSource.addEventListener("friendRequest", (event) => {
-        let parsedData;
-        try {
-          parsedData = JSON.parse(event.data);
-        } catch {
-          parsedData = event.data;
-        }
-        addNotification("friend", parsedData);
-      });
-
-      // groupRequest 이벤트
-      newEventSource.addEventListener("groupRequest", (event) => {
-        let parsedData;
-        try {
-          parsedData = JSON.parse(event.data);
-        } catch {
-          parsedData = event.data;
-        }
+    // lost-data 이벤트 처리
+    es.addEventListener("lost-data", (event) => {
+      let parsedData;
+      try {
+        parsedData = JSON.parse(event.data);
+      } catch {
+        parsedData = event.data;
+      }
+      if (parsedData.groupId) {
         addNotification("group", parsedData);
-      });
-
-      // invite 이벤트
-      newEventSource.addEventListener("invite", (event) => {
-        let parsedData;
-        try {
-          parsedData = JSON.parse(event.data);
-        } catch {
-          parsedData = event.data;
-        }
+      } else if (parsedData.userName) {
+        addNotification("friend", parsedData);
+      } else {
         addNotification("invite", parsedData);
-      });
+      }
+    });
 
-      newEventSource.onerror = (error) => {
-        console.error("SSE 연결 오류:", error);
-        // 필요시 재연결 로직을 추가할 수 있음
-      };
+    // friendRequest 이벤트 처리
+    es.addEventListener("friendRequest", (event) => {
+      let parsedData;
+      try {
+        parsedData = JSON.parse(event.data);
+      } catch {
+        parsedData = event.data;
+      }
+      addNotification("friend", parsedData);
+    });
 
-      // 새 인스턴스를 ref에 저장
-      eventSourceRef.current = newEventSource;
+    // groupRequest 이벤트 처리
+    es.addEventListener("groupRequest", (event) => {
+      let parsedData;
+      try {
+        parsedData = JSON.parse(event.data);
+      } catch {
+        parsedData = event.data;
+      }
+      console.log("groupRequest 이벤트 데이터:", parsedData);
+      addNotification("group", parsedData);
+    });
+
+    // invite 이벤트 처리
+    es.addEventListener("invite", (event) => {
+      let parsedData;
+      try {
+        parsedData = JSON.parse(event.data);
+      } catch {
+        parsedData = event.data;
+      }
+      console.log("invite 이벤트 데이터:", parsedData);
+      addNotification("invite", parsedData);
+    });
+
+    // 개선된 onerror 핸들러: 
+    // 'ERR_INCOMPLETE_CHUNKED_ENCODING' 또는 'network error' 관련 오류는 무시하도록 합니다.
+    es.onerror = (event) => {
+      const errorMessage = event?.error?.message || "";
+      if (
+        errorMessage.includes("ERR_INCOMPLETE_CHUNKED_ENCODING") ||
+        errorMessage.includes("network error")
+      ) {
+        // 해당 오류는 무시 (필요 시 console.warn으로 간단한 로그만 남길 수 있음)
+        return;
+      }
+      console.error("SSE 연결 오류:", event);
     };
 
-    // SSE 연결 생성
+    eventSourceRef.current = es;
+  };
+
+  // token 또는 userId가 변경되면 SSE 연결을 재설정합니다.
+  useEffect(() => {
+    if (!token || !userId) return;
+
+    if (
+      eventSourceRef.current &&
+      prevCredentialsRef.current.token === token &&
+      prevCredentialsRef.current.userId === userId
+    ) {
+      return;
+    }
+    prevCredentialsRef.current = { token, userId };
+
     connect();
 
-    // cleanup: 컴포넌트 언마운트 시 disconnect 호출하여 unsubscribe 및 연결 종료
+    // 컴포넌트 언마운트 시 SSE 연결 해제
     return () => {
       if (eventSourceRef.current) {
         disconnect();
+        eventSourceRef.current = null;
       }
     };
   }, [token, userId]);
 
   return (
-    <NotificationsContext.Provider value={{ notifications,setNotifications }}>
+    <NotificationsContext.Provider value={{ notifications, setNotifications }}>
       {children}
     </NotificationsContext.Provider>
   );
@@ -177,3 +195,5 @@ export const NotificationsProvider = ({ children }) => {
 NotificationsProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default NotificationsProvider;

@@ -112,7 +112,7 @@ const MeetingPage = () => {
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState(dummyMeetings);
 
   const handleSearch = (input) => {
     setSearchTerm(input);
@@ -144,10 +144,12 @@ const MeetingPage = () => {
   };
 
   useEffect(() => {
-    getMeetingRooms();
+    // getMeetingRooms();
   }, []);
 
   const fillteredRooms = rooms.filter((room) => {
+    console.log(room);
+    
     const matchSearch = room.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchLanguage =
       selectedLanguages.length === 0 || selectedLanguages.includes(room.language);
