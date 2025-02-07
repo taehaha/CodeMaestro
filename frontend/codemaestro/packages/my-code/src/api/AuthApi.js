@@ -30,7 +30,7 @@ export const signup = async (payload) => {
       }
       );
   
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Signup error:", error);
       throw error;
@@ -114,7 +114,7 @@ export const emailVerification = async (payload) =>{
 
 export const emailCheck = async (email) =>{
   try {
-    const result = await UserAxios.get(`/api/exist/email/${email}`)
+    const result = await UserAxios.get(`/api/validate/email/${email}`)
     return result.status
   } catch (error) {
     console.error("이메일 중복 검사 중 오류 발견", error);
@@ -124,7 +124,7 @@ export const emailCheck = async (email) =>{
 
 export const nicknameCheck = async (nickname) =>{
   try {
-    const result = await UserAxios.get(`/api/exist/nickname/${nickname}`)
+    const result = await UserAxios.get(`/api/validate/nickname/${nickname}`)
     return result.status
   } catch (error) {
     console.error("닉네임 중복 검사 중 오류 발견", error);
