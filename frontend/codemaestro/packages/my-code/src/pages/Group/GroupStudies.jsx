@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
-import dayjs from "dayjs"; // 날짜 변환을 위한 라이브러리
+import { MdAccessTime } from "react-icons/md";
+import dayjs from "dayjs";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
 const GroupStudies = ({ conferenceHistory }) => {
-  // 출석률 계산을 위한 데이터 (테스트용)
-  const totalMeetings = 4; // 전체 회의 횟수
-  const myAttendances = conferenceHistory.length; // 실제 참여한 횟수
+  // 전체 회의 수 vs 내 참석 횟수
+  const totalMeetings = 4;
+  const myAttendances = conferenceHistory.length;
 
-  const [attendanceRate, setAttendanceRate] = useState(0); // 0%부터 시작
-
-  // 목표 출석률 계산
+  // 출석률 애니메이션
+  const [attendanceRate, setAttendanceRate] = useState(0);
   const targetRate = Math.round((myAttendances / totalMeetings) * 100);
 
-  // 애니메이션 효과: 출석률이 0%에서 targetRate까지 증가
   useEffect(() => {
     let currentRate = 0;
     const interval = setInterval(() => {
@@ -25,51 +25,69 @@ const GroupStudies = ({ conferenceHistory }) => {
       } else {
         setAttendanceRate(currentRate);
       }
-    }, 25); // 25ms마다 증가 (속도 조절 가능)
-
+    }, 25);
     return () => clearInterval(interval);
   }, [targetRate]);
 
-  // 차트 데이터 설정
+  // Doughnut 차트 데이터
   const data = {
     labels: ["출석", "결석"],
     datasets: [
       {
-        data: [attendanceRate, 100 - attendanceRate], // 출석률 vs 결석률
-        backgroundColor: ["#3498db", "#e0e0e0"], // 파란색 & 회색
+        data: [attendanceRate, 100 - attendanceRate],
+        backgroundColor: ["#3498db", "#e0e0e0"],
         hoverBackgroundColor: ["#2980b9", "#bdbdbd"],
-        borderWidth: 0, // 경계선 없앰
+        borderWidth: 0,
       },
     ],
   };
 
-  // 차트 옵션 설정
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: "65%", // 도넛 크기 설정
+    cutout: "65%",
     plugins: {
-      legend: { display: false }, // 범례 숨김
-      tooltip: { enabled: false }, // 툴팁 숨김
+      legend: { display: false },
+      tooltip: { enabled: false },
     },
   };
 
+  // 누적 참여 시간 계산 (단위: 분)
+  const totalDuration = conferenceHistory.reduce((acc, record) => acc + (record.duration || 0), 0);
+  const hours = Math.floor(totalDuration / 60);
+  const minutes = totalDuration % 60;
+  const totalStudyTime = hours > 0 ? `${hours}시간 ${minutes}분` : `${minutes}분`;
+
   return (
-    <div className="flex flex-col lg:flex-row justify-center items-center gap-8 p-6 bg-gray-100 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
-      {/* 왼쪽: 출석률 차트 */}
-      <div className="flex flex-col items-center">
-        <h2 className="text-lg font-semibold mb-4">내 출석률</h2>
-        <div className="relative w-40 h-40">
-          <Doughnut data={data} options={options} />
-          {/* 중앙 텍스트 */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 text-lg font-bold">
-            <span>출석률</span>
-            <span>{attendanceRate}%</span>
+    <div className="flex flex-col gap-8 p-6 bg-gray-100 rounded-sm shadow-lg w-4xl max-w-5xl mx-auto">
+      {/* 상단 영역: 출석률 / 누적 참여 시간 */}
+      <div className="flex flex-col lg:flex-row items-center justify-center w-full gap-8">
+        {/* 출석률 차트 */}
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold mb-4">내 출석률</h2>
+          <div className="relative w-40 h-40">
+            <Doughnut data={data} options={options} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 text-lg font-bold">
+              <span>출석률</span>
+              <span>{attendanceRate}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 누적 참여 시간 카드 */}
+        <div className="p-4 bg-white shadow-md rounded-lg w-full max-w-xs">
+          <div className="flex items-center">
+            <MdAccessTime className="w-6 h-6 text-blue-500 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-800">총 누적 참여 시간</h3>
+          </div>
+          <div className="mt-2">
+            <p className="text-2xl font-bold text-blue-600">{totalStudyTime}</p>
+            <p className="text-sm text-gray-500 mt-1">지난 스터디 전체 참여 누적</p>
           </div>
         </div>
       </div>
 
-      {/* 오른쪽: 최근 스터디 참여 기록 */}
+      {/* 하단 영역: 최근 참여 스터디 */}
       <div className="flex-1">
         <h2 className="text-lg font-semibold mb-4">최근 참여 스터디</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -101,7 +119,21 @@ const GroupStudies = ({ conferenceHistory }) => {
   );
 };
 
-// ✅ 더미 데이터 테스트
+GroupStudies.propTypes = {
+  conferenceHistory: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      group_conference_history_id: PropTypes.number.isRequired,
+      user_id: PropTypes.number.isRequired,
+      joinTime: PropTypes.string,
+      leaveTime: PropTypes.string,
+      duration: PropTypes.number,
+      createdAt: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
+
+// 테스트용 더미 데이터
 const dummyData = [
   {
     id: 1,
@@ -132,7 +164,6 @@ const dummyData = [
   },
 ];
 
-// 📌 컴포넌트 실행
 export default function GroupStudiesPage() {
   return <GroupStudies conferenceHistory={dummyData} />;
 }

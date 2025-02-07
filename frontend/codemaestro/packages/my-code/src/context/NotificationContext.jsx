@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import tokenStorage from "../utils/tokenstorage";
 import UserAxios from "../api/userAxios";
-
+import { baseURL } from "../api/userAxios";
 // 알림 관련 Context 생성
 export const NotificationsContext = createContext();
 
@@ -77,7 +77,7 @@ export const NotificationsProvider = ({ children }) => {
 
     // SSE 연결 생성 함수
     const connect = () => {
-      const url = `http://192.168.31.58:8080/subscribe/${userId}`;
+      const url = `${baseURL}/subscribe/${userId}`;
 
       // 기존 연결이 있다면 종료
       if (eventSourceRef.current) {
