@@ -179,7 +179,7 @@ public class ConferenceService {
 
     public int getParticipantNum(String conferenceId) {
         Session session = openVidu.getActiveSession(conferenceId);
-        return session.getConnections().size();
+        return session.getActiveConnections().size();
     }
 
     public List<User> getParticipants(String conferenceId) {
@@ -248,6 +248,4 @@ public class ConferenceService {
             throw new RuntimeException("Openvidu 관련 동작 오류");
         }
     }
-
-
 }
