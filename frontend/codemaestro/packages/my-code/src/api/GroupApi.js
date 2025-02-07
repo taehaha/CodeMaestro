@@ -91,3 +91,17 @@ import UserAxios from "./userAxios";
             
         }
     }
+
+    // 그룹 랭킹 조회
+    export const GroupRankingList = async (payload) =>{
+        try {
+            const result = await UserAxios.get(`/groups/conference/rankings`,
+                {params:{year:payload.year,
+                    month:payload.month,}}
+            )
+
+            return result
+        } catch (error) {
+            console.error("그룹 랭킹 호출 중 오류 발생", error);
+        }
+    }
