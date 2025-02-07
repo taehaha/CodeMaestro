@@ -145,5 +145,13 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @DeleteMapping("/{conferenceId}/publish/{targetUserId}")
+    public ResponseEntity<Void> unpublish(@PathVariable String conferenceId,
+                                          @PathVariable Long targetUserId,
+                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User currentUser = userDetails.getUser();
+        conferenceService.unpublish(conferenceId, currentUser, targetUserId);
 
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
