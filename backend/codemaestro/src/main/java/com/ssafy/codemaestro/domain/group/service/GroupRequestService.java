@@ -81,6 +81,10 @@ public class GroupRequestService {
 
         GroupJoinRequest request = optionalRequest.get(); // 객체 가져오기
 
+        if(!request.getStatus().equals("PENDING")) {
+            throw new BadRequestException("is not PENDING");
+        }
+
         request.setStatus(GroupRequestStatus.ACCEPTED);
 
         groupJoinRequestRepository.save(request);
@@ -94,6 +98,11 @@ public class GroupRequestService {
         }
 
         GroupJoinRequest request = optionalRequest.get();
+
+        if(!request.getStatus().equals("PENDING")) {
+            throw new BadRequestException("is not PENDING");
+        }
+
         request.reject();
         groupJoinRequestRepository.save(request);
     }

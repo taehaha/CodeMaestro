@@ -67,7 +67,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081"));
+                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081", "https://www.codemaestro.site", "http://localhost:5173"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("access", "Set-Cookie"));
@@ -91,7 +91,7 @@ public class SecurityConfig {
                 //Cors Preflight 허용
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 회원 관리 관련 라우팅
-                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/verify/**" ).permitAll()
+                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/validate/**" ).permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()
                 // 스웨거 라우팅
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -125,8 +125,8 @@ public class SecurityConfig {
                                 .userService(customOauth2UserService))
                         .successHandler(customSuccessHandler)
                 )
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint()));
 //                .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint()); // 로그인 상태가 아니면 401 반환
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint()));
 
         return http.build();
     }

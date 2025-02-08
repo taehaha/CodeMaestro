@@ -67,6 +67,11 @@ public class FriendRequestService {
         }
 
         FriendRequest request = optionalRequest.get(); // 객체 가져오기
+
+        if(!request.getStatus().equals("PENDING")) {
+            throw new BadRequestException("is not PENDING");
+        }
+
         request.accept(); // PENDING -> ACCEPTED
         friendRequestRepository.save(request); // DB 저장
 
@@ -80,6 +85,11 @@ public class FriendRequestService {
         }
 
         FriendRequest request = optionalRequest.get();
+
+        if(!request.getStatus().equals("PENDING")) {
+            throw new BadRequestException("is not PENDING");
+        }
+
         request.reject();
         friendRequestRepository.save(request);
     }
