@@ -23,10 +23,6 @@ public class OpenViduUtil {
     private final WebClient openviduWebClient;
     private final ObjectMapper objectMapper;
 
-    public boolean isModerator(User participant, Conference conference) {
-        return conference.getModerator().getId().equals(participant.getId());
-    }
-
     public boolean isAccessCodeCorrect(String accessCode, Conference conference) {
         String conferenceAccessCode = conference.getAccessCode();
 
@@ -37,7 +33,7 @@ public class OpenViduUtil {
         return false;
     }
 
-    public ResponseEntity<Void> sendSignal(String conferenceId, List<Connection> connectionList, OpenviduSignalType signalType, User targetUser) {
+    public ResponseEntity<Void> sendSignal(String conferenceId, List<Connection> connectionList, OpenviduSignalType signalType, String data) {
         ObjectNode jsonBody = objectMapper.createObjectNode();
         ArrayNode connectionIds = objectMapper.createArrayNode();
         connectionList.stream()
@@ -47,14 +43,17 @@ public class OpenViduUtil {
         jsonBody.put("session", conferenceId);
         jsonBody.set("to", connectionIds);
         jsonBody.put("type", signalType.toString());
-        jsonBody.put("data", targetUser.getId().toString());
+        jsonBody.put("data", data);
 
         return openviduWebClient.post()
                 .uri("/openvidu/api/signal")
                 .body(Mono.just(jsonBody), ObjectNode.class)
                 .retrieve()
                 .toBodilessEntity()
-                .doOnError(e -> log.error("sendSignal error: " + e.getMessage()))
+                .doOnError(e -> {
+                    log.error("sendSignal error: " + e.getMessage());
+                    throw new RuntimeException("Openvidu Signaling에 문제가 있습니다.");
+                })
                 .block();
     }
 }
