@@ -18,8 +18,18 @@ public class UserConference {
     @ManyToOne(fetch = FetchType.LAZY)
     Conference conference;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     User user;
 
     String connectionId;
+
+    @Override
+    public String toString() {
+        return "UserConference{" +
+                "id=" + id +
+                ", conference=" + conference +
+                ", user=" + user +
+                ", connectionId='" + connectionId + '\'' +
+                '}';
+    }
 }

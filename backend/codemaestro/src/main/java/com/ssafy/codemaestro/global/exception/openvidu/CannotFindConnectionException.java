@@ -1,7 +1,9 @@
 package com.ssafy.codemaestro.global.exception.openvidu;
 
 public class CannotFindConnectionException extends RuntimeException {
-    public CannotFindConnectionException(String message) {
+    Long userId;
+    public CannotFindConnectionException(Long userId, String message) {
         super(message);
+        this.userId = userId;
     }
 }
