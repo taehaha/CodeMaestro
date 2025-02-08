@@ -21,10 +21,10 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -189,36 +189,30 @@ public class ConferenceService {
                 .collect(Collectors.toList());
     }
 
-    public void changeModerator(String conferenceId, Long newModeratorUserId, User user) {
-        User newModeartorUser = userRepository.findById(newModeratorUserId)
-                .orElseThrow(() -> new NotFoundException("User를 찾을 수 없습니다. : userId : " + newModeratorUserId));
+    @Transactional
+    public void changeModerator(String conferenceId, User requestUser, Long targetUserId) {
+        User newModeartorUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new NotFoundException("User를 찾을 수 없습니다. : userId : " + targetUserId));
 
-        userConferenceRepository.findByUser(newModeartorUser)
-                .orElseThrow(() -> new CannotFindConnectionException(newModeratorUserId, "Connection을 찾을 수 없습니다."));
+        String targetUserConnectionId = userConferenceRepository.findByUser(newModeartorUser)
+                .orElseThrow(() -> new CannotFindConnectionException(targetUserId, "Connection을 찾을 수 없습니다."))
+                .getConnectionId();
 
-        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
-                .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
+        Conference conference = conferenceRepository.findByModerator(requestUser)
+                .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다. : moderatorId : " + requestUser.getId()));
 
-        if (!openViduUtil.isModerator(user, conference)) {
-            throw new BadRequestException("요청자가 현재 Moderator가 아닙니다. : userId" + user.getId());
-        }
+        Session session = openVidu.getActiveSession(conferenceId);
+        Connection targetConnection = session.getConnection(targetUserConnectionId);
 
         conference.setModerator(newModeartorUser);
         conferenceRepository.save(conference);
 
-        // Openvidu Signaling
-        Session session = openVidu.getActiveSession(conferenceId);
-
-        HttpStatusCode signalResponseStatus = openViduUtil.sendSignal(
+        openViduUtil.sendSignal(
                 conferenceId,
-                session.getConnections(),
+                Collections.singletonList(targetConnection),
                 OpenviduSignalType.MODERATOR_CHANGED,
-                newModeartorUser
-        ).getStatusCode();
-
-        if (signalResponseStatus.is4xxClientError()) {
-            throw new BadRequestException("Signaling에서 오류가 생겼습니다.");
-        }
+                null
+        );
     }
 
     public void kick(String conferenceId, User requestUser, Long targetUserId) {
@@ -250,7 +244,7 @@ public class ConferenceService {
         }
     }
 
-    public void unpublish(String conferenceId, User requestUser, Long targetUserId) {
+    public void unpublishVideo(String conferenceId, User requestUser, Long targetUserId) {
         // 요청자가 권한이 있는지 확인
         if (!conferenceRepository.existsByIdAndModerator(Long.valueOf(conferenceId), requestUser)) {
             throw new BadRequestException("권한이 없습니다. userId : " + requestUser.getId());
@@ -263,29 +257,51 @@ public class ConferenceService {
                 .orElseThrow(() -> new CannotFindConnectionException(targetUserId, "유저가 컨퍼런스에 연결되있지 않습니다. : userId: " + targetUserId + " conferenceId :  " + conferenceId))
                 .getConnectionId();
 
+        //
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
 
-        try {
-            session.fetch();
+        List<Publisher> publisherList = targetConnection.getPublishers();
+        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
 
-            List<Publisher> publisherList = targetConnection.getPublishers();
-            log.debug("Publisher List is Empty : " + publisherList.isEmpty());
+        openViduUtil.sendSignal(
+                conferenceId,
+                Collections.singletonList(targetConnection),
+                OpenviduSignalType.UNPUBLISH_VIDEO,
+                null
+        );
+    }
 
-            Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
-            if (publisher == null) {
-                throw new BadRequestException("Publish가 없습니다.");
-            }
-
-            session.forceUnpublish(publisher);
-        } catch (OpenViduHttpException e) {
-            log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
-            log.error(e.getMessage());
-            throw new RuntimeException("Openvidu 관련 동작 오류");
-        } catch (OpenViduJavaClientException e) {
-            log.error("OpenVidu Java Client 오류.");
-            log.error(e.getMessage());
-            throw new RuntimeException("Openvidu 관련 동작 오류");
+    public void unpublishAudio(String conferenceId, User requestUser, Long targetUserId) {
+        // 요청자가 권한이 있는지 확인
+        if (!conferenceRepository.existsByIdAndModerator(Long.valueOf(conferenceId), requestUser)) {
+            throw new BadRequestException("권한이 없습니다. userId : " + requestUser.getId());
         }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new NotFoundException("대상 유저를 찾을 수 없습니다. user Id : " + targetUserId));
+
+        String targetUserConnectionId = userConferenceRepository.findByUser(targetUser)
+                .orElseThrow(() -> new CannotFindConnectionException(targetUserId, "유저가 컨퍼런스에 연결되있지 않습니다. : userId: " + targetUserId + " conferenceId :  " + conferenceId))
+                .getConnectionId();
+
+        //
+        Session session = openVidu.getActiveSession(conferenceId);
+        Connection targetConnection = session.getConnection(targetUserConnectionId);
+
+        List<Publisher> publisherList = targetConnection.getPublishers();
+        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
+
+        Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
+        if (publisher == null) {
+            throw new BadRequestException("Publish가 없습니다.");
+        }
+
+        openViduUtil.sendSignal(
+                conferenceId,
+                Collections.singletonList(targetConnection),
+                OpenviduSignalType.UNPUBLISH_AUDIO,
+                null
+        );
     }
 }

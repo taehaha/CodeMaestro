@@ -130,7 +130,7 @@ public class ConferenceController {
                                           @PathVariable Long newModeratorUserId,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        conferenceService.changeModerator(conferenceId, newModeratorUserId, currentUser);
+        conferenceService.changeModerator(conferenceId, currentUser, newModeratorUserId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -145,12 +145,22 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/{conferenceId}/publish/{targetUserId}")
-    public ResponseEntity<Void> unpublish(@PathVariable String conferenceId,
+    @DeleteMapping("/{conferenceId}/video/{targetUserId}")
+    public ResponseEntity<Void> unpublishVideo(@PathVariable String conferenceId,
                                           @PathVariable Long targetUserId,
                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        conferenceService.unpublish(conferenceId, currentUser, targetUserId);
+        conferenceService.unpublishVideo(conferenceId, currentUser, targetUserId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{conferenceId}/audio/{targetUserId}")
+    public ResponseEntity<Void> unpublishAudio(@PathVariable String conferenceId,
+                                          @PathVariable Long targetUserId,
+                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User currentUser = userDetails.getUser();
+        conferenceService.unpublishAudio(conferenceId, currentUser, targetUserId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
