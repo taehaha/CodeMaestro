@@ -1,6 +1,5 @@
 package com.ssafy.codemaestro.domain.openvidu.service;
 
-import com.google.gson.Gson;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
@@ -18,23 +17,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Slf4j
 @Service
-public class OpenViduWebHookService {
+public class OpenviduWebHookService {
     private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
     private final UserConferenceRepository userConferenceRepository;
 
-    private final JwtUtil jwtUtil;
-
     @Autowired
-    public OpenViduWebHookService(UserRepository userRepository, ConferenceRepository conferenceRepository, UserConferenceRepository userConferenceRepository, JwtUtil jwtUtil) {
+    public OpenviduWebHookService(UserRepository userRepository, ConferenceRepository conferenceRepository, UserConferenceRepository userConferenceRepository) {
         this.userRepository = userRepository;
         this.conferenceRepository = conferenceRepository;
         this.userConferenceRepository = userConferenceRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     @Value("${openvidu.url}")
@@ -43,11 +37,11 @@ public class OpenViduWebHookService {
     @Value("${openvidu.secret}")
     private String OPENVIDU_SECRET;
 
-    private OpenVidu openVidu;
+    private OpenVidu Openvidu;
 
     @PostConstruct
     private void init() {
-        openVidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
+        Openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
+import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
@@ -208,9 +209,10 @@ public class ConferenceService {
         // Openvidu Signaling
         Session session = openVidu.getActiveSession(conferenceId);
 
-        HttpStatusCode signalResponseStatus = openViduUtil.sendChangeModeratorSignal(
+        HttpStatusCode signalResponseStatus = openViduUtil.sendSignal(
                 conferenceId,
                 session.getConnections(),
+                OpenviduSignalType.MODERATOR_CHANGED,
                 newModeartorUser
         ).getStatusCode();
 

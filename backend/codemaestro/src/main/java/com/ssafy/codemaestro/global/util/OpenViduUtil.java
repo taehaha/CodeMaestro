@@ -3,10 +3,12 @@ package com.ssafy.codemaestro.global.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.User;
 import io.openvidu.java.client.Connection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OpenViduUtil {
@@ -34,25 +37,24 @@ public class OpenViduUtil {
         return false;
     }
 
-    public ResponseEntity<Void> sendChangeModeratorSignal(String sessionId, List<Connection> connectionList, User newModerator) {
+    public ResponseEntity<Void> sendSignal(String conferenceId, List<Connection> connectionList, OpenviduSignalType signalType, User targetUser) {
         ObjectNode jsonBody = objectMapper.createObjectNode();
         ArrayNode connectionIds = objectMapper.createArrayNode();
-
         connectionList.stream()
                 .map(Connection::getConnectionId)
                 .forEach(connectionIds::add);
 
-        jsonBody.put("session", sessionId);
+        jsonBody.put("session", conferenceId);
         jsonBody.set("to", connectionIds);
-        jsonBody.put("type", "moderatorChange");
-        jsonBody.put("data", newModerator.getId().toString());
+        jsonBody.put("type", signalType.toString());
+        jsonBody.put("data", targetUser.getId().toString());
 
         return openviduWebClient.post()
                 .uri("/openvidu/api/signal")
                 .body(Mono.just(jsonBody), ObjectNode.class)
                 .retrieve()
                 .toBodilessEntity()
-                .doOnError(e -> System.out.println("sendSignal error: " + e.getMessage()))
+                .doOnError(e -> log.error("sendSignal error: " + e.getMessage()))
                 .block();
     }
 }
