@@ -1,5 +1,6 @@
 import UserAxios,{baseURL} from "./userAxios";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 // *중요: 모든 주소는 api 요청 정해지면 수정될 수 있음!!!
 // 현재 1월 17일 기준 
@@ -83,7 +84,7 @@ export const putUserInfo = async (payload) => {
     // FormData 객체 생성
     const formData = new FormData();
 
-    // 기존 payload의 키값을 유지하며 FormData에 추가
+    // 기존 payload의 키값으로로 FormData에 추가
     Object.keys(payload).forEach((key) => {
       formData.append(key, payload[key]);
     });
@@ -94,8 +95,6 @@ export const putUserInfo = async (payload) => {
         "Content-Type": "multipart/form-data",
       },
     });
-
-    getUserInfo()
     return response;
   } catch (error) {
     console.error('유저 정보 수정 중 에러 발생:', error);
@@ -103,10 +102,10 @@ export const putUserInfo = async (payload) => {
   }
 };
 
-
+//회원탈퇴 로직.
 export const deleteUserInfo = async () => {
   const response = await UserAxios.delete( `/auth/quit`, {})
-  return response.data
+  return response
 }
 
 export const getNotification = async (userId) => {
@@ -120,6 +119,7 @@ export const getNotification = async (userId) => {
 };
 
 
+//이메일 인증: 회원가입
 export const emailVerification = async (payload) =>{
   // try {
     
@@ -127,7 +127,10 @@ export const emailVerification = async (payload) =>{
     
   // }
 }
+//이메일 인증: 비밀번호 찾기기
 
+
+//이메일, 닉네임 중복 체크
 export const emailCheck = async (email) =>{
   try {
     const result = await UserAxios.get(`/api/validate/email/${email}`)
