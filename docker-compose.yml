@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: "codemaestro-${ENVIRONMENT}-backend"
     build: ./backend/codemaestro
     restart: always
     ports:
@@ -15,6 +16,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
 
   frontend:
+    container_name: "codemaestro-prod-frontend"
     build:
       context: ./frontend/codemaestro
     restart: always
