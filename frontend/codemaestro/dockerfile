@@ -1,16 +1,29 @@
-# Node.js 환경에서 React 빌드
-FROM node:18 AS build
+# Node.js 20 버전을 사용 (의존성에서 요구하는 버전을 만족)
+FROM node:20-alpine
 
-# 작업 디렉토리 설정
+# 작업 디렉터리를 모노레포 루트(예: codemaestro)로 설정
 WORKDIR /app
 
-# 소스 코드 복사 및 의존성 설치
-COPY package.json package-lock.json ./
-RUN npm install
+# 의존성 설치를 위해 루트의 package.json 및 yarn.lock 복사
+COPY package.json yarn.lock ./
 
-# 소스 코드 전체 복사 후 빌드 실행
+# Yarn 의존성 설치 (workspaces 포함)
+RUN yarn install --frozen-lockfile
+
+# 루트의 node_modules/.bin 내 모든 파일에 실행 권한 부여
+RUN chmod -R 755 node_modules/.bin
+
+# 전체 소스 복사 (모든 워크스페이스 포함)
 COPY . .
-RUN npm run build
 
-# 컨테이너가 종료되지 않도록 유지 (Nginx 없이)
-CMD ["tail", "-f", "/dev/null"]
+# 워크스페이스 내 모든 node_modules 디렉터리에 실행 권한 부여
+RUN find . -type d -name node_modules -exec chmod -R 755 {} +
+
+# 모노레포 루트에 정의된 build-all 스크립트 실행
+RUN yarn build-all
+
+# 컨테이너에서 Express 서버가 3000 포트를 사용한다고 가정
+EXPOSE 3000
+
+# 최종 실행 명령 – 빌드 완료 후 Express 서버 실행
+CMD ["yarn", "start-server"]
