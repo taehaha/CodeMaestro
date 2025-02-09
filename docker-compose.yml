@@ -1,50 +1,22 @@
 services:
-  # 정식 - 백엔드
   backend:
     build: ./backend/codemaestro
     container_name: codemaestro-backend
     restart: always
     ports:
-      - "8080:8080"
+      - "${SPRING_BOOT_PORT:-8080}:8080"
     environment:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER=${SPRING_DATASOURCE_DRIVER}
       - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
       - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
-      - ACCESS_KEY=${ACCESS_KEY}
-      - SECRET_KEY=${SECRET_KEY}
 
-  # 테스트 - 백엔드
-  backend-test:
-    build: ./backend/codemaestro
-    container_name: codemaestro-backend-test
-    restart: always
-    ports:
-      - "9090:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_TEST}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME_TEST}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD_TEST}
-      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME_TEST}
-      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD_TEST}
-      - ACCESS_KEY=${ACCESS_KEY}
-      - SECRET_KEY=${SECRET_KEY}
-
-  # 정식 - 프론트엔드
   frontend:
     build:
       context: ./frontend/codemaestro
     container_name: codemaestro-frontend
     restart: always
     ports:
-      - "3000:3000"
-
-  # 테스트 - 프론트엔드
-  frontend-test:
-    build:
-      context: ./frontend/codemaestro
-    container_name: codemaestro-frontend-test
-    restart: always
-    ports:
-      - "4000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
