@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -76,5 +77,26 @@ public class UserService {
         String encodePassword = passwordEncoder.encode(userProfileUpdateDto.getNewPassword());
         user.setPassword(encodePassword);
         userRepository.save(user);
+    }
+
+    // 유저 검색
+    public List<UserProfileResponseDto> searchUsers(String nickname, Long currentUserId) {
+        List<User> users;
+
+        // nickname이 없으면 전체 목록 반환
+        if(nickname == null || nickname.trim().isEmpty()) {
+            users = userRepository.findByIdNot(currentUserId);
+        } else {
+            users = userRepository.findByNicknameContainingAndIdNot(nickname.trim(), currentUserId);
+        }
+
+        // DTO 반환
+        List<UserProfileResponseDto> searchUserList = new ArrayList<>();
+        for(User user : users) {
+            UserProfileResponseDto dto = UserProfileResponseDto.from(user); // 이 부분 from 사용해서 수정
+            searchUserList.add(dto);
+        }
+
+        return searchUserList;
     }
 }

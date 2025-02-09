@@ -23,12 +23,14 @@ public class NotificationController {
         // 현재 연결된 모든 emitter 정보를 로그로 출력
         log.info("===== SSE 컨트롤러 =====");
         log.info("userId: {} 연결 시도", userId);
-        log.info("연결된 emitters 개수 : {}", sseService.getEmitters().size());
+        log.info("연결된 emitters 개수: {}", sseService.getEmitters().size());
+        log.info("연결된 emitters ID : {}", sseService.getEmitters().keySet());
 
         SseEmitter emitter = sseService.subscribe(userId);
 
         // 연결 후 상태
-        log.info("연결 후 emitters 개수 : {}", sseService.getEmitters().size());
+        log.info("연결 후 emitters 개수: {}", sseService.getEmitters().size());
+        log.info("연결 후 emitters ID : {}", sseService.getEmitters().keySet());
         log.info("========================");
 
         return emitter;

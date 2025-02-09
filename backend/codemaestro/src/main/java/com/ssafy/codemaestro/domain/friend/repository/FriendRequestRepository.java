@@ -14,7 +14,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
 
     // 양방향 친구 관계 조회 (내가 수락한 요청 + 내가 보내서 수락된 요청)
     @Query("SELECT fr FROM FriendRequest fr WHERE " +
-            "(fr.senderId = :userId OR fr.receiverId = :userId) " +
+            "(fr.sender.id = :userId OR fr.receiver.id = :userId) " +
             "AND fr.status = :status")
     List<FriendRequest> findAllFriendsByUserIdAndStatus(Long userId, FriendRequestStatus status);
 }

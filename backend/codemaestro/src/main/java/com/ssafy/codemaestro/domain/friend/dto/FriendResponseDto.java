@@ -20,9 +20,9 @@ public class FriendResponseDto {
     public static FriendResponseDto from(FriendRequest request, User sender, User receiver) {
         return FriendResponseDto.builder()
                 .requestId(request.getId())
-                .senderId(request.getSenderId())
+                .senderId(request.getSender().getId())
                 .senderName(sender.getNickname())
-                .receiverId(request.getReceiverId())
+                .receiverId(request.getReceiver().getId())
                 .receiverName(receiver.getNickname())
                 .status(request.getStatus())
                 .createdAt(request.getCreatedAt())
