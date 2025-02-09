@@ -9,29 +9,9 @@ import { baseURL } from "../api/userAxios";
 export const NotificationsContext = createContext();
 
 // 임시 알림 데이터 (예시)
-const dummyNotifications = [
-  {
-    type: "friend",
-    userName: "Alice",
-    message: "Alice님이 친구 요청을 보냈습니다.",
-    request: 101,
-  },
-  {
-    type: "group",
-    groupName: "Developers Group",
-    message: "Developers Group에 초대되었습니다.",
-    request: 102,
-  },
-  {
-    type: "invite",
-    name: "Weekly Meeting",
-    request: 103,
-    roomId: "meeting-001",
-  },
-];
 
 export const NotificationsProvider = ({ children }) => {
-  const [notifications, setNotifications] = useState(dummyNotifications);
+  const [notifications, setNotifications] = useState([]);
   const eventSourceRef = useRef(null);
   // 마지막으로 사용한 토큰과 userId를 저장해 불필요한 재연결을 방지
   const prevCredentialsRef = useRef({ token: null, userId: null });
@@ -53,14 +33,13 @@ export const NotificationsProvider = ({ children }) => {
         method: "GET", // 서버 요구사항에 맞게 GET 또는 POST로 변경
         headers: {
           Access: currentToken, // 필요한 경우 "Authorization": `Bearer ${currentToken}` 등으로 수정
-          "Content-Type": "application/json",
         },
       });
       if (!response.ok) {
         const errorText = await response.text();
         console.error("unsubscribe 에러:", response.status, errorText);
       } else {
-        const result = await response.json();
+        const result = await response.data
         console.log("unsubscribe 성공:", result);
       }
     } catch (error) {
@@ -97,12 +76,14 @@ export const NotificationsProvider = ({ children }) => {
       let parsedData;
       try {
         parsedData = JSON.parse(event.data);
+        
       } catch {
         parsedData = event.data;
       }
+      console.log(parsedData);
       if (parsedData.groupId) {
         addNotification("group", parsedData);
-      } else if (parsedData.userName) {
+      } else if (parsedData.senderName) {
         addNotification("friend", parsedData);
       } else {
         addNotification("invite", parsedData);

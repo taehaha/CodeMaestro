@@ -80,16 +80,19 @@ export const getUserInfo = async () => {
 
 export const putUserInfo = async (payload) => {
   try {
-    // FormData 객체 생성
-    const formData = new FormData();
+    let dataToSend;
+    // payload가 FormData라면 그대로 사용
+    if (payload instanceof FormData) {
+      dataToSend = payload;
+    } else {
+      // 그렇지 않다면 FormData로 변환 (파일이 없는 경우)
+      dataToSend = new FormData();
+      Object.keys(payload).forEach((key) => {
+        dataToSend.append(key, payload[key]);
+      });
+    }
 
-    // 기존 payload의 키값으로로 FormData에 추가
-    Object.keys(payload).forEach((key) => {
-      formData.append(key, payload[key]);
-    });
-
-    // 요청 전송
-    const response = await UserAxios.put('/users/profile', formData, {
+    const response = await UserAxios.put('/users/profile', dataToSend, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

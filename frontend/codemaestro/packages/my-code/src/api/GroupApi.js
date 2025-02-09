@@ -28,7 +28,7 @@ import UserAxios from "./userAxios";
         }
     };
     
-// 그룹 탈퇴퇴
+// 그룹 탈퇴
     export const LeaveGroup = async (payload) => {
         console.log(payload);
         
