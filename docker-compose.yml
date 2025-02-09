@@ -16,9 +16,9 @@ services:
       - SECRET_KEY=${SECRET_KEY}
 
   frontend:
-    container_name: "codemaestro-prod-frontend"
+    container_name: "codemaestro-${ENVIRONMENT}-frontend"
     build:
       context: ./frontend/codemaestro
     restart: always
     ports:
-      - "3000:3000"
+      - "${REACT_PORT:-3000}:3000"
