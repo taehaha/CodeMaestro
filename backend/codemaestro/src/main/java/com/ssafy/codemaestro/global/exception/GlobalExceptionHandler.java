@@ -11,11 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@RestControllerAdvice // 전역적으로 예외를 처리할 수 있게해주는 어노테이션
 @Slf4j
 public class GlobalExceptionHandler {
-
-
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
@@ -29,7 +27,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
-    // 비밀번호 확인 관련
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
         log.error("Invalid password error: ", ex);
@@ -82,6 +79,3 @@ public class GlobalExceptionHandler {
         );
     }
 }
-
-
-

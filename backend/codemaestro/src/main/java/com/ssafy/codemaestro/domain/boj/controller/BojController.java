@@ -7,14 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/boj")
+@RequestMapping("/boj")
 @RequiredArgsConstructor
 public class BojController {
 
     private final BojService bojService;
 
-    @GetMapping("/tier/{bojId}")
-    public ResponseEntity<BojUserResponse> getUserTierInfo(@PathVariable String bojId) {
+    @GetMapping("/tier")
+    public ResponseEntity<BojUserResponse> getUserTierInfo(@RequestParam String bojId) {
         return ResponseEntity.ok(bojService.getTierInfo(bojId));
     }
 }
