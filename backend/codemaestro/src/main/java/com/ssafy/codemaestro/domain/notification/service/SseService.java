@@ -2,7 +2,6 @@ package com.ssafy.codemaestro.domain.notification.service;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -31,8 +30,14 @@ public class SseService {
 
         // 4. 이벤트 핸들러 설정
         emitter.onCompletion(() -> {
-            log.info("SSE oncompletion 실행으로 emiiter 제거됨: {}", userId);
-            emitters.remove(userId);
+            SseEmitter existingEmitter = emitters.remove(userId);
+            if (existingEmitter != null) {
+                try {
+                    existingEmitter.complete();
+                } catch (Exception e) {
+                    log.warn("Emitter complete 호출 중 오류 발생: {}", userId, e);
+                }
+            }
         });
 
         emitter.onTimeout(() -> {

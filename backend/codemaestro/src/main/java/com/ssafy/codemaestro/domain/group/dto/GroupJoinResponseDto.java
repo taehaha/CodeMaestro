@@ -14,6 +14,7 @@ public class GroupJoinResponseDto {
     private String userNickname;
     private Long groupId;
     private String groupName;
+    private String message;
     private LocalDateTime createdAt;
 
     public static GroupJoinResponseDto from(GroupJoinRequest request) {
@@ -23,6 +24,7 @@ public class GroupJoinResponseDto {
                 .userNickname(request.getUser().getNickname())
                 .groupId(request.getGroup().getId())
                 .groupName(request.getGroup().getName())
+                .message(request.getMessage())
                 .createdAt(request.getCreatedAt())
                 .build();
     }

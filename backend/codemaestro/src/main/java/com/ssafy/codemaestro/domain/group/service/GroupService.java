@@ -4,13 +4,11 @@ import com.ssafy.codemaestro.domain.group.dto.GroupDetailResponseDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupRequestDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupResponseDto;
 import com.ssafy.codemaestro.domain.group.dto.TransferOwnerRequestDto;
+import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
-import com.ssafy.codemaestro.global.entity.Group;
-import com.ssafy.codemaestro.global.entity.GroupMember;
-import com.ssafy.codemaestro.global.entity.User;
-import com.ssafy.codemaestro.global.entity.GroupRole;
+import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final GroupJoinRequestRepository groupJoinRequestRepository;
 
     // 그룹 생성
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
@@ -62,7 +61,11 @@ public class GroupService {
        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found"));
 
-        groupRepository.delete(group);
+       groupJoinRequestRepository.deleteByGroup(group);
+
+
+
+       groupRepository.delete(group);
     }
 
     // 전체 그룹 조회
@@ -110,8 +113,11 @@ public class GroupService {
             throw new BadRequestException("Group owner cannot leave the group");
         }
 
+        // 그룹 멤버 수 감소
         group.setCurrentMembers(group.getCurrentMembers() - 1);
         groupRepository.save(group);
+
+        // group_member 컬럼 삭제
         groupMemberRepository.delete(groupMember);
     }
 
