@@ -42,9 +42,12 @@ const EmailAuth = () => {
   // };
 
 // 더미처리용
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (email && code) {
+      // const res = await UserAxios.put("/auth/verify/email",{email,pin:code});
+      // console.log(res);
+      
       setMessage("이메일 인증이 완료되었습니다.");
       setStep(2);
     } else {

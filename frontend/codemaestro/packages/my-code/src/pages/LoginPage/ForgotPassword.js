@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './ForgotPassword.css';
 import Swal from 'sweetalert2';
-
+import { baseURL } from '../../api/userAxios';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
 
@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await axios.post('/auth/forgot-password', {
+      const response = await axios.post(`${baseURL}/auth/find-password`, {
         email: email
       });
 
