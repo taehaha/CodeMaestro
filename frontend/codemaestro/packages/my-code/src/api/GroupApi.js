@@ -28,7 +28,7 @@ import UserAxios from "./userAxios";
         }
     };
     
-// 그룹 탈퇴퇴
+// 그룹 탈퇴
     export const LeaveGroup = async (payload) => {
         console.log(payload);
         
@@ -89,5 +89,19 @@ import UserAxios from "./userAxios";
             console.error("수락 요청 실패", error);
             return error.response?.status || 500;
             
+        }
+    }
+
+    // 그룹 랭킹 조회
+    export const GroupRankingList = async (payload) =>{
+        try {
+            const result = await UserAxios.get(`/groups/conference/rankings`,
+                {params:{year:payload.year,
+                    month:payload.month,}}
+            )
+
+            return result
+        } catch (error) {
+            console.error("그룹 랭킹 호출 중 오류 발생", error);
         }
     }

@@ -76,7 +76,7 @@ const Sidebar = ({ onSelect, user }) => {
           </>
         )}
         {selectedTab === "friends" && <FriendsList />}
-        {selectedTab === "groups" && <GroupList />}
+        {selectedTab === "groups" && <MyGroupList />}
         {selectedTab === "recordings" && <RecordingsList />}
       </div>
     </div>

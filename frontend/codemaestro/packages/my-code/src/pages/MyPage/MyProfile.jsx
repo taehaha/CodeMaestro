@@ -11,16 +11,16 @@ import './MyProfile.css';
 
 const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
-  // const user = useSelector((state) => state.user.myInfo);
+  const user = useSelector((state) => state.user.myInfo);
 
-  const user ={
-    id: 'kopybara8421',
-    name: '익명의 카피바라 8421',
-    email: 'test@test.com',
-    description: '오늘도 열심히 코딩합시다',
-    tier: 27,
-    // profile_image_url,
-}
+//   const user ={
+//     id: 'kopybara8421',
+//     name: '익명의 카피바라 8421',
+//     email: 'test@test.com',
+//     description: '오늘도 열심히 코딩합시다',
+//     tier: 27,
+//     // profile_image_url,
+// }
   // console.log(user);
   
   // 모달 상태
@@ -53,10 +53,9 @@ const MyProfile = () => {
       <div className="profile-container">
         {/* 유저 정보 */}
           <div className="user-info">
-            <p className="text-lg font-semibold">@{user.id}</p>
-            <div className="items-center mt-2 space-x-2">
-              <p className="text-lg font-bold">{user.name}</p>
-              <img src={`/solvedac/${user.tier}.svg`} alt="tier" className='w-7'/>
+              <p className="text-lg font-bold">{user.nickname}</p>
+              <div className="items-center mt-2 space-x-1">
+              <p className="text-sm font-semibold">{user.email}</p>
             </div>
             <p className="text-sm mt-2">{user.description}</p>
           </div>

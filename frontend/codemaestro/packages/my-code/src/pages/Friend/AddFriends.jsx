@@ -2,6 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import UserList from "../../components/UserList";
+import { searchUserInfo } from "../../api/FriendApi";
 
 const AddFriends = ({ onClose }) => {
   const [checkedUsers, setCheckedUsers] = useState([]); 
@@ -15,20 +16,14 @@ const AddFriends = ({ onClose }) => {
 
   // 검색 버튼 or 엔터(submit) 시
   const handleSearch = async (e) => {
-    e.preventDefault(); // 폼 submit 기본 동작 방지
-    console.log("검색어:", searchInput);
-
+    e.preventDefault();
     try {
-      // 실제 백엔드 서버에 GET(또는 POST) 요청 예시
-      // 예) /api/users?keyword=searchInput
-      const response = await axios.get("/api/users", {
-        params: { keyword: searchInput },
-      });
-      // 백엔드가 반환한 검색 결과를 state에 저장
-      setSearchResult(response.data); 
+      const response = await searchUserInfo(searchInput);
+      
+      // 응답 데이터가 배열이 아닐 경우 빈 배열로 fallback
+      setSearchResult(Array.isArray(response) ? response : []);
     } catch (error) {
       console.error("검색 오류:", error);
-      // 에러 발생 시에는 기본값(빈 배열) 사용 또는 에러 처리
       setSearchResult([]);
     }
   };
@@ -93,10 +88,12 @@ const AddFriends = ({ onClose }) => {
 
         {/* 검색 결과를 UserList에 전달 */}
         <UserList
+          users={searchResult}
           userData={searchResult}       // 검색 결과
           checkedUsers={checkedUsers}
           setCheckedUsers={setCheckedUsers}
           addPage={true}
+          searchTerm={searchInput}
         />
 
         {/* 버튼 영역 */}

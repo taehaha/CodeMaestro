@@ -22,6 +22,7 @@ import { javaLinter } from "../lint/javaLinter";
 import { indentWithTab } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
 import { Compartment } from "@codemirror/state";
+import { AvatarStack } from "../components/AvatarStack";
 
 interface EditorProps {
   code: string;
@@ -119,7 +120,7 @@ const cppCompletions = [
   { label: "std::stack", type: "type", detail: "LIFO 스택" },
   { label: "std::priority_queue", type: "type", detail: "우선순위 큐" },
   { label: "std::algorithm", type: "header", detail: "알고리즘 라이브러리" },
-  { label: "std::sort", type: "function", detail: "정렬 함수" },
+  { label: "std::sort", tymepe: "function", detail: "정렬 함수" },
   { label: "std::find", type: "function", detail: "요소 찾기" },
   { label: "std::reverse", type: "function", detail: "컨테이너 뒤집기" },
   { label: "std::min", type: "function", detail: "최소값 계산" },
@@ -269,7 +270,7 @@ const lightTheme = EditorView.theme({
 }, { dark: false });
 
 const client = createClient({
-  publicApiKey: "pk_dev_UdoYqh5zcJmZJ6b38jSLvj5iMnpREKqd_3GMePROAkXMQiJtAE8CE0-XKMutv6nu",
+  publicApiKey: "pk_dev_wcRTPkCMtt5RRRNK1dldWR6vcR5_bvE2duMcpioZi5m_-nDl3mf6mZ4fpXI3NnCi",
 });
 
 const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, selectedLanguage }) => {
@@ -417,7 +418,7 @@ const CollaborativeEditor = React.memo((props: any) => {
     // Awareness 변경 감지 -> 사용자 감지
     provider.awareness.on("change", handleAwarenessChange);
 
-    // 무작위 색상 생성 함수
+    // 랜덤 색상 생성 
     function getRandomColor() {
       const letters = "0123456789ABCDEF";
       let color = "#";
@@ -427,15 +428,16 @@ const CollaborativeEditor = React.memo((props: any) => {
       return color;
     }
 
-    const userDisplayName = userInfo?.nickname || "Guest";
+    const userDisplayName = userInfo?.name || "Guest"; // userInfo의 name 프로퍼티를 사용
 
     const userColor = userInfo?.color || getRandomColor();
-
+    
     provider.awareness.setLocalStateField("user", {
       name: userDisplayName,
       color: userColor,
       colorLight: userColor + "80", 
     });
+    
 
 
     return () => {
@@ -534,7 +536,7 @@ const CollaborativeEditor = React.memo((props: any) => {
 
   return (
 
-    <div className="border border-gray-800 rounded overflow-hidden transition-colors duration-500">
+    <div className="border border-gray-800 rounded overflow-visible transition-colors duration-500">
       <div className="flex items-center mb-2 p-4 bg-gray-100 dark:bg-gray-800 space-x-4">
         <button
           onClick={() => props.setEnableAI(!props.enableAI)}
@@ -573,7 +575,7 @@ const CollaborativeEditor = React.memo((props: any) => {
         >
           {lintEnabled ? "🚨 문법 검사 켜짐" : "🚨 문법 검사 꺼짐"}
         </button>
-
+        
         <button
           onClick={() => navigator.clipboard.writeText(props.code)}
           className="ml-auto p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
@@ -581,7 +583,7 @@ const CollaborativeEditor = React.memo((props: any) => {
           <Copy className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </button>
 
-
+        <AvatarStack />
       </div>
 
       {props.showAnalysisPanel && (

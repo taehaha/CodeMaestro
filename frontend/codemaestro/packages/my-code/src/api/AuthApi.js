@@ -30,7 +30,7 @@ export const signup = async (payload) => {
       }
       );
   
-      return response.data;
+      return response;
     } catch (error) {
       console.error("Signup error:", error);
       throw error;
@@ -80,17 +80,42 @@ export const getUserInfo = async () => {
 
 export const putUserInfo = async (payload) => {
   try {
-    const response = await UserAxios.put('/users/profile', payload);
-    return response.data;
+    let dataToSend;
+    // payload가 FormData라면 그대로 사용
+    if (payload instanceof FormData) {
+      dataToSend = payload;
+    } else {
+      // 그렇지 않다면 FormData로 변환 (파일이 없는 경우)
+      dataToSend = new FormData();
+      Object.keys(payload).forEach((key) => {
+        dataToSend.append(key, payload[key]);
+      });
+    }
+
+    const response = await UserAxios.put('/users/profile', dataToSend, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response;
   } catch (error) {
     console.error('유저 정보 수정 중 에러 발생:', error);
     throw error;
   }
 };
 
+//회원탈퇴 로직.
 export const deleteUserInfo = async () => {
   const response = await UserAxios.delete( `/auth/quit`, {})
-  return response.data
+  return response
+}
+
+
+//비밀번호 변경
+export const putPassword = async (payload) => {
+  const response = await UserAxios.patch(`/users/profile/password`, payload)
+
+  return response
 }
 
 export const getNotification = async (userId) => {
@@ -104,6 +129,8 @@ export const getNotification = async (userId) => {
 };
 
 
+//이메일 인증: 회원가입
+// eslint-disable-next-line no-unused-vars
 export const emailVerification = async (payload) =>{
   // try {
     
@@ -111,10 +138,13 @@ export const emailVerification = async (payload) =>{
     
   // }
 }
+//이메일 인증: 비밀번호 찾기
 
+
+//이메일, 닉네임 중복 체크
 export const emailCheck = async (email) =>{
   try {
-    const result = await UserAxios.get(`/api/exist/email/${email}`)
+    const result = await UserAxios.get(`/api/validate/email/${email}`)
     return result.status
   } catch (error) {
     console.error("이메일 중복 검사 중 오류 발견", error);
@@ -124,7 +154,7 @@ export const emailCheck = async (email) =>{
 
 export const nicknameCheck = async (nickname) =>{
   try {
-    const result = await UserAxios.get(`/api/exist/nickname/${nickname}`)
+    const result = await UserAxios.get(`/api/validate/nickname/${nickname}`)
     return result.status
   } catch (error) {
     console.error("닉네임 중복 검사 중 오류 발견", error);

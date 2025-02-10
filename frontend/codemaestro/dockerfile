@@ -1,16 +1,39 @@
-# Node.js 환경에서 React 빌드
-FROM node:18 AS build
 
-# 작업 디렉토리 설정
+###############################
+# Stage 1: 빌드 단계 (builder)
+###############################
+FROM node:20-alpine as builder
+
+# 작업 디렉터리 설정
 WORKDIR /app
 
-# 소스 코드 복사 및 의존성 설치
-COPY package.json package-lock.json ./
-RUN npm install
+# 1-1. package.json, yarn.lock만 먼저 복사하여 캐시 활용
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-# 소스 코드 전체 복사 후 빌드 실행
+# 1-2. 전체 소스 복사 (모노레포의 모든 워크스페이스 포함)
 COPY . .
-RUN npm run build
 
-# 컨테이너가 종료되지 않도록 유지 (Nginx 없이)
-CMD ["tail", "-f", "/dev/null"]
+# 1-3. 모노레포 루트에 정의된 전체 빌드를 실행
+RUN yarn build-all
+
+# 1-4. (옵션) 프로덕션 실행에 필요 없는 devDependencies 제거  
+#     (이미 빌드가 완료되었으므로 런타임에 필요한 패키지만 남김)
+RUN yarn install --production --frozen-lockfile
+
+###############################
+# Stage 2: 최종 실행 단계 (runner)
+###############################
+FROM node:20-alpine
+
+# 작업 디렉터리 설정
+WORKDIR /app
+
+# 빌드 단계에서 생성된 결과물을 복사 (프로덕션용 node_modules 포함)
+COPY --from=builder /app /app
+
+# Express 서버가 사용하는 포트 (예제에서는 3000)
+EXPOSE 3000
+
+# 컨테이너 시작 시 Express 서버 실행
+CMD ["yarn", "start-server"]

@@ -10,10 +10,13 @@ require("dotenv").config();
 
 const WebSocket = require("ws");
 const url = require("url");
+const path = require("path"); // 추가: path 모듈을 가져옵니다.
 const { setupWSConnection } = require("y-websocket/bin/utils");
 const { LeveldbPersistence } = require("y-leveldb");
+const Y = require("yjs");
 
-const persistence = new LeveldbPersistence("./yjs-docs");
+// 절대경로로 데이터베이스 폴더 지정 (server.js 파일이 위치한 폴더 기준)
+const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
 
 const app = express();
 
@@ -121,7 +124,6 @@ app.post("/api/analyze", async (req, res) => {
   }
 });
 
-
 // y-websocket 서버 - 공유 그림판만 현재 사용 
 const server = http.createServer(app);
 
@@ -133,21 +135,23 @@ const wss = new WebSocket.Server({
 wss.on("connection", async (ws, req) => {
   const parsedUrl = url.parse(req.url, true);
   const docName = parsedUrl.pathname.slice(1) || "default";
-  console.log(`새 WebSocket 연결: 문서 이름 - ${docName}`);
+  
+  // Windows 파일 시스템에서 안전하도록 문서 이름에 포함된 금지 문자를 '_'로 치환
+  const safeDocName = docName.replace(/[<>:"/\\|?*]/g, "_");
+  console.log(`새 WebSocket 연결: 문서 이름 - ${safeDocName}`);
 
   try {
-    await persistence.getYDoc(docName);
-    console.log(`문서 로드 완료: ${docName}`);
+    await persistence.getYDoc(safeDocName);
+    console.log(`문서 로드 완료: ${safeDocName}`);
   } catch (error) {
-    console.warn(`문서 로드 실패 (없거나 손상됨): ${docName}`);
+    console.warn(`문서 로드 실패 (없거나 손상됨): ${safeDocName}`);
     const newDoc = new Y.Doc();
-    persistence.storeUpdate(docName, Y.encodeStateAsUpdate(newDoc));
-    console.log(`새 문서 생성: ${docName}`);
+    persistence.storeUpdate(safeDocName, Y.encodeStateAsUpdate(newDoc));
+    console.log(`새 문서 생성: ${safeDocName}`);
   }
 
-  setupWSConnection(ws, req, { docName, persistence });
-
-  console.log(`WebSocket 연결 완료: 문서 - ${docName}`);
+  setupWSConnection(ws, req, { docName: safeDocName, persistence });
+  console.log(`WebSocket 연결 완료: 문서 - ${safeDocName}`);
 });
 
 // 포트 설정 및 서버 실행
