@@ -56,10 +56,10 @@ function Header() {
               onClick={toggleNotifications}
               className="btn text-2xl btn-ghost relative"
             >
-        <FaBell />
+        <FaBell className="w-5 h-5"/>
                           {/* 알림 개수 표시 */}
             {notifications && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-0.5 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center">
                 {notifications.length}
               </span>
             )}
