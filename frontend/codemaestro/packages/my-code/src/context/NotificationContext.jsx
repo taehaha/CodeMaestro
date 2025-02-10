@@ -28,6 +28,104 @@ export const NotificationsProvider = ({ children }) => {
   const connect = () => {
     if (!userId || !token) return; // 필수 정보 없으면 실행하지 않음
 
+<<<<<<< HEAD
+  // useEffect(() => {
+  //   if (!token || !userId) {
+  //     return;
+  //   }
+
+  //   // SSE 연결 생성 함수
+  //   const connect = () => {
+  //     const url = `http://192.168.31.58:8080/subscribe/${userId}`;
+
+  //     // 기존 연결이 있다면 종료
+  //     if (eventSourceRef.current) {
+  //       eventSourceRef.current.close();
+  //     }
+
+  //     // 새 EventSourcePolyfill 인스턴스 생성
+  //     const newEventSource = new EventSourcePolyfill(url, {
+  //       headers: { Access: token },
+  //       heartbeatTimeout: 120000,
+  //     });
+
+  //     // 이벤트 핸들러 등록
+  //     newEventSource.addEventListener("connect", (event) => {
+  //       console.log("연결됨:", event.data);
+  //     });
+
+  //     // lost-data 이벤트: 데이터 형식에 따라 알림 구분 처리
+  //     newEventSource.addEventListener("lost-data", (event) => {
+  //       // 예를 들어, event.data가 문자열 형태라면 JSON.parse가 필요할 수 있음
+  //       let parsedData;
+  //       try {
+  //         parsedData = JSON.parse(event.data);
+  //       } catch {
+  //         parsedData = event.data;
+  //       }
+
+  //       if (parsedData.groupId) {
+  //         addNotification("group", parsedData);
+  //       } else if (parsedData.userName) {
+  //         addNotification("friend", parsedData);
+  //       } else {
+  //         addNotification("invite", parsedData);
+  //       }
+  //     });
+
+  //     // friendRequest 이벤트
+  //     newEventSource.addEventListener("friendRequest", (event) => {
+  //       let parsedData;
+  //       try {
+  //         parsedData = JSON.parse(event.data);
+  //       } catch {
+  //         parsedData = event.data;
+  //       }
+  //       addNotification("friend", parsedData);
+  //     });
+
+  //     // groupRequest 이벤트
+  //     newEventSource.addEventListener("groupRequest", (event) => {
+  //       let parsedData;
+  //       try {
+  //         parsedData = JSON.parse(event.data);
+  //       } catch {
+  //         parsedData = event.data;
+  //       }
+  //       addNotification("group", parsedData);
+  //     });
+
+  //     // invite 이벤트
+  //     newEventSource.addEventListener("invite", (event) => {
+  //       let parsedData;
+  //       try {
+  //         parsedData = JSON.parse(event.data);
+  //       } catch {
+  //         parsedData = event.data;
+  //       }
+  //       addNotification("invite", parsedData);
+  //     });
+
+  //     newEventSource.onerror = (error) => {
+  //       console.error("SSE 연결 오류:", error);
+  //       // 필요시 재연결 로직을 추가할 수 있음
+  //     };
+
+  //     // 새 인스턴스를 ref에 저장
+  //     eventSourceRef.current = newEventSource;
+  //   };
+
+  //   // SSE 연결 생성
+  //   connect();
+
+  //   // cleanup: 컴포넌트 언마운트 시 disconnect 호출하여 unsubscribe 및 연결 종료
+  //   return () => {
+  //     if (eventSourceRef.current) {
+  //       disconnect();
+  //     }
+  //   };
+  // }, [token, userId]);
+=======
     const url = `${baseURL}/subscribe/${userId}`;
 
     // 혹시 남아있는 연결이 있다면 종료합니다.
@@ -168,6 +266,7 @@ export const NotificationsProvider = ({ children }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, userId]);
+>>>>>>> develop/frontend
 
   // 컴포넌트 언마운트 시 연결을 종료합니다.
   useEffect(() => {

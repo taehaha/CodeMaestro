@@ -15,7 +15,7 @@
 .contents h2,
 .contents p {
   position: relative;
-  z-index: 2;
+  z-index: 20;
   display: inline-block;
   padding: 60px 10px 10px;
 }
@@ -28,62 +28,75 @@
 .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 300px;
+  gap: 100px; /* 간격 조정 */
   position: relative;
-  z-index: 2;
+  z-index: 20;
   align-items: center;
 }
 
 .feature-wrapper {
   display: flex;
-  align-items: center;
-  gap: 100px;
-  width: 100%;  /* 전체 너비 조정 */
-  max-width: 850px;  /* 레이아웃 최대 너비 */
+  align-items: flex-start; /* 윗선 맞추기 */
+  gap: 0px;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .feature-wrapper.left {
-  flex-direction: row-reverse; /* 왼쪽 이미지 */
+  flex-direction: row-reverse;
 }
 
 .feature-wrapper.right {
-  flex-direction: row; /* 오른쪽 이미지 */
+  flex-direction: row;
 }
 
-.feature-image {
-  height: 300px;
-  object-fit: cover;
+.feature-image-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  border: 1px solid gainsboro;
   border-radius: 10px;
-  opacity: 0; /* 기본적으로 투명 */
-  /* transform: translateY(30px);  */
+  width: 80%; /* 텍스트 박스와 같은 크기로 설정 */
+  height: auto;
+  padding: 20px;
+}
+
+/* 이미지 크기 조정 */
+.feature-image {
+  width: 80%; /* 격자 내부에서 작게 배치 */
+  max-width: 300px; /* 최대 크기 제한 */
+  height: auto;
+  object-fit: contain; /* 원본 비율 유지 */
+  border-radius: 10px;
+  opacity: 1;
   transition: opacity 1.3s ease-out, transform 1.3s ease-out;
 }
 
 .feature-image.visible {
-  opacity: 1; /* 서서히 나타남 */
-  /* transform: translateY(0); */
+  opacity: 1;
 }
 
 .feature-image:not(.visible) {
-  opacity: 0; /* 다시 투명해짐 */
-  /* transform: translateY(30px); */
+  opacity: 0;
 }
 
-
-
+/* 텍스트 박스 크기 조정 */
 .feature-item {
   background-color: transparent;
   padding: 10px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  height: 250px;
+  border: 1px solid gainsboro;
+  width: 50%;
+  height: auto; /* 높이를 자동 조정하여 윗선을 맞춤 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 텍스트 상단 정렬 */
 }
 
 .feature-item h3 {
   font-size: 20px;
   font-weight: bold;
-  margin-top: 40px;
   margin-bottom: 8px;
 }
 
@@ -93,21 +106,20 @@
   margin-top: 0px;
 }
 
-.feature-item {
-  transition: transform 0.3s ease-in-out;
-}
-
-.feature-item:hover {
-  transform: scale(1.05);
-}
+/* 반응형 적용 */
 @media (max-width: 768px) {
   .feature-wrapper {
     flex-direction: column;
-    gap: 20px;
+    align-items: center; /* 모바일에서도 정렬 유지 */
   }
 
   .feature-image {
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    height: auto;
+  }
+
+  .feature-item {
+    width: 100%;
+    text-align: center;
   }
 }

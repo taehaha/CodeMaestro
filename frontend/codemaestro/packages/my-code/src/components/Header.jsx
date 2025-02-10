@@ -49,9 +49,9 @@ function Header() {
       <button className="hamburger-btn" onClick={toggleMenu}>☰</button>
 
       <nav className={`menu ${menuOpen ? 'open' : ''}`}>
-        <Link to="/meeting">Meeting</Link>
-        <Link to="/mypage" onClick={closeMenu}>My Page</Link>
-        <Link to="/boards">Community</Link>
+        <Link to="/meeting" onClick={closeMenu}>회의</Link>
+        <Link to="/mypage" onClick={closeMenu}>마이페이지</Link>
+        <Link to="/boards" onClick={closeMenu}>커뮤니티</Link>
             <button
               onClick={toggleNotifications}
               className="btn text-2xl btn-ghost relative"
@@ -71,7 +71,7 @@ function Header() {
                       </div>
       )}
         {isLoggedIn ? (
-          <button className='header-logout-btn' onClick={handelLogout}>Log out</button>
+          <button className='header-logout-btn' onClick={handelLogout}>로그아웃</button>
         ) : (
           <>
             <Link to="/login" className="header-login-btn" onClick={closeMenu}>Log in</Link>

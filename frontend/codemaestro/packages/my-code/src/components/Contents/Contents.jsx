@@ -56,7 +56,9 @@ function Contents() {
             key={index}
             className={`feature-wrapper ${index % 2 === 0 ? 'left' : 'right'}`}
           >
-            <img src={ex2} alt={`${feature.title} 이미지`} className="feature-image" />
+            <div className="feature-image-box">
+              <img src={ex2} alt={`${feature.title} 이미지`} className="feature-image" />
+            </div>
             <div className="feature-item">
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>

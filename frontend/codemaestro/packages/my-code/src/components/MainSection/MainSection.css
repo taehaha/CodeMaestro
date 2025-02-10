@@ -38,6 +38,7 @@
 .buttons.visible {
   opacity: 1;  /* 서서히 나타나기 */
   transform: translateY(0);  /* 원래 자리로 이동 */
+  z-index: 10;
 }
 
 .start-btn, .github-btn {
