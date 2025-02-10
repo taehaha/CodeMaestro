@@ -23,9 +23,10 @@ export const getRoomDetail = async (roomId) => {
 }
 
 // 생성 수정 삭제
-export const postRoom = async (data) => {
+export const createRoom = async (payload) => {
     try {
-        const response = await UserAxios.post(`/rooms`, data)
+        const response = await UserAxios.post(`/conference/create`, payload,
+        )
         return response.data
     } catch (error) {
         console.log(error);

@@ -87,7 +87,7 @@ const handleNicknameCheck = async (e) => {
   try {
     const response = await nicknameCheck(nickname)
 
-    if (response.status===200) {
+    if (response===200) {
       setIsNicknameAvailable(true);
       setNicknameMessage("사용 가능한 닉네임입니다.");
     } else {
