@@ -82,7 +82,7 @@ public class ConferenceService {
                 .moderator(requestUser)
                 .title(title)
                 .description(description)
-                .thumbnailUrl("https://images.ctfassets.net/2pyx8rwuvz6x/1ohlpOTPdhPXwPMDdagY1B/3dfaa7de51ec3d5379dee6e5601ab490/PIN_Company_Impact-01__1_.png?fm=webp&q=85")
+                .thumbnailUrl("https://picsum.photos/400/200")
                 .accessCode(accessCode)
                 .build();
 
