@@ -3,7 +3,7 @@ import { createClient } from "@liveblocks/client";
 import { createLiveblocksContext } from "@liveblocks/react";
 
 const client = createClient({
-  publicApiKey: "pk_dev_UdoYqh5zcJmZJ6b38jSLvj5iMnpREKqd_3GMePROAkXMQiJtAE8CE0-XKMutv6nu",
+  publicApiKey: "pk_dev_wcRTPkCMtt5RRRNK1dldWR6vcR5_bvE2duMcpioZi5m_-nDl3mf6mZ4fpXI3NnCi",
 });
 
 export const { LiveblocksProvider } = createLiveblocksContext(client);

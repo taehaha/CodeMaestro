@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Base64 } from "js-base64";
 import { Sun, Moon, Play } from "lucide-react";
 import PaintBoard from "./components/PaintBoard";
@@ -217,166 +217,183 @@ const App = () => {
       setIsLoading(false);
     }
   };
+  // F9 키로 컴파일 버튼 클릭 동작
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F9") {
+        e.preventDefault(); // 기본 F9 동작 방지
+        console.log("F9 키 눌림 - 컴파일 실행"); // 디버깅용 로그
+        handleRunCode(); // 컴파일 실행
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown); // Cleanup
+    };
+  }, [handleRunCode]); // handleRunCode가 변경될 때마다 이벤트 리스너 등록
 
   return (
     <LiveblocksProvider>
-    <div
-      className={`
-        min-h-screen flex 
-        bg-white dark:bg-gray-900 
-        text-black dark:text-white
-        transition-colors duration-300
-      `}
-    >
-      {/* 왼쪽 (채팅, 챗봇, 화면공유) */}
       <div
-        style={{ width: leftWidth }}
-        className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom"
+        className={`min-h-screen flex 
+      bg-white dark:bg-gray-900 
+      text-black dark:text-white
+      transition-colors duration-300
+    `}
       >
-        <div className="border-b border-gray-300 dark:border-gray-700 transition-colors duration-300">
-          <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-            <li className="flex-1">
-              <button
-                onClick={() => setCurrentLeftTab("chat")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "chat"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
-              >
-                <img
-                  src="/ide/img/talking.png"
-                  alt="Chat"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
-                />
-                채팅
-              </button>
-            </li>
-            <li className="flex-1">
-              <button
-                onClick={() => setCurrentLeftTab("chatbot")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "chatbot"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
-              >
-                <img
-                  src="/ide/img/robot.png"
-                  alt="Chatbot"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
-                />
-                챗봇
-              </button>
-            </li>
-            <li className="flex-1">
-              <button
-                onClick={() => setCurrentLeftTab("screen_share")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "screen_share"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
-              >
-                <img
-                  src="/ide/img/video.png"
-                  alt="Screen Share"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
-                />
-                화면공유
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
-          {currentLeftTab === "chat" && (
-            <div className="h-[50vh] resize-y overflow-auto rounded scrollbar-thin-custom">
-              <Chat />
-            </div>
-          )}
-          {currentLeftTab === "chatbot" && (
-            <div className="h-[67vh] resize-y overflow-auto rounded scrollbar-thin-custom">
-              <ChatBot currentCode={code} updateCode={setCode} />
-            </div>
-          )}
-          {currentLeftTab === "screen_share" && <div>제작중</div>}
-        </div>
-      </div>
-
-      <div
-        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${
-          isDragging
-            ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
-            : "bg-gradient-to-b from-gray-300 to-gray-400"
-        }`}
-        style={{ height: "100vh" }}
-        onMouseDown={() => setIsDragging(true)}
-      >
+        {/* 왼쪽 (채팅, 챗봇, 화면공유) */}
         <div
-          className={`w-6 h-20 rounded-full shadow-md border-2 ${
-            isDragging
-              ? "bg-yellow-500 border-yellow-700"
-              : "bg-white border-gray-300 group-hover:border-blue-500"
-          } transition-all transform ${
-            isDragging ? "scale-125" : "group-hover:scale-110"
-          }`}
-        ></div>
-      </div>
+          style={{ width: leftWidth }}
+          className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom"
+        >
+          <div className="border-b border-gray-300 dark:border-gray-700 transition-colors duration-300">
+            <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+              <li className="flex-1">
+                <button
+                  onClick={() => setCurrentLeftTab("chat")}
+                  className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chat"
+                      ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                      : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                    }`}
+                >
+                  <img
+                    src="/ide/img/talking.png"
+                    alt="Chat"
+                    className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
+                  />
+                  채팅
+                </button>
+              </li>
+              <li className="flex-1">
+                <button
+                  onClick={() => setCurrentLeftTab("chatbot")}
+                  className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chatbot"
+                      ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                      : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                    }`}
+                >
+                  <img
+                    src="/ide/img/robot.png"
+                    alt="Chatbot"
+                    className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
+                  />
+                  챗봇
+                </button>
+              </li>
+              <li className="flex-1">
+                <button
+                  onClick={() => setCurrentLeftTab("screen_share")}
+                  className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "screen_share"
+                      ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                      : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                    }`}
+                >
+                  <img
+                    src="/ide/img/video.png"
+                    alt="Screen Share"
+                    className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
+                  />
+                  화면공유
+                </button>
+              </li>
+            </ul>
+          </div>
 
-      {/* 오른쪽 (언어 선택 + 다크모드 + 코드, 그림판) */}
-      <div className="flex-grow flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300">
-        <div className="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700 transition-colors duration-300">
-          <LanguageSelector
-            languages={languages}
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-          />
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
-          >
-            {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-          </button>
+          <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
+            {currentLeftTab === "chat" && (
+              <div className="h-[50vh] resize-y overflow-auto rounded scrollbar-thin-custom">
+                <Chat />
+              </div>
+            )}
+            {currentLeftTab === "chatbot" && (
+              <div className="h-[67vh] resize-y overflow-auto rounded scrollbar-thin-custom">
+                <ChatBot currentCode={code} updateCode={setCode} />
+              </div>
+            )}
+            {currentLeftTab === "screen_share" && <div>제작중</div>}
+          </div>
         </div>
 
+        <div
+          className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${isDragging
+              ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
+              : "bg-gradient-to-b from-gray-300 to-gray-400"
+            }`}
+          style={{ height: "100vh" }}
+          onMouseDown={() => setIsDragging(true)}
+        >
+          <div
+            className={`w-6 h-20 rounded-full shadow-md border-2 ${isDragging
+                ? "bg-yellow-500 border-yellow-700"
+                : "bg-white border-gray-300 group-hover:border-blue-500"
+              } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"
+              }`}
+          ></div>
+        </div>
+
+        {/* 오른쪽 (언어 선택 + 다크모드 + 코드, 그림판) */}
         <div className="flex-grow flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300">
-          <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-            <li className="flex-1">
-              <button
-                onClick={() => setCurrentRightTab("code")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentRightTab === "code"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
-              >
-                <img
-                  src="/ide/img/programming.png"
-                  alt="Code"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "code" ? "opacity-100" : "opacity-50"}`}
-                />
-                코드
-              </button>
-            </li>
-            <li className="flex-1">
-              <button
-                onClick={() => setCurrentRightTab("paint")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentRightTab === "paint"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
-              >
-                <img
-                  src="/ide/img/palette.png"
-                  alt="Paint"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "paint" ? "opacity-100" : "opacity-50"}`}
-                />
-                그림판
-              </button>
-            </li>
-          </ul>
+          <div className="flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300">
+            <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+              {/* 코드 탭 */}
+              <li className="flex-1 relative">
+  <button
+    onClick={() => setCurrentRightTab("code")}
+    className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "code"
+      ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+      : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+      }`}
+  >
+    <img
+      src="/ide/img/programming.png"
+      alt="Code"
+      className={`w-6 h-6 me-2 ${currentRightTab === "code" ? "opacity-100" : "opacity-50"}`}
+    />
+    코드
+  </button>
+
+  {/* 코드 탭 내 언어 선택 버튼 (탭 안에 포함) */}
+  <div className="absolute top-0 left-0 mt-2 p-1">
+    <LanguageSelector
+      languages={languages}
+      selectedLanguage={selectedLanguage}
+      setSelectedLanguage={setSelectedLanguage}
+    />
+  </div>
+</li>
+
+              {/* 그림판 탭 */}
+              <li className="flex-1 relative">
+                <button
+                  onClick={() => setCurrentRightTab("paint")}
+                  className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "paint"
+                      ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                      : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                    }`}
+                >
+                  <img
+                    src="/ide/img/palette.png"
+                    alt="Paint"
+                    className={`w-6 h-6 me-2 ${currentRightTab === "paint" ? "opacity-100" : "opacity-50"}`}
+                  />
+                  그림판
+                </button>
+
+                {/* 그림판 탭 내 다크모드 버튼 (탭 안에 포함) */}
+                <div className="absolute top-0 right-0 mt-2 p-1">
+                  <button
+                    onClick={() => setIsDarkMode(!isDarkMode)}
+                    className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
+                  >
+                    {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+                  </button>
+                </div>
+
+              </li>
+            </ul>
+          </div>
 
           {/* 오른쪽 탭 내용 */}
           <div className="flex-grow overflow-auto p-4 transition-colors duration-300 scrollbar-thin-custom">
@@ -398,7 +415,7 @@ const App = () => {
                 ) : (
                   <>
                     <Play className="w-4 h-4 inline mr-2" />
-                    컴파일
+                    컴파일/F9
                   </>
                 )}
               </button>
@@ -438,9 +455,8 @@ const App = () => {
           </div>
         </div>
       </div>
-    </div>
     </LiveblocksProvider>
-  );
-};
 
+  )
+};
 export default App;

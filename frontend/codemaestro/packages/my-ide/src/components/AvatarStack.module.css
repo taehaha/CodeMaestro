@@ -1,0 +1,23 @@
+.avatarStack {
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
+  
+  .avatarStack > :not(:first-child) {
+    margin-left: -0.75rem; /* 아바타들이 겹치도록 음수 마진 적용 */
+  }
+  
+  .more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ccc;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    padding: 0 0.5rem;
+    min-width: 2rem;
+    height: 2rem;
+    color: #333;
+  }
+  
