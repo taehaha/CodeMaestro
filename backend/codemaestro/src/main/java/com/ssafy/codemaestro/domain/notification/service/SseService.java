@@ -3,6 +3,7 @@ package com.ssafy.codemaestro.domain.notification.service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -15,30 +16,29 @@ public class SseService {
     @Getter
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final Map<Long, Queue<Object>> lostDataMap = new ConcurrentHashMap<>();
+    private static final long TIMEOUT = 60 * 60 * 1000L;
 
     // 구독
     public SseEmitter subscribe(Long userId) {
-        log.info("-- SSE Service 연결 시작 userId: {} --", userId);
-
         // 1. 먼저 미수신 데이터 큐를 초기화/확인
         Queue<Object> lostData = lostDataMap.computeIfAbsent(userId, k -> new LinkedList<>());
 
         // 2. 이전 연결이 있다면 정리
-        removeEmitterIfExists(userId);
+        emitters.remove(userId);
 
         // 3. 새로운 emitter 생성
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        emitters.put(userId, emitter);
+        SseEmitter emitter = new SseEmitter(TIMEOUT);
 
         // 4. 이벤트 핸들러 설정
         emitter.onCompletion(() -> {
             log.info("SSE oncompletion 실행으로 emiiter 제거됨: {}", userId);
-            removeEmitterIfExists(userId);
+            emitters.remove(userId);
         });
 
         emitter.onTimeout(() -> {
             log.info("SSE timeout 실행으로 emiiter 제거됨: {}", userId);
-            removeEmitterIfExists(userId);
+            emitters.remove(userId);
+
         });
 
         try {
@@ -65,10 +65,12 @@ public class SseService {
                     .name("connect")
                     .data("Connected!"));
 
+            // 7. 모든 데이터 전송 후 최종적으로 emitter 저장
+            emitters.put(userId, emitter);
         } catch (IOException e) {
-            log.error("Error during SSE subscription for userId: {}", userId, e);
+            log.error("SSE 연결 실패: ", e);
             emitters.remove(userId);
-            throw new RuntimeException("Failed to establish SSE connection", e);
+            throw new RuntimeException("SSE 연결 실패: ", e);
         }
 
         log.info("-- SSE Service 연결 완료 for userId: {} --", userId);
@@ -103,19 +105,20 @@ public class SseService {
         log.debug("lost data : {} ", data);
     }
 
-    public void removeEmitterIfExists(Long userId) {
-        SseEmitter existingEmitter = emitters.remove(userId);
-        if (existingEmitter != null) {
-            try {
-                existingEmitter.complete();
-                log.info("emitter  연결 종료 for userId: {}", userId);
-            } catch (Exception e) {
-                log.warn("Error while removing existing emitter for userId: {}", userId, e);
-            }
-        }
-    }
-
     public Queue<Object> getLostData(Long userId) {
         return lostDataMap.getOrDefault(userId, new LinkedList<>());
+    }
+
+    @Scheduled(fixedRate = 60000) // 1분마다 실행
+    public void checkConnection() {
+        emitters.forEach((userId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("ping")
+                        .data(""));
+            } catch (IOException e) {
+                emitters.remove(userId);
+            }
+        });
     }
 }
