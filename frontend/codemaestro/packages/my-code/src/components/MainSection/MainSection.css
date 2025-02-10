@@ -3,7 +3,7 @@
   justify-content: space-between;
   padding: 10px 100px;
   background-color: #ffffff;
-  height: 70vh;
+  height: 76vh;
 }
 
 .text-content {
@@ -41,7 +41,7 @@
   z-index: 10;
 }
 
-.start-btn, .github-btn {
+.start-btn {
   padding: 14px 26px;
   margin-right: 40px;
   border: none;
@@ -54,9 +54,4 @@
 .start-btn {
   background-color: #FFCC00;
   color: white;
-}
-
-.github-btn {
-  background-color: #f0f0f0;
-  color: black;
 }

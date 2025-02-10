@@ -4,10 +4,10 @@ body {
 }
 
 .header {
-  display: flex; /* Flexbox 사용 */
-  justify-content: space-between; /* 로고와 메뉴를 양쪽 끝으로 정렬 */
-  align-items: center; /* 세로 정렬 */
-  padding: 20px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
   background-color: white;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
   position: relative;
@@ -20,16 +20,15 @@ body {
 }
 
 .menu {
-  display: flex; /* Flexbox 사용 */
-  flex-direction: row; /* 가로 정렬 */
-  align-items: center; /* 세로 중앙 정렬 */
-  gap: 20px; /* 항목 간격 */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 30px;
 }
-
 
 .menu a {
   text-decoration: none;
-  color: black;
+  color: rgb(0, 0, 0);
   cursor: pointer;
   font-size: 17px;
   font-weight: 600;
@@ -39,6 +38,11 @@ body {
 
 .menu a:hover {
   color: #555;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px; /* 간격을 원하는 만큼 조절 */
 }
 
 .header-login-btn, 
@@ -62,8 +66,8 @@ body {
 }
 
 .header-signup-btn {
-  background-color:rgb(173, 190, 15);
-  color: white;
+  background-color:rgb(95, 216, 125);
+  color: white !important;
 }
 
 .hamburger-btn {

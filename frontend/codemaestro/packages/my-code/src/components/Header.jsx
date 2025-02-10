@@ -40,7 +40,7 @@ function Header() {
 
   return (
     <header className="header">
-      <img 
+      <img
       src={'/Logo.png'} 
       alt="Code Maestro"
       onClick={handleLogoClick} 
@@ -73,10 +73,10 @@ function Header() {
         {isLoggedIn ? (
           <button className='header-logout-btn' onClick={handelLogout}>로그아웃</button>
         ) : (
-          <>
-            <Link to="/login" className="header-login-btn" onClick={closeMenu}>Log in</Link>
-            <Link to="/signup" className="header-signup-btn" onClick={closeMenu}>Sign up</Link>
-          </>
+          <div className="auth-buttons">
+            <Link to="/login" className="header-login-btn" onClick={closeMenu}>로그인</Link>
+            <Link to="/signup" className="header-signup-btn" onClick={closeMenu}>회원가입</Link>
+          </div>
         )}
       </nav>
     </header>
