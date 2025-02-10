@@ -15,32 +15,31 @@ const EmailAuth = () => {
   const [password, setpassword] = useState("")
   const [description, setdescription] = useState("")
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  
-  //   // 필드 검증
-  //   if (!email || !code) {
-  //     setMessage("모든 필드를 입력하세요.");
+  // const handleSubmit = async () => {
+  //   if (!email) {
+  //     setMessage("이메일을 입력하세요.");
   //     return;
   //   }
-  
+  //   setLoading(true);
   //   try {
-  //     const res = await emailcheck(email);
-  
-  //     if (res.status === 200) {
-  //       setMessage("이메일 인증이 완료되었습니다.");
-  //       setStep(2);
+  //     // 이메일 중복 여부 체크 (304: 이미 존재, 200: 사용 가능)
+  //     const checkResponse = await emailCheck(email);
+  //     if (checkResponse === 304) {
+  //       setMessage("이미 존재하는 이메일입니다.");
+  //       return;
+  //     } else if (checkResponse === 200) {
+  //       // 인증번호 전송 API 호출
+  //       await UserAxios.post("/auth/verify/email", { email });
+  //       setMessage("인증번호가 이메일로 발송되었습니다.");
+  //     } else {
+  //       setMessage("알 수 없는 응답입니다. 다시 시도해 주세요.");
   //     }
   //   } catch (error) {
-  //     // error.response.status가 400이면 중복 이메일 등 에러 처리
-  //     if (error.response && error.response.status === 400) {
-  //       setMessage(error.response.data.message || "중복된 이메일입니다. 다른 이메일을 사용하세요.");
-  //     } else {
-  //       setMessage("이메일 인증에 실패했습니다. 다시 시도해주세요.");
-  //     }
+  //     setMessage("이메일 전송 실패. 다시 시도해 주세요.");
+  //   } finally {
+  //     setLoading(false);
   //   }
   // };
-  
 
 // 더미처리용
   const handleSubmit = (e) => {
@@ -76,6 +75,33 @@ const EmailAuth = () => {
 
   const [nicknameMessage, setNicknameMessage] = useState("");
 const [isNicknameAvailable, setIsNicknameAvailable] = useState(null);
+
+const [emailMessage, setEmailMessage] = useState("");
+
+const [isEmailAvailable, setIsEmailAvailable] = useState(null);
+
+const handleemailCheck = async (e) => {
+  e.preventDefault();
+  if (!email) {
+    setNicknameMessage("이메일일을 입력하세요.");
+    return;
+  }
+
+  try {
+    const response = await emailCheck(email)
+
+    if (response===200) {
+      setIsEmailAvailable(true);
+      setEmailMessage("사용 가능한 닉네임입니다.");
+    } else {
+      setIsEmailAvailable(false);
+      setEmailMessage("이미 사용 중인 닉네임입니다.");
+    }
+  } catch (error) {
+    setEmailMessage("서버 오류. 다시 시도해 주세요.");
+  }
+};
+
 
 const handleNicknameCheck = async (e) => {
   e.preventDefault();
@@ -150,45 +176,53 @@ const handleComplete = async (e) => {
           </div>
         </div>
         {step === 1 && (
-          <div>
-            <h2>이메일 인증</h2>
-            <p>Code Master에 가입하기 위해서 이메일 인증이 필요합니다!</p>
-            <form className="signup-form" onSubmit={handleSubmit}>
-                <div className="form-row">
-                  <label htmlFor="email">이메일</label>
-                  <div className="input-group2">
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="이메일을 입력하세요"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      />
-                    <button type="button" className="check-btn" onClick={handleResendCode} disabled={loading}>
-                      {loading ? "전송 중..." : "인증번호 받기"}
-                    </button>
-                  </div>
-                </div>
-              <div className="form-row">
-                <label htmlFor="code">인증번호</label>
-                <div className="input-group2">
-                  <input
-                    type="text"
-                    id="code"
-                    placeholder="인증번호를 입력하세요"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                  />
-                  <button type="submit" className="signup-btn">인증하기</button>
-                </div>
-              </div>
-            </form>
+  <div>
+    <h2>이메일 인증</h2>
+    <p>Code Master에 가입하기 위해서 이메일 인증이 필요합니다!</p>
+    <form className="signup-form" onSubmit={handleSubmit}>
+      <div className="form-row">
+        <label htmlFor="email">이메일</label>
+        <div className="input-group2">
+          <input
+            type="email"
+            id="email"
+            placeholder="이메일을 입력하세요"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-            {message && <p className="message">{message}</p>}
-          </div>
-        )}
+          <button
+            type="button"
+            className="check-btn"
+            onClick={handleResendCode}
+            disabled={loading}
+          >
+            {loading ? "전송 중..." : "인증번호 받기"}
+          </button>
+          {/* 중복체크 버튼 추가 */}
+        </div>
+      </div>
+      <div className="form-row">
+        <label htmlFor="code">인증번호</label>
+        <div className="input-group2">
+          <input
+            type="text"
+            id="code"
+            placeholder="인증번호를 입력하세요"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            required
+          />
+          <button type="submit" className="signup-btn">
+            인증하기
+          </button>
+        </div>
+      </div>
+    </form>
+    {emailMessage && <p className="message">{emailMessage}</p>}
+  </div>
+)}
         {step === 2 && (
           <div>
             <h2>프로필 입력</h2>
