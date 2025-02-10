@@ -91,7 +91,7 @@ public class SecurityConfig {
                 //Cors Preflight 허용
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 // 회원 관리 관련 라우팅
-                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/auth/validate/**" ).permitAll()
+                .requestMatchers("/auth/signin", "/auth/signup", "/auth/reissue","/auth/find-password", "/api/validate/**", "/auth/verify/email" ).permitAll()
                 .requestMatchers("/oauth2/authorization/**", "/auth/oauth2/**").permitAll()
                 // 스웨거 라우팅
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
