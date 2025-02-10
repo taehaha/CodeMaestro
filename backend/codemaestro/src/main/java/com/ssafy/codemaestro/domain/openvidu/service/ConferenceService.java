@@ -82,6 +82,7 @@ public class ConferenceService {
                 .moderator(requestUser)
                 .title(title)
                 .description(description)
+                .thumbnailUrl("https://images.ctfassets.net/2pyx8rwuvz6x/1ohlpOTPdhPXwPMDdagY1B/3dfaa7de51ec3d5379dee6e5601ab490/PIN_Company_Impact-01__1_.png?fm=webp&q=85")
                 .accessCode(accessCode)
                 .build();
 
@@ -194,11 +195,12 @@ public class ConferenceService {
         Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
                 .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다 : conferenceId : " + conferenceId));
 
-        // 이미지 S3 업로드
-        String thumbnailUrl =
-                thumbnailFile != null ?
-                        s3Util.uploadFile(thumbnailFile) : null;
-
+        // 이미지 S3 업로드 및 삭제
+        String thumbnailUrl = null;
+        if (thumbnailFile != null) {
+            thumbnailUrl = s3Util.uploadFile(thumbnailFile);
+//            s3Util.deleteFile(conference.getThumbnailUrl());
+        }
         conference.setTitle(title);
         conference.setDescription(description);
         conference.setAccessCode(accessCode);
