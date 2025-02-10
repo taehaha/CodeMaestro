@@ -48,28 +48,34 @@ function Header() {
 
       <button className="hamburger-btn" onClick={toggleMenu}>☰</button>
 
-      <nav className={`menu ${menuOpen ? 'open' : ''}`}>
+      <nav className={`menu-left ${menuOpen ? 'open' : ''}`}>
         <Link to="/meeting" onClick={closeMenu}>회의</Link>
-        <Link to="/mypage" onClick={closeMenu}>마이페이지</Link>
         <Link to="/boards" onClick={closeMenu}>커뮤니티</Link>
-            <button
-              onClick={toggleNotifications}
-              className="btn text-2xl btn-ghost relative"
-            >
-        <FaBell className="w-5 h-5"/>
+      </nav>
+
+      <div className="menu-right">
+        <Link to="/mypage" onClick={closeMenu} className="mypage-link">
+          <img src='/profile.png' alt="마이페이지"/>
+        </Link>
+
+        <button
+          onClick={toggleNotifications}
+          className="notification-btn btn text-2xl btn-ghost relative"
+        >
+          <FaBell className="w-5 h-5"/>
                           {/* 알림 개수 표시 */}
             {notifications && (
               <span className="absolute -top-0.5 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center">
                 {notifications.length}
               </span>
             )}
-            </button>
-
-                    {showNotifications && (
-                      <div>
-                        <NotificationModal onClose={toggleNotifications}/>
-                      </div>
+        </button>
+              {showNotifications && (
+                <div>
+                  <NotificationModal onClose={toggleNotifications}/>
+                </div>
       )}
+
         {isLoggedIn ? (
           <button className='header-logout-btn' onClick={handelLogout}>로그아웃</button>
         ) : (
@@ -78,7 +84,7 @@ function Header() {
             <Link to="/signup" className="header-signup-btn" onClick={closeMenu}>회원가입</Link>
           </div>
         )}
-      </nav>
+        </div>
     </header>
   );
 }

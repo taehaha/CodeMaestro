@@ -1,6 +1,6 @@
 *,
 body {
-  font-family: 'NanumSquareAcb'
+  font-family: 'NanumSquareAcb';
 }
 
 .header {
@@ -17,8 +17,59 @@ body {
   max-width: 200px;
   height: auto;
   cursor: pointer;
+  margin-bottom: 5px;
+}
+.menu-left {
+  display: flex;
+  gap: 20px;
+  margin-left: 50px;
 }
 
+.menu-left a {
+  text-decoration: none;
+  color: black;
+  font-size: 17px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.menu-left a:hover {
+  color: #555;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: 25px;
+}
+
+.mypage-link img {
+  width: 27px;
+  height: 27px;
+}
+
+.notification-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: -12px;
+}
+
+/* 마이페이지 (알림 아이콘 왼쪽에 배치) */
+.mypage-link {
+  text-decoration: none;
+  color: black;
+  font-size: 17px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.mypage-link:hover {
+  color: #555;
+}
 .menu {
   display: flex;
   flex-direction: row;
@@ -42,7 +93,10 @@ body {
 
 .auth-buttons {
   display: flex;
-  gap: 10px; /* 간격을 원하는 만큼 조절 */
+  flex-wrap: nowrap;
+  gap: 10px;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .header-login-btn, 
@@ -81,24 +135,49 @@ body {
 @media (max-width: 768px) {
   .hamburger-btn {
     display: block;
+    position: fixed;
+    right: 5px;
+    top: 15px;
   }
-  
-  .menu {
+
+  .menu-left {
     display: none;
     flex-direction: column;
+    align-items: center;
     gap: 15px;
     position: absolute;
-    top: 100%;
+    top: 60px;
+    left: 0;
     right: 0;
     background-color: white;
     width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* menu-left를 위쪽에 배치 */
+  .menu-left {
+    left: -45px;
+    top: 80px; /* 헤더 아래로 위치 */
+    z-index: 20; /* menu-right보다 위에 배치 */
   }
 
-  .menu.open {
+  .menu-right {
+    left: -10px; /* 햄버거 버튼의 왼쪽으로 이동 */
+    top: 60px;
+    z-index: 10;
+    flex-direction: row; /* 가로 정렬 */
+    justify-content: flex-start;
+  }
+
+  .menu-left.open {
     display: flex;
   }
+}
 
+@media (max-width: 530px) {
+  .logo {
+    max-width: 150px; /* 모바일에서는 120px로 더 축소 */
+  }
 }
