@@ -7,12 +7,7 @@ import { setLoggedOut } from "../reducer/userSlice";
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
 // export const baseURL = "https://api.codemaestro.site"
-<<<<<<< HEAD
 export const baseURL = "https://test.api.codemaestro.site"
-=======
-export const baseURL = "http://192.168.31.58:8080"
-// export const baseURL = "https://test.api.codemaestro.site"
->>>>>>> develop/frontend
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 3000,                      
@@ -21,7 +16,7 @@ const UserAxios = axios.create({
 
 // =======================================
 // ② Refresh 전용 요청을 담당하는 RefreshAxios 인스턴스
-//    - 기존 토큰이 만료된 상태에서 요청할 수도 있으므로
+//    - 기존 토큰이 만료된 상태에서 요청할 수 있으므로
 //    - 불필요한 인터셉터를 배제해 별도로 관리
 // =======================================
 const RefreshAxios = axios.create({
