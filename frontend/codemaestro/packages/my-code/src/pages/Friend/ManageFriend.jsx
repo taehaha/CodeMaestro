@@ -1,7 +1,10 @@
 import Swal from "sweetalert2";
 import { deleteFriend } from "../../api/FriendApi";
+import { useNavigate } from "react-router-dom";
 
 const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
+  const navigate = useNavigate()
+
   const handleDelete = async () => {
     if (!checkedUsers.length) {
       Swal.fire({
@@ -32,6 +35,12 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
           title: "삭제 완료",
           text: "친구 삭제가 완료되었습니다.",
           icon: "success",
+        }).then((res)=>{
+          if (res.isConfirmed) {
+            window.location.reload()
+            navigate("/mypage", { state: { tab: "friends" } });
+
+          }
         });
 
         // 필요에 따라 checkedUsers를 초기화하거나, 친구 목록을 새로 고침하는 로직 추가

@@ -21,26 +21,27 @@ function GroupTable({ members, userRole }) {
 
   // react-table에 전달할 데이터
   const data = React.useMemo(() => members, [members]);
-
+  console.log(members);
+  
   // react-table 컬럼 정의
   const columns = React.useMemo(() => {
     const baseColumns = [
       {
         Header: "프로필",
         accessor: "profileImageUrl",
-        // Cell: ({ row }) => (
-        //   <div className="avatar">
-        //     <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
-        //       <img
-        //         src={
-        //           row.original.profileImageUrl ||
-        //           "https://via.placeholder.com/150"
-        //         }
-        //         alt="profile"
-        //       />
-        //     </div>
-        //   </div>
-        // ),
+        Cell: ({ row }) => (
+          <div className="avatar">
+            <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
+              <img
+                src={
+                  row.original.profileImageUrl ||
+                  "https://via.placeholder.com/150"
+                }
+                alt="profile"
+              />
+            </div>
+          </div>
+        ),
       },
       {
         Header: "이름",

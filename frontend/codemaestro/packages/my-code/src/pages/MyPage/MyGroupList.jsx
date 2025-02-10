@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-
 import "./MyGroupList.css";
 import GroupModal from "./GroupModal";
 import { getMyGroupList } from "../../api/GroupApi";
 import LoadAnimation from "../../components/LoadAnimation";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import UserAxios from "../../api/userAxios";
+import { useSelector } from "react-redux";
 
 const MyGroupList = () => {
   const [groups, setGroups] = useState([]);
@@ -18,10 +17,8 @@ const MyGroupList = () => {
   const userId = user.userId;
 
   useEffect(() => {
-    // 로딩 시작
     setIsLoading(true);
-    // 그룹 리스트 가져오기
-    const fetchGroups = async (userId) => {
+    const fetchGroups = async () => {
       try {
         const myGroup = await getMyGroupList(userId);
         setGroups(myGroup || []);
@@ -31,26 +28,21 @@ const MyGroupList = () => {
         setIsLoading(false);
       }
     };
-    fetchGroups(userId);
+    fetchGroups();
   }, [userId]);
 
   const handleCreateGroup = async (newGroup) => {
+    console.log("그룹 생성:", userId, newGroup);
     try {
-      const result = await UserAxios.post("/groups", {
-        userId: userId, // API에 맞게 키명을 수정
+      const result = await UserAxios.post('/groups', {
+        userId: userId, // 오타 수정: uesrId → userId
         name: newGroup.name,
         description: newGroup.description,
       });
-      console.log(result);
-      // 그룹 생성 후 리스트 갱신이 필요하면 다시 fetchGroups()를 호출하거나 페이지를 새로고침
-      // 예: fetchGroups(userId);
+      navigate(`/group/${result.data.id}`);
+      // 필요하다면 그룹 목록을 새로고침하는 로직 추가 가능
     } catch (error) {
-      console.error("그룹 생성 오류:", error);
-      Swal.fire({
-        icon: "error",
-        title: "그룹 생성 실패",
-        text: "그룹 생성 중 오류가 발생했습니다. 다시 시도해주세요.",
-      });
+      console.error("그룹 생성 중 오류 발생:", error);
     }
   };
 
@@ -68,74 +60,49 @@ const MyGroupList = () => {
     });
   };
 
+  // 로딩 상태일 경우 로딩 애니메이션 표시
   if (isLoading) {
     return <LoadAnimation />;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {/* 헤더 영역 */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">내 그룹</h2>
-        <button
-          className="btn btn-primary"
+    <div className="group-list">
+      <div className="group-header">
+        <h2>내 그룹</h2>
+        <button 
+          className="create-group" 
           onClick={() => setIsModalOpen(true)}
         >
           그룹 생성하기
         </button>
       </div>
-      <hr className="mb-4" />
-
-      {/* 그룹 목록이 있을 경우 */}
-      {groups.length > 0 ? (
-        <ul className="grid grid-cols-1 gap-4">
+      <hr />
+      {groups.length === 0 ? (
+        <div className="empty-group-list">
+          <p>등록된 그룹이 없습니다. 그룹을 생성해보세요!</p>
+        </div>
+      ) : (
+        <ul>
           {groups.map((group) => (
-            <li
-              key={group.id}
-              className="card bg-base-100 shadow-xl p-4 flex justify-between items-center"
-            >
+            <li key={group.id} className="group-item">
+              <span className="group-name">{group.name}</span>
+              <span className="member-count">{group.currentMembers}명</span>
               <div>
-                <h3 className="text-xl font-semibold">{group.name}</h3>
-                <p className="text-gray-500">{group.currentMembers}명 참여 중</p>
+                <button 
+                  className="enter-btn" 
+                  onClick={() => handleMoveGroup(group)}
+                >
+                  입장
+                </button>
               </div>
-              <button
-                className="btn btn-secondary"
-                onClick={() => handleMoveGroup(group)}
-              >
-                입장
-              </button>
             </li>
           ))}
         </ul>
-      ) : (
-        // 그룹 목록이 없을 때 안내 메시지 표시
-        <div className="flex justify-center mt-10">
-          <div className="alert alert-info shadow-lg w-full max-w-md">
-            <div className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current flex-shrink-0 h-6 w-6 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M20 12a8 8 0 11-16 0 8 8 0 0116 0z"
-                />
-              </svg>
-              <span>등록된 그룹이 없습니다. 그룹을 생성해보세요!</span>
-            </div>
-          </div>
-        </div>
       )}
-
-      {/* 그룹 생성 모달 */}
       {isModalOpen && (
-        <GroupModal
-          onClose={() => setIsModalOpen(false)}
-          onCreate={handleCreateGroup}
+        <GroupModal 
+          onClose={() => setIsModalOpen(false)} 
+          onCreate={handleCreateGroup} 
         />
       )}
     </div>

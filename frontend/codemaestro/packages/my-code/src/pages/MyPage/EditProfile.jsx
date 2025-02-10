@@ -12,15 +12,15 @@ import { getMyInfo, setLoggedOut } from "../../reducer/userSlice";
 const EditProfile = ({ user, onClose, onDelete }) => {
   // 상태 관리: 기존에는 URL 형태의 프로필 이미지가 저장되어 있었으므로,
   // 미리보기 URL은 previewImage, 새로 업로드한 파일은 profileImage 상태에 저장합니다.
-  const [nickname, setNickname] = useState(user.userNickName || "");
+  const [nickname, setNickname] = useState(user.nickname || "");
   const [description, setDescription] = useState(user.description || "");
   const [profileImage, setProfileImage] = useState(null); // 파일 객체
   const [previewImage, setPreviewImage] = useState(user.profileImage || null); // 미리보기 URL
 
   useEffect(() => {
-    setNickname(user.userNickName || "");
+    setNickname(user.nickname || "");
     setDescription(user.description || "");
-    setPreviewImage(user.profileImage || null);
+    setPreviewImage(user.profileImageUrl || null);
     setProfileImage(null);
   }, [user]);
 
@@ -118,8 +118,8 @@ const EditProfile = ({ user, onClose, onDelete }) => {
       {/* 프로필 이미지 업로드 영역 */}
       <div className="profile-image-container">
         <div className="profile-image-preview">
-          {user.profileImageUrl ? (
-            <img src={user.profileImageUrl} alt="프로필 이미지" className="profile-image" />
+          {previewImage ? (
+            <img src={previewImage} alt="프로필 이미지" className="profile-image" />
           ) : (
             <div className="empty-profile-image"></div>
           )}
