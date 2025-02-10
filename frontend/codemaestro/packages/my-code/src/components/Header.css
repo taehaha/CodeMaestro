@@ -1,3 +1,8 @@
+*,
+body {
+  font-family: 'NanumSquareAcb'
+}
+
 .header {
   display: flex; /* Flexbox 사용 */
   justify-content: space-between; /* 로고와 메뉴를 양쪽 끝으로 정렬 */
@@ -26,9 +31,10 @@
   text-decoration: none;
   color: black;
   cursor: pointer;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 600;
   transition: color 0.3s ease;
+  font-family: NanumSquareAcb;
 }
 
 .menu a:hover {
@@ -38,11 +44,11 @@
 .header-login-btn, 
 .header-signup-btn,
 .header-logout-btn {
-  padding: 10px 20px;
+  padding: 6px 12px;
   border-radius: 5px;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 14px;
 }
 
 .header-login-btn {
@@ -51,8 +57,8 @@
 }
 
 .header-logout-btn {
-  background-color: #E6E6E6;
-  color: rgb(0, 0, 0);
+  background-color: #db4d4d;
+  color: rgb(255, 255, 255);
 }
 
 .header-signup-btn {

@@ -37,7 +37,7 @@ import PostCreate from './pages/Community/PostCreate';
 
 function App() {
   return (
-    <NotificationsProvider>
+    // <NotificationsProvider>
           <PostsProvider>
         <CommentsProvider>
           <div className="w-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
@@ -66,7 +66,7 @@ function App() {
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/boards" element={<Community />} />
                   <Route path="/boards/create" element={<PostCreate />} />
-                  <Route path="/boards/:id" element={<PostDetail/>}></Route>
+                  <Route path="/boards/:boardId" element={<PostDetail/>}></Route>
                   <Route path="/group/:groupId" element={<GroupPage />} />
                 </Route>
               </Routes>
@@ -74,7 +74,7 @@ function App() {
           </div> 
         </CommentsProvider>
        </PostsProvider>
-    </NotificationsProvider>
+    // </NotificationsProvider>
   );
 }
 

@@ -1,23 +1,36 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 // Context 생성
 export const CommentsContext = createContext();
 
 const CommentsProvider = ({ children }) => {
-  const [comments, setComments] = useState([
-    { id: 1, content: "좋은 정보 감사합니다!", user_id: 101, board_id: 1, created_at: "2024-02-06 11:00" },
-    { id: 2, content: "저도 비슷한 경험이 있어요.", user_id: 102, board_id: 1, created_at: "2024-02-06 11:15" },
-    { id: 3, content: "삼성TV 문제 심각하네요.", user_id: 103, board_id: 3, created_at: "2024-02-06 09:50" },
-  ]);
+  // const [comments, setComments] = useState([
+  //   { id: 1, content: "좋은 정보 감사합니다!", user_id: 101, nickname: "aa", board_id: 1, created_at: "2024-02-06 11:00" },
+  //   { id: 2, content: "저도 비슷한 경험이 있어요.", user_id: 102, board_id: 1, created_at: "2024-02-06 11:15" },
+  //   { id: 3, content: "삼성TV 문제 심각하네요.", user_id: 103, board_id: 3, created_at: "2024-02-06 09:50" },
+  // ]);
+  const [comments, setComments] = useState([]);
+
+  // 날짜 형식
+  const formDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}-${hours}:${minutes}`;
+  }
 
   // 댓글 추가 함수
-  const addComment = (board_id, user_id, content) => {
+  const addComment = (board_id, user_id, nickname, content) => {
     const newComment = {
       id: comments.length + 1,
       content,
       user_id,
+      nickname,
       board_id,
-      created_at: new Date().toLocaleString("ko-KR", { hour12: false }),
+      created_at: formDate(),
     };
     setComments((prevComments) => [...prevComments, newComment]);
   };

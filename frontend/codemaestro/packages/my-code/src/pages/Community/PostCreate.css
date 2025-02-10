@@ -1,65 +1,98 @@
+/* PostCreate 스타일 */
 .post-create-container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 80%; /* 가로 크기 최적화 */
+  width: 900px; /* 최대 너비 설정 */
+  margin: 50px auto; /* 화면 가운데 정렬 */
+  padding: 40px 20px;
+  text-align: center;
+  background: none; /* 카드 느낌 제거 */
 }
 
 .post-create-title {
-  font-size: 22px;
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 30px;
+  text-transform: uppercase;
 }
 
 .post-form {
   display: flex;
   flex-direction: column;
+  gap: 15px;
+  align-items: center;
 }
 
 .post-title-input,
 .post-content-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  width: 80%;
+  padding: 14px;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.post-title-input:focus,
+.post-content-input:focus {
+  border-bottom-color: #007bff;
+  outline: none;
+  box-shadow: none;
 }
 
 .post-content-input {
   min-height: 200px;
-  resize: none;
+  resize: vertical;
+}
+
+.post-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* 내부 요소 배치 가능하도록 설정 */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .post-actions {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 20px;
+  /* margin-top: 30px; */
 }
 
 .cancel-btn,
 .submit-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  width: 130px; /* 버튼 크기 줄임 */
+  padding: 12px;
   font-size: 16px;
+  border: 2px solid transparent;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .cancel-btn {
-  background-color: #f8f9fa;
+  background-color: transparent;
+  color: #333;
+  border: 2px solid #ccc;
 }
 
 .cancel-btn:hover {
-  background-color: #e9ecef;
+  background-color: #f0f0f0;
+  border-color: #999;
 }
 
 .submit-btn {
   background-color: #007bff;
   color: white;
+  border: 2px solid #007bff;
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+  background-color: white;
+  color: #007bff;
 }
