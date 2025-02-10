@@ -18,11 +18,13 @@ public class FriendRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long senderId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
-    @Column(nullable = false)
-    private Long receiverId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -37,9 +39,9 @@ public class FriendRequest {
     private LocalDateTime updatedAt;
 
     @Builder
-    public FriendRequest(Long senderId, Long receiverId) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+    public FriendRequest(User sender, User receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
         this.status = FriendRequestStatus.PENDING;
     }
 
@@ -50,4 +52,6 @@ public class FriendRequest {
     public void reject() {
         this.status = FriendRequestStatus.REJECTED;
     }
+
+
 }

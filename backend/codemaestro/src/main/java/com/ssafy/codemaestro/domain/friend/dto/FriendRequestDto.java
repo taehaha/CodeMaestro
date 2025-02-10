@@ -18,8 +18,8 @@ public class FriendRequestDto {
     public static FriendRequestDto from(FriendRequest request) {
         return FriendRequestDto.builder()
                 .requestId(request.getId())
-                .senderId(request.getSenderId())
-                .receiverId(request.getReceiverId())
+                .senderId(request.getSender().getId())
+                .receiverId(request.getReceiver().getId())
                 .status(request.getStatus())
                 .createdAt(request.getCreatedAt())
                 .build();

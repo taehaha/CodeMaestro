@@ -59,7 +59,8 @@ public class AuthService {
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setNickname(signUpDto.getNickname());
-        user.setProfileImageUrl(null); // TODO: 기본 이미지 URL로 변환 필요
+        user.setProfileImageUrl("https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_profile.png");
+        user.setProfileBackgroundImageUrl("https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_profile.png");
         user.setLoginProvider(LoginProvider.LOCAL);
         user.setLoginId(null);
         user.setDescription(signUpDto.getDescription());

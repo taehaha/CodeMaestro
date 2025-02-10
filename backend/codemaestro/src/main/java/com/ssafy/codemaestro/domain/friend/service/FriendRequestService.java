@@ -10,6 +10,7 @@ import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.FriendRequest;
 import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,12 @@ public class FriendRequestService {
 
     // 친구 요청 DB 저장
     private FriendRequest saveFriendRequest(FriendRequestDto request) {
+        // User 엔티티 조회
+        User sender = userRepository.findById(request.getSenderId())
+                .orElseThrow(() -> new EntityNotFoundException("Sender not found"));
+        User receiver = userRepository.findById(request.getReceiverId())
+                .orElseThrow(() -> new EntityNotFoundException("Receiver not found"));
+
         // 이미 존재하는 친구 요청이 있는지 확인
         boolean alreadyExists = friendRequestRepository.existsBySenderIdAndReceiverIdAndStatus(
                 request.getSenderId(), request.getReceiverId(), FriendRequestStatus.PENDING);
@@ -55,7 +62,10 @@ public class FriendRequestService {
             throw new IllegalStateException("Friend request already exists");
         }
 
-        FriendRequest friendRequest = new FriendRequest(request.getSenderId(), request.getReceiverId());
+        FriendRequest friendRequest = FriendRequest.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .build();
         return friendRequestRepository.save(friendRequest);
     }
 
@@ -68,9 +78,9 @@ public class FriendRequestService {
 
         FriendRequest request = optionalRequest.get(); // 객체 가져오기
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.accept(); // PENDING -> ACCEPTED
         friendRequestRepository.save(request); // DB 저장
@@ -103,7 +113,7 @@ public class FriendRequestService {
 
         for (FriendRequest friendRequest : friendRequests) {
             // 요청자를 찾음
-            Long senderId = friendRequest.getSenderId();
+            Long senderId = friendRequest.getSender().getId();
             User sender = userRepository.findById(senderId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -129,7 +139,7 @@ public class FriendRequestService {
 
         for (FriendRequest fr : friendRequests) {
             // 내가 보낸 요청인지 받은 요청인지 확인 - 친구는 양방향 이니끼
-            Long friendId = fr.getSenderId().equals(userId) ? fr.getReceiverId() : fr.getSenderId();
+            Long friendId = fr.getSender().getId().equals(userId) ? fr.getReceiver().getId() : fr.getSender().getId();
             User friend = userRepository.findById(friendId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 

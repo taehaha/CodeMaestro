@@ -2,13 +2,11 @@ package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinRequestDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinResponseDto;
-import com.ssafy.codemaestro.global.entity.Group;
-import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
-import com.ssafy.codemaestro.global.entity.GroupRequestStatus;
+import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
+import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
-import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ import java.util.Optional;
 public class GroupRequestService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final GroupMemberRepository groupMemberRepository;
     private final GroupJoinRequestRepository groupJoinRequestRepository;
     private final NotificationService notificationService;
 
@@ -81,13 +80,24 @@ public class GroupRequestService {
 
         GroupJoinRequest request = optionalRequest.get(); // 객체 가져오기
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.setStatus(GroupRequestStatus.ACCEPTED);
-
         groupJoinRequestRepository.save(request);
+
+        // 그룹 멤버 추가
+        GroupMember member = new GroupMember();
+        member.setUser(request.getUser());
+        member.setGroup(request.getGroup());
+        member.setRole(GroupRole.MEMBER);
+        groupMemberRepository.save(member);
+
+        // 그룹의 현재 멤버 수 증가
+        Group group = request.getGroup();
+        group.setCurrentMembers(group.getCurrentMembers() + 1);
+        groupRepository.save(group);
     }
 
     // 가입 요청 거절
@@ -99,9 +109,9 @@ public class GroupRequestService {
 
         GroupJoinRequest request = optionalRequest.get();
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.reject();
         groupJoinRequestRepository.save(request);

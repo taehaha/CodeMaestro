@@ -99,6 +99,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/exist/**").permitAll()
                 // 로그아웃 시 SSE 구독 해제
                 .requestMatchers("/unsubscribe/**").permitAll()
+                // 추가
+                .requestMatchers("/subscribe/**").permitAll()
                 //OpenVidu WebHook
                 .requestMatchers("/conference/webhook").permitAll()
                 // 위 경로 외 경로는 로그인을 필요로 함

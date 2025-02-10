@@ -3,6 +3,8 @@ package com.ssafy.codemaestro.global.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "user")
 @Getter
@@ -23,4 +25,9 @@ public class User {
     private String loginId;
     private String description;
 //    private LocalDateTime created;
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.REMOVE)
+    private List<FriendRequest> sentRequests;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.REMOVE)
+    private List<FriendRequest> receivedRequests;
 }

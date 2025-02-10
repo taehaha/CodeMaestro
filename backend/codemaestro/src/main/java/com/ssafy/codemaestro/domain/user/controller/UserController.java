@@ -5,12 +5,13 @@ import com.ssafy.codemaestro.domain.user.dto.UserProfileUpdateDto;
 import com.ssafy.codemaestro.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -57,5 +58,17 @@ public class UserController {
         Long userId = Long.parseLong(userDetails.getUsername());
         userService.updatePassword(userId, userProfileUpdateDto);
         return ResponseEntity.ok("Success : password update");
+    }
+
+
+    // 유저 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<UserProfileResponseDto>> searchUsers(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) String nickname) {
+
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
+        List<UserProfileResponseDto> searchUsers = userService.searchUsers(nickname, currentUserId);
+        return ResponseEntity.ok(searchUsers);
     }
 }
