@@ -53,9 +53,9 @@ const MyProfile = () => {
       <div className="profile-container">
         {/* 유저 정보 */}
           <div className="user-info">
-            <p className="text-lg font-semibold">@ {user.email}</p>
-            <div className="items-center mt-2 space-x-2">
-              <p className="text-lg font-bold">{user.userNickname}</p>
+              <p className="text-lg font-bold">{user.nickname}</p>
+              <div className="items-center mt-2 space-x-1">
+              <p className="text-sm font-semibold">{user.email}</p>
             </div>
             <p className="text-sm mt-2">{user.description}</p>
           </div>
