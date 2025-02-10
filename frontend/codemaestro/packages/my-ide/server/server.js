@@ -17,6 +17,7 @@ const persistence = new LeveldbPersistence("./yjs-docs");
 
 const app = express();
 
+
 app.use(
   cors({
     origin: "http://localhost:3000",
