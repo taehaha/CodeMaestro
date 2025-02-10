@@ -11,7 +11,7 @@ const MyPage = () => {
   const [selectedTab, setSelectedTab] = useState((location.state && location.state.tab) || "profile");
   const [profileTab, setProfileTab] = useState("editProfile");
   const user = useSelector((state) => state.user.myInfo);
-
+  
   useEffect(() => {
     if (location.state && location.state.tab) {
       setSelectedTab(location.state.tab);
