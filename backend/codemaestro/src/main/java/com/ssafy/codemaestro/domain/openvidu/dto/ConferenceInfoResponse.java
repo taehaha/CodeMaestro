@@ -15,7 +15,6 @@ public class ConferenceInfoResponse {
     String title;
     String description;
     String thumbnailUrl;
-    ProgrammingLanguage programmingLanguage;
     int participantNum;
     String hostNickName;
     LocalDateTime createdAt;

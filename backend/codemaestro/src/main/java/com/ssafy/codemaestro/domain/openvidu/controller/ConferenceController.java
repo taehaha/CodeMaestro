@@ -36,8 +36,7 @@ public class ConferenceController {
                         currentUser,
                         dto.getTitle(),
                         dto.getDescription(),
-                        dto.getAccessCode(),
-                        dto.getProgrammingLanguage()
+                        dto.getAccessCode()
                 );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);

@@ -64,13 +64,12 @@ public class ConferenceService {
      * @param title        회의 제목.
      * @param description  회의 설명.
      * @param accessCode   회의 액세스 코드.
-     * @param pl           회의와 관련된 프로그래밍 언어.
      * @return 새로 생성된 OpenVidu 세션의 세션 ID.
      * @throws ConnectionAlreadyExistException 사용자가 이미 기존 연결을 보유하고 있는 경우.
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode, ProgrammingLanguage pl) {
+    public String initializeConference(User requestUser, String title, String description, String accessCode) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {

@@ -10,5 +10,4 @@ public class ConferenceInitRequest {
     String title;
     String description;
     String accessCode;
-    ProgrammingLanguage programmingLanguage;
 }
