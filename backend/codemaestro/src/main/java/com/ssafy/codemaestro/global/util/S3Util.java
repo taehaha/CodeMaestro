@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.global.service;
+package com.ssafy.codemaestro.global.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class S3Service {
+public class S3Util {
 
     private final AmazonS3Client amazonS3Client;
 
@@ -42,5 +42,4 @@ public class S3Service {
     private String createFileName(String originalFilename) {
         return UUID.randomUUID().toString() + "_" + originalFilename;
     }
-
 }
