@@ -2,29 +2,16 @@ import UserDetail from "./UserDetail";
 import PropTypes from "prop-types";
 import { useState } from "react";
 
-const UserList = ({ checkedUsers, setCheckedUsers, addPage, searchTerm }) => {
-  // 실제 백엔드 연동 전 테스트용 임시 유저 리스트
-  const [tempList] = useState([
-    { name: "김친구", id: "friends1", profileimage: "/test_profile.png", profiletext: "백엔드 연결 전 친구 테스트용" },
-    { name: "박친구", id: "friends2", profileimage: "/test_profile.png", profiletext: "실제 백엔드 연결시엔" },
-    { name: "이친구", id: "friends3", profileimage: "/test_profile.png", profiletext: "이 리스트 컴포넌트에" },
-    { name: "제갈친구", id: "friends4", profileimage: "/test_profile.png", profiletext: "검색한 유저와 친구 목록이" },
-    { name: "밥친구", id: "friends5", profileimage: "/test_profile.png", profiletext: "유동적으로 들어갑니다." },
-    { name: "김친구", id: "friends1", profileimage: "/test_profile.png", profiletext: "백엔드 연결 전 친구 테스트용" },
-    { name: "박친구", id: "friends2", profileimage: "/test_profile.png", profiletext: "실제 백엔드 연결시엔" },
-  ]);
+const UserList = ({ users, checkedUsers, setCheckedUsers, addPage, searchTerm }) => {
+  // searchTerm을 소문자로 변환하여 대소문자 구분 없이 검색
+  const term = (searchTerm || "").toLowerCase();
 
-  // 부모에서 내려받은 searchTerm 으로 필터링
-  const filteredUsers = tempList.filter((user) => {
-    const matchName = user.name.includes(searchTerm || "");
-    const matchId = user.id.includes(searchTerm);
-    return matchName || matchId;
+  // 필터링: nickname 또는 loginId에 검색어가 포함되어 있는지 확인
+  const filteredUsers = users.filter((user) => {
+    const matchNickname = user.nickname?.toLowerCase().includes(term);
+    const matchLoginId = user.loginId?.toLowerCase().includes(term);
+    return matchNickname || matchLoginId;
   });
-
-  // refresh 버튼(등)을 누르면 상위 컴포넌트에서 다시 불러오도록 할 수도 있음 (현재는 미사용)
-  // const handleRefresh = () => {
-  //   console.log('상위에서 유저 리스트 다시 불러오는 로직');
-  // };
 
   return (
     <ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto mt-3">
@@ -51,7 +38,7 @@ const UserList = ({ checkedUsers, setCheckedUsers, addPage, searchTerm }) => {
       ) : (
         filteredUsers.map((user, index) => (
           <UserDetail
-            key={`${user.id}-${index}`}
+            key={`${user.userId}-${index}`}
             user={user}
             checkedUsers={checkedUsers}
             setCheckedUsers={setCheckedUsers}
@@ -65,9 +52,10 @@ const UserList = ({ checkedUsers, setCheckedUsers, addPage, searchTerm }) => {
 
 UserList.propTypes = {
   checkedUsers: PropTypes.array,
+  users: PropTypes.array,
   setCheckedUsers: PropTypes.func,
   addPage: PropTypes.bool,
-  searchTerm: PropTypes.string,  // 추가
+  searchTerm: PropTypes.string,
 };
 
 export default UserList;

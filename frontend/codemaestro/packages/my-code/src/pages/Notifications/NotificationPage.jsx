@@ -4,6 +4,7 @@ import { NotificationsContext } from "../../context/NotificationContext";
 import { FaUserFriends, FaEnvelope, FaUsers, FaQuestion } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { AcceptFriendsRequest, RejectFriendsRequest } from "../../api/FriendApi";
 import { AcceptGroupRequest, RejectGroupRequest } from "../../api/GroupApi";
 // 실제 axios 요청은 아래와 같이 처리할 예정
 // import UserAxios from "../../api/userAxios";
@@ -12,49 +13,51 @@ const NotificationModal = ({ onClose }) => {
   // Context에서 notifications와 setNotifications를 받아옴
   const { notifications, setNotifications } = useContext(NotificationsContext);
   const navigate = useNavigate();
-
-  const handleAccept = (notification) => {
+  console.log(notifications);
+  
+  const handleAccept = async (notification) => {
+    console.log(notification);
+    
     if (notification.type === "invite") {
       Swal.fire({
         title: "요청 수락",
         text: "초대받은 회의실로 이동합니다",
       }).then(() => {
         console.log("invite 수락 처리 후 이동");
-        navigate(`/meeting/${notification.roomId}`);
+        navigate(`/meeting/${notification.data.roomId}`);
       });
 
     } else if (notification.type === "friend") {
-      // TODO: 친구 요청 수락 axios 요청 (예: UserAxios.post('/accept-friend', { request: notification.request }))
-      console.log(`${notification.request}번 친구 요청 수락 axios 요청 보내기`);
+      AcceptFriendsRequest(notification.data.requestId)
       setNotifications((prev) =>
-        prev.filter((n) => n.request !== notification.request)
+        prev.filter((n) => n.data.requestId !== notification.data.requestId)
       );
     } else if (notification.type === "group") {
-      // TODO: 그룹 요청 수락 axios 요청 (예: UserAxios.post('/accept-group', { request: notification.request }))
-      console.log(`${notification.request}번 그룹 요청 수락 axios 요청 보내기`);
+      await AcceptGroupRequest(notification.data.requestId)
+
       setNotifications((prev) =>
-        prev.filter((n) => n.request !== notification.request)
+        prev.filter((n) => n.data.requestId !== notification.data.requestId)
       );
     }
   };
 
-  const handleReject = (notification) => {
+  const handleReject = async (notification) => {
     if (notification.type === "invite") {
-      console.log(`${notification.request}번 invite 요청 거절 처리 (알림 제거)`);
+      console.log(`${notification.data.request}번 invite 요청 거절 처리 (알림 제거)`);
       setNotifications((prev) =>
-        prev.filter((n) => n.request !== notification.request)
+        prev.filter((n) => n.request !== notification.data.requestId)
       );
     } else if (notification.type === "friend") {
-      // TODO: 친구 요청 거절 axios 요청 (예: UserAxios.post('/reject-friend', { request: notification.request }))
+      await RejectFriendsRequest(notification.data.requestId)
       console.log(`${notification.request}번 친구 요청 거절 axios 요청 보내기`);
       setNotifications((prev) =>
-        prev.filter((n) => n.request !== notification.request)
+        prev.filter((n) => n.request !== notification.data.requestId)
       );
     } else if (notification.type === "group") {
-      // TODO: 그룹 요청 거절 axios 요청 (예: UserAxios.post('/reject-group', { request: notification.request }))
+      await RejectGroupRequest(notification.data.requestId)
       console.log(`${notification.request}번 그룹 요청 거절 axios 요청 보내기`);
       setNotifications((prev) =>
-        prev.filter((n) => n.request !== notification.request)
+        prev.filter((n) => n.request !== notification.data.requestId)
       );
     }
   };
@@ -94,18 +97,17 @@ const NotificationModal = ({ onClose }) => {
               <div className="flex-grow">
                 {notification.type === "friend" && (
                   <>
-                    <p className="font-semibold">{notification.userName}</p>
-                    <p className="text-xs text-gray-600">{notification.message}</p>
+                    <p className="font-semibold">{notification.data.senderName}</p>
                   </>
                 )}
                 {notification.type === "group" && (
                   <>
-                    <p className="font-semibold">{notification.groupName}</p>
-                    <p className="text-xs text-gray-600">{notification.message}</p>
+                    <p className="font-semibold">{notification.data.groupName}</p>
+                    <p className="text-xs text-gray-600">{notification.data.message}</p>
                   </>
                 )}
                 {notification.type === "invite" && (
-                  <p className="font-semibold">{notification.name}</p>
+                  <p className="font-semibold">{notification.data.name}</p>
                 )}
               </div>
               <div className="flex space-x-2">

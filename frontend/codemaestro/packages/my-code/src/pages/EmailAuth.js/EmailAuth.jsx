@@ -65,7 +65,7 @@ const EmailAuth = () => {
       }
       setLoading(true);
       try {
-          await UserAxios.get("/api/exist/email/" + email);
+          await UserAxios.post("/auth/verify/email",{email});
           setMessage("인증번호가 이메일로 발송되었습니다.");
       } catch (error) {
           setMessage("이메일 전송 실패. 다시 시도해 주세요.");
@@ -241,7 +241,7 @@ const handleComplete = async (e) => {
         {step === 3 && (
           <div className="signup-complete">
             <h1>회원가입 완료</h1>
-            <p>000님 반가워요</p>
+            <p>{nickname}님 반가워요</p>
             <p>Code Master에서 다양한 기능을 사용해보세요!</p>
             <Link to="/login" className="signup-btn">로그인</Link>
           </div>

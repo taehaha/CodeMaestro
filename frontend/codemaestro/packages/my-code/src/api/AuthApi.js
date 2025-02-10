@@ -1,6 +1,5 @@
 import UserAxios,{baseURL} from "./userAxios";
 import axios from "axios";
-import Swal from 'sweetalert2';
 
 // *중요: 모든 주소는 api 요청 정해지면 수정될 수 있음!!!
 // 현재 1월 17일 기준 
@@ -81,16 +80,19 @@ export const getUserInfo = async () => {
 
 export const putUserInfo = async (payload) => {
   try {
-    // FormData 객체 생성
-    const formData = new FormData();
+    let dataToSend;
+    // payload가 FormData라면 그대로 사용
+    if (payload instanceof FormData) {
+      dataToSend = payload;
+    } else {
+      // 그렇지 않다면 FormData로 변환 (파일이 없는 경우)
+      dataToSend = new FormData();
+      Object.keys(payload).forEach((key) => {
+        dataToSend.append(key, payload[key]);
+      });
+    }
 
-    // 기존 payload의 키값으로로 FormData에 추가
-    Object.keys(payload).forEach((key) => {
-      formData.append(key, payload[key]);
-    });
-
-    // 요청 전송
-    const response = await UserAxios.put('/users/profile', formData, {
+    const response = await UserAxios.put('/users/profile', dataToSend, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -108,6 +110,14 @@ export const deleteUserInfo = async () => {
   return response
 }
 
+
+//비밀번호 변경
+export const putPassword = async (payload) => {
+  const response = await UserAxios.patch(`/users/profile/password`, payload)
+
+  return response
+}
+
 export const getNotification = async (userId) => {
   try {
     const response = await UserAxios.get(`/friends/requests/${userId}/pending`);    
@@ -120,6 +130,7 @@ export const getNotification = async (userId) => {
 
 
 //이메일 인증: 회원가입
+// eslint-disable-next-line no-unused-vars
 export const emailVerification = async (payload) =>{
   // try {
     
@@ -127,7 +138,7 @@ export const emailVerification = async (payload) =>{
     
   // }
 }
-//이메일 인증: 비밀번호 찾기기
+//이메일 인증: 비밀번호 찾기
 
 
 //이메일, 닉네임 중복 체크
