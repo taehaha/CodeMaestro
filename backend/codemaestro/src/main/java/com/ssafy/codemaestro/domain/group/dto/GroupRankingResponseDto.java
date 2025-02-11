@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.groupConference.dto;
+package com.ssafy.codemaestro.domain.group.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
