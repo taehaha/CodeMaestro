@@ -189,3 +189,4 @@ NotificationsProvider.propTypes = {
 };
 
 export default NotificationsProvider;
+
