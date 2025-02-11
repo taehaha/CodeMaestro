@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Swal from "sweetalert2";
 import UserAxios from "../../api/userAxios"; // 백엔드 solved.ac 연동 API 호출용 Axios 인스턴스
 import { putUserInfo } from "../../api/AuthApi";
+import { useDispatch } from "react-redux";
+import { getMyInfo } from "../../reducer/userSlice";
 const SolvedacModal = ({ open, onClose }) => {
+  const dispatch = useDispatch()
   const [solvedacId, setSolvedacId] = useState("");
 
   const handleUpdate = async () => {
@@ -29,10 +32,11 @@ const SolvedacModal = ({ open, onClose }) => {
         title: "연동 성공",
         icon: "success",
         text: "Solved.ac 정보 연동이 완료되었습니다!",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           onClose();
-          // 필요 시 페이지 새로고침: window.location.reload();
+          await dispatch(getMyInfo());
+          window.location.reload();
         }
       });
     } catch (error) {

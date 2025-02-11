@@ -58,7 +58,7 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
   };
 
   // user.solvedacTire 값에 따라 버튼 문구 결정 (값이 있으면 연동 완료, 없으면 연동 진행)
-  const solvedacButtonText = user?.solvedacTire
+  const solvedacButtonText = user?.bojTier!==100 
     ? "Solved.ac 연동됨"
     : "Solved.ac 연동하기";
 
