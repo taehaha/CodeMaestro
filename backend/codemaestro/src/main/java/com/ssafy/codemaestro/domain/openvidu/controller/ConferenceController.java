@@ -27,12 +27,6 @@ public class ConferenceController {
         this.conferenceService = conferenceService;
     }
 
-    /**
-     * 회의실을 생성합니다.
-     * @param dto
-     * @param userDetails
-     * @return
-     */
     @PostMapping("/create")
     public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 현재 유저 정보 가져오기
@@ -42,7 +36,8 @@ public class ConferenceController {
                         currentUser,
                         dto.getTitle(),
                         dto.getDescription(),
-                        dto.getAccessCode()
+                        dto.getAccessCode(),
+                        dto.getProgrammingLanguage()
                 );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
@@ -121,27 +116,8 @@ public class ConferenceController {
     }
 
     /**
-     * 컨퍼런스 정보를 갱신함
-     * @param conferenceId
-     * @param dto
-     * @return
-     */
-    @PutMapping("/{conferenceId}")
-    public ResponseEntity<ConferenceInfoResponse> updateConference(@PathVariable String conferenceId,
-                                                                   @ModelAttribute ConferenceUpdateRequest dto) {
-        conferenceService.updateConference(
-                conferenceId,
-                dto.getTitle(),
-                dto.getDescription(),
-                dto.getAccessCode(),
-                dto.getThumbnailFile()
-        );
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    /**
      * 특정 회의의 관리자를 업데이트합니다.
+     *
      * @param conferenceId 회의의 고유 식별자
      * @param newModeratorUserId 새로운 관리자의 사용자 ID를 포함한 요청 데이터
      * @param userDetails 현재 로그인된 사용자의 인증 정보
@@ -157,13 +133,6 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * targetUserId를 회의실에서 강퇴함.
-     * @param conferenceId
-     * @param targetUserId
-     * @param userDetails
-     * @return
-     */
     @DeleteMapping("/{conferenceId}/user/{targetUserId}")
     public ResponseEntity<Void> kickOut(@PathVariable String conferenceId,
                                         @PathVariable Long targetUserId,
@@ -174,13 +143,6 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * targetUserId의 캠을 끔
-     * @param conferenceId
-     * @param targetUserId
-     * @param userDetails
-     * @return
-     */
     @DeleteMapping("/{conferenceId}/video/{targetUserId}")
     public ResponseEntity<Void> unpublishVideo(@PathVariable String conferenceId,
                                           @PathVariable Long targetUserId,
@@ -191,13 +153,6 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**
-     * targetUserId의 오디오를 끔
-     * @param conferenceId
-     * @param targetUserId
-     * @param userDetails
-     * @return
-     */
     @DeleteMapping("/{conferenceId}/audio/{targetUserId}")
     public ResponseEntity<Void> unpublishAudio(@PathVariable String conferenceId,
                                           @PathVariable Long targetUserId,

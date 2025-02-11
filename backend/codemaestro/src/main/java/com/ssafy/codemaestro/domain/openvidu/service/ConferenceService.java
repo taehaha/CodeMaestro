@@ -6,6 +6,7 @@ import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.entity.UserConference;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
@@ -14,7 +15,6 @@ import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionExcep
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
 import com.ssafy.codemaestro.global.exception.openvidu.ConnectionAlreadyExistException;
 import com.ssafy.codemaestro.global.exception.openvidu.InvaildAccessCodeException;
-import com.ssafy.codemaestro.global.util.S3Util;
 import com.ssafy.codemaestro.global.util.OpenViduUtil;
 import io.openvidu.java.client.*;
 import jakarta.annotation.PostConstruct;
@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +37,6 @@ public class ConferenceService {
     private final UserConferenceRepository userConferenceRepository;
 
     private final OpenViduUtil openViduUtil;
-    private final S3Util s3Util;
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -66,12 +64,13 @@ public class ConferenceService {
      * @param title        회의 제목.
      * @param description  회의 설명.
      * @param accessCode   회의 액세스 코드.
+     * @param pl           회의와 관련된 프로그래밍 언어.
      * @return 새로 생성된 OpenVidu 세션의 세션 ID.
      * @throws ConnectionAlreadyExistException 사용자가 이미 기존 연결을 보유하고 있는 경우.
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode) {
+    public String initializeConference(User requestUser, String title, String description, String accessCode, ProgrammingLanguage pl) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
@@ -82,7 +81,6 @@ public class ConferenceService {
                 .moderator(requestUser)
                 .title(title)
                 .description(description)
-                .thumbnailUrl("https://picsum.photos/400/200")
                 .accessCode(accessCode)
                 .build();
 
@@ -189,24 +187,6 @@ public class ConferenceService {
         return userConferenceRepository.findByConference_Id(conferenceIdLong).stream()
                 .map(UserConference::getUser)
                 .collect(Collectors.toList());
-    }
-
-    public void updateConference(String conferenceId, String title, String description, String accessCode, MultipartFile thumbnailFile) {
-        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
-                .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다 : conferenceId : " + conferenceId));
-
-        // 이미지 S3 업로드 및 삭제
-        String thumbnailUrl = null;
-        if (thumbnailFile != null) {
-            thumbnailUrl = s3Util.uploadFile(thumbnailFile);
-//            s3Util.deleteFile(conference.getThumbnailUrl());
-        }
-        conference.setTitle(title);
-        conference.setDescription(description);
-        conference.setAccessCode(accessCode);
-        conference.setThumbnailUrl(thumbnailUrl);
-
-        conferenceRepository.save(conference);
     }
 
     @Transactional

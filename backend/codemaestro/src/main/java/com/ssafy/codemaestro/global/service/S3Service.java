@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.global.util;
+package com.ssafy.codemaestro.global.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class S3Util {
+public class S3Service {
 
     private final AmazonS3Client amazonS3Client;
 
@@ -38,33 +38,9 @@ public class S3Util {
         }
     }
 
-    /**
-     * fileUrl에 해당하는 파일을 S3에서 삭제합니다.
-     * @param fileUrl
-     */
-    public void deleteFile(String fileUrl) {
-        System.out.println("################### fileUrl: " + fileUrl);
-        if (fileUrl == null) return;
-
-        try {
-            String fileName = extractFileNameFromUrl(fileUrl);
-            if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
-                throw new RuntimeException("파일이 존재하지 않습니다: " + fileName);
-            }
-
-            amazonS3Client.deleteObject(bucket, fileName);
-        } catch (Exception e) {
-            throw new RuntimeException("파일 삭제 실패: " + e.getMessage());
-        }
-    }
-
     // 파일명 중복방지(UUID)
     private String createFileName(String originalFilename) {
         return UUID.randomUUID().toString() + "_" + originalFilename;
     }
 
-    // S3 URL에서 파일명 추출
-    private String extractFileNameFromUrl(String fileUrl) {
-        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-    }
 }
