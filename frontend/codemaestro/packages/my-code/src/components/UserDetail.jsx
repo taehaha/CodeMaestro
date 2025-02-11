@@ -58,9 +58,6 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
           <span className="text-sm font-medium text-slate-900">
             {user.nickname}
           </span>
-          <span className="text-xs ms-1 font-medium text-slate-500">
-            @{user.loginId}
-          </span>
         </div>
         <p className="text-sm text-slate-500 truncate">
           {user.description}
