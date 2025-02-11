@@ -28,9 +28,8 @@ public class Conference {
     @ManyToOne(fetch = FetchType.LAZY)
     Group group;
 
-    @Builder.Default
     @Column(nullable = false)
-    String thumbnailUrl = "http://thisisdefault:1234/";
+    String thumbnailUrl;
 
     @Column(nullable = false)
     String title;

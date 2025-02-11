@@ -14,6 +14,7 @@ import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionExcep
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
 import com.ssafy.codemaestro.global.exception.openvidu.ConnectionAlreadyExistException;
 import com.ssafy.codemaestro.global.exception.openvidu.InvaildAccessCodeException;
+import com.ssafy.codemaestro.global.util.S3Util;
 import com.ssafy.codemaestro.global.util.OpenViduUtil;
 import io.openvidu.java.client.*;
 import jakarta.annotation.PostConstruct;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,7 @@ public class ConferenceService {
     private final UserConferenceRepository userConferenceRepository;
 
     private final OpenViduUtil openViduUtil;
+    private final S3Util s3Util;
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -79,6 +82,7 @@ public class ConferenceService {
                 .moderator(requestUser)
                 .title(title)
                 .description(description)
+                .thumbnailUrl("https://picsum.photos/400/200")
                 .accessCode(accessCode)
                 .build();
 
@@ -185,6 +189,24 @@ public class ConferenceService {
         return userConferenceRepository.findByConference_Id(conferenceIdLong).stream()
                 .map(UserConference::getUser)
                 .collect(Collectors.toList());
+    }
+
+    public void updateConference(String conferenceId, String title, String description, String accessCode, MultipartFile thumbnailFile) {
+        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
+                .orElseThrow(() -> new CannotFindSessionException("Conference를 찾을 수 없습니다 : conferenceId : " + conferenceId));
+
+        // 이미지 S3 업로드 및 삭제
+        String thumbnailUrl = null;
+        if (thumbnailFile != null) {
+            thumbnailUrl = s3Util.uploadFile(thumbnailFile);
+//            s3Util.deleteFile(conference.getThumbnailUrl());
+        }
+        conference.setTitle(title);
+        conference.setDescription(description);
+        conference.setAccessCode(accessCode);
+        conference.setThumbnailUrl(thumbnailUrl);
+
+        conferenceRepository.save(conference);
     }
 
     @Transactional

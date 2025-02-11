@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ import java.util.Date;
  */
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    @Value("${codemaestro.front.url}")
+    private String FRONTEND_URL;
+
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
@@ -48,7 +52,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setStatus(HttpServletResponse.SC_OK);
 
         //TODO: 리다이렉트할 위치
-        response.sendRedirect("http://localhost:5173/oauth2/signin?refresh=" + refresh);
+        response.sendRedirect(FRONTEND_URL + "/oauth2/signin?refresh=" + refresh);
     }
 
     private void addRefreshEntity(String userId, String refreshToken, Long expireMs) {

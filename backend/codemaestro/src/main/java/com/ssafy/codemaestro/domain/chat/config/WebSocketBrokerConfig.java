@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.chat.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -14,6 +15,8 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor  // final 필드에 대한 생성자 자동 생성 (의존성 주입)
 public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
+    @Value("${codemaestro.front.url}")
+    private String FRONTEND_URL;
 
     final StompHandler stompHandler;
 
@@ -21,7 +24,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("http://localhost:3000")
+                .setAllowedOrigins(FRONTEND_URL)
                 .withSockJS();
     }
 
