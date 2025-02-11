@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -115,5 +117,19 @@ public class GroupRequestService {
 
         request.reject();
         groupJoinRequestRepository.save(request);
+    }
+
+    // 대기 중인 요청 조회
+    public List<GroupJoinResponseDto> getPendingGroupRequest(Long userId) {
+        List<GroupJoinRequest> pendingRequests = groupJoinRequestRepository
+                .findPendingRequestsByOwnerId(userId, GroupRequestStatus.PENDING);
+
+        List<GroupJoinResponseDto> responseDtos = new ArrayList<>();
+        for(GroupJoinRequest request : pendingRequests) {
+            GroupJoinResponseDto dto = GroupJoinResponseDto.from(request);
+            responseDtos.add(dto);
+        }
+
+        return responseDtos;
     }
 }
