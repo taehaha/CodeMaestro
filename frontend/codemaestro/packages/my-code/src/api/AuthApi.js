@@ -142,15 +142,19 @@ export const emailVerification = async (payload) =>{
 
 
 //이메일, 닉네임 중복 체크
-export const emailCheck = async (email) =>{
+export const emailCheck = async (email) => {
   try {
-    const result = await UserAxios.get(`/api/validate/email/${email}`)
-    return result.status
+    const result = await UserAxios.get(`/api/validate/email/${email}`);
+    return result.status; // 정상 응답: 200 등
   } catch (error) {
     console.error("이메일 중복 검사 중 오류 발견", error);
-    
+    // error.response가 있는 경우 해당 status 반환, 없으면 에러 재던짐
+    if (error.response && error.response.status) {
+      return error.response.status;
+    }
+    throw error;
   }
-}
+};
 
 export const nicknameCheck = async (nickname) =>{
   try {
