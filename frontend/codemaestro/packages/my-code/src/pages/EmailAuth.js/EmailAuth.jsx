@@ -14,97 +14,101 @@ const EmailAuth = () => {
   const [nickname, setnickname] = useState("")
   const [password, setpassword] = useState("")
   const [description, setdescription] = useState("")
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
-  // const handleSubmit = async () => {
-  //   if (!email) {
-  //     setMessage("이메일을 입력하세요.");
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   try {
-  //     // 이메일 중복 여부 체크 (304: 이미 존재, 200: 사용 가능)
-  //     const checkResponse = await emailCheck(email);
-  //     if (checkResponse === 304) {
-  //       setMessage("이미 존재하는 이메일입니다.");
-  //       return;
-  //     } else if (checkResponse === 200) {
-  //       // 인증번호 전송 API 호출
-  //       await UserAxios.post("/auth/verify/email", { email });
-  //       setMessage("인증번호가 이메일로 발송되었습니다.");
-  //     } else {
-  //       setMessage("알 수 없는 응답입니다. 다시 시도해 주세요.");
-  //     }
-  //   } catch (error) {
-  //     setMessage("이메일 전송 실패. 다시 시도해 주세요.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-// 더미처리용
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (email && code) {
-      // const res = await UserAxios.put("/auth/verify/email",{email,pin:code});
-      // console.log(res);
+  const handleResendCode = async () => {
+    if (!email) {
+      setMessage("이메일을 입력하세요.");
+      return;
+    }
+    setLoading(true);
+    try {
+      // emailCheck가 반환하는 값은 숫자(status code)입니다.
+      const checkResponse = await emailCheck(email);
+      console.log(checkResponse);
       
-      setMessage("이메일 인증이 완료되었습니다.");
-      setStep(2);
-    } else {
-      setMessage("모든 필드를 입력하세요.");
+      // 중복 이메일인 경우 (예: 302 응답)
+      if (checkResponse === 302) {
+        setMessage("이미 존재하는 이메일입니다.");
+        // 중복 이메일이면 버튼을 비활성화합니다.
+        setSubmitDisabled(true);
+        return;
+      } else if (checkResponse === 200) {
+        // 인증번호 전송 API 호출
+        await UserAxios.post("/auth/verify/email", { email });
+        setMessage("인증번호가 이메일로 발송되었습니다.");
+      } else {
+        setMessage("알 수 없는 응답입니다. 다시 시도해 주세요.");
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("이메일 전송 실패. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
+  
+  
+
+// 이메일 인증
+  const [emailMessage, setEmailMessage] = useState("")
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // 필수 입력 필드 검증
+    if (!email || !code) {
+      setEmailMessage("모든 필드를 입력하세요.");
+      return;
+    }
+  
+    try {
+      const res = await UserAxios.put("/auth/verify/email", { email, pin: code });
+      console.log(res);
+  
+      if (res.status === 200) {
+        setEmailMessage("이메일 인증이 완료되었습니다.");
+        setStep(2);
+      } else if (res.status === 400) {
+        setEmailMessage("정확한 정보를 입력해주세요.");
+      } else {
+        setEmailMessage("알 수 없는 응답입니다. 다시 시도해 주세요.");
+      }
+    } catch (error) {
+      console.error("이메일 인증 중 오류 발생:", error);
+      // 에러 객체의 응답 코드에 따라 메시지를 업데이트할 수 있습니다.
+      if (error.response && error.response.status === 400) {
+        setEmailMessage("정확한 정보를 입력해주세요.");
+      } else {
+        setEmailMessage("서버 오류가 발생했습니다. 다시 시도해 주세요.");
+      }
+    }
+  };
+  
 
 
 
 
   const [loading, setLoading] = useState(false);
 
-  const handleResendCode = async () => {
-      if (!email) {
-          setMessage("이메일을 입력하세요.");
-          return;
-      }
-      setLoading(true);
-      try {
-          await UserAxios.post("/auth/verify/email",{email});
-          setMessage("인증번호가 이메일로 발송되었습니다.");
-      } catch (error) {
-          setMessage("이메일 전송 실패. 다시 시도해 주세요.");
-      } finally {
-          setLoading(false);
-      }
-  };
+  // const handleResendCode = async () => {
+  //     if (!email) {
+  //         setMessage("이메일을 입력하세요.");
+  //         return;
+  //     }
+  //     setLoading(true);
+  //     try {
+  //         await UserAxios.post("/auth/verify/email",{email});
+  //         setMessage("인증번호가 이메일로 발송되었습니다.");
+  //     } catch (error) {
+  //         setMessage("이메일 전송 실패. 다시 시도해 주세요.");
+  //     } finally {
+  //         setLoading(false);
+  //     }
+  // };
 
   const [nicknameMessage, setNicknameMessage] = useState("");
 const [isNicknameAvailable, setIsNicknameAvailable] = useState(null);
-
-const [emailMessage, setEmailMessage] = useState("");
-
-const [isEmailAvailable, setIsEmailAvailable] = useState(null);
-
-const handleemailCheck = async (e) => {
-  e.preventDefault();
-  if (!email) {
-    setNicknameMessage("이메일일을 입력하세요.");
-    return;
-  }
-
-  try {
-    const response = await emailCheck(email)
-
-    if (response===200) {
-      setIsEmailAvailable(true);
-      setEmailMessage("사용 가능한 닉네임입니다.");
-    } else {
-      setIsEmailAvailable(false);
-      setEmailMessage("이미 사용 중인 닉네임입니다.");
-    }
-  } catch (error) {
-    setEmailMessage("서버 오류. 다시 시도해 주세요.");
-  }
-};
-
 
 const handleNicknameCheck = async (e) => {
   e.preventDefault();
@@ -191,7 +195,10 @@ const handleComplete = async (e) => {
             id="email"
             placeholder="이메일을 입력하세요"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              setSubmitDisabled(false);
+            }}
             required
           />
 
@@ -205,6 +212,7 @@ const handleComplete = async (e) => {
           </button>
           {/* 중복체크 버튼 추가 */}
         </div>
+        {message && <p className="message">{message}</p>}
       </div>
       <div className="form-row">
         <label htmlFor="code">인증번호</label>
@@ -217,9 +225,13 @@ const handleComplete = async (e) => {
             onChange={(e) => setCode(e.target.value)}
             required
           />
-          <button type="submit" className="signup-btn">
-            인증하기
-          </button>
+        <button 
+          type="submit" 
+          className="signup-btn"
+          disabled={submitDisabled}  // submitDisabled가 true면 버튼 비활성화
+        >
+          인증하기
+        </button>
         </div>
       </div>
     </form>
