@@ -80,7 +80,7 @@ function LoginPage() {
           <div className="social-icons">
             <NaverLoginButton />
             <KaKaoLoginButton />
-            <GoogleLoginButton />
+            {/* <GoogleLoginButton /> */}
           </div>
         </div>
         <p className="signup">

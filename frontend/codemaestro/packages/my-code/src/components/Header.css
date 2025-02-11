@@ -1,13 +1,13 @@
 *,
 body {
-  font-family: 'NanumSquareAcb'
+  font-family: 'NanumSquareAcb';
 }
 
 .header {
-  display: flex; /* Flexbox 사용 */
-  justify-content: space-between; /* 로고와 메뉴를 양쪽 끝으로 정렬 */
-  align-items: center; /* 세로 정렬 */
-  padding: 20px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
   background-color: white;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
   position: relative;
@@ -17,19 +17,69 @@ body {
   max-width: 200px;
   height: auto;
   cursor: pointer;
+  margin-bottom: 5px;
+}
+.menu-left {
+  display: flex;
+  gap: 20px;
+  margin-left: 50px;
 }
 
+.menu-left a {
+  text-decoration: none;
+  color: black;
+  font-size: 17px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.menu-left a:hover {
+  color: #555;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
+  margin-right: 25px;
+}
+
+.mypage-link img {
+  width: 27px;
+  height: 27px;
+}
+
+.notification-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: -12px;
+}
+
+/* 마이페이지 (알림 아이콘 왼쪽에 배치) */
+.mypage-link {
+  text-decoration: none;
+  color: black;
+  font-size: 17px;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.mypage-link:hover {
+  color: #555;
+}
 .menu {
-  display: flex; /* Flexbox 사용 */
-  flex-direction: row; /* 가로 정렬 */
-  align-items: center; /* 세로 중앙 정렬 */
-  gap: 20px; /* 항목 간격 */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 30px;
 }
-
 
 .menu a {
   text-decoration: none;
-  color: black;
+  color: rgb(0, 0, 0);
   cursor: pointer;
   font-size: 17px;
   font-weight: 600;
@@ -39,6 +89,14 @@ body {
 
 .menu a:hover {
   color: #555;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .header-login-btn, 
@@ -62,8 +120,8 @@ body {
 }
 
 .header-signup-btn {
-  background-color:rgb(173, 190, 15);
-  color: white;
+  background-color:rgb(95, 216, 125);
+  color: white !important;
 }
 
 .hamburger-btn {
@@ -77,24 +135,49 @@ body {
 @media (max-width: 768px) {
   .hamburger-btn {
     display: block;
+    position: fixed;
+    right: 5px;
+    top: 15px;
   }
-  
-  .menu {
+
+  .menu-left {
     display: none;
     flex-direction: column;
+    align-items: center;
     gap: 15px;
     position: absolute;
-    top: 100%;
+    top: 60px;
+    left: 0;
     right: 0;
     background-color: white;
     width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* menu-left를 위쪽에 배치 */
+  .menu-left {
+    left: -45px;
+    top: 80px; /* 헤더 아래로 위치 */
+    z-index: 20; /* menu-right보다 위에 배치 */
   }
 
-  .menu.open {
+  .menu-right {
+    left: -10px; /* 햄버거 버튼의 왼쪽으로 이동 */
+    top: 60px;
+    z-index: 10;
+    flex-direction: row; /* 가로 정렬 */
+    justify-content: flex-start;
+  }
+
+  .menu-left.open {
     display: flex;
   }
+}
 
+@media (max-width: 530px) {
+  .logo {
+    max-width: 150px; /* 모바일에서는 120px로 더 축소 */
+  }
 }
