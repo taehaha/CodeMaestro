@@ -89,6 +89,14 @@ public class GroupController {
         return ResponseEntity.ok("Group Join Request REJECT Ok");
     }
 
+    // 대기 중인 요청 조회
+    @GetMapping("/requests/{userId}/pending")
+    public ResponseEntity<List<GroupJoinResponseDto>> getPendingGroupRequest(@PathVariable Long userId) {
+        return ResponseEntity.ok(groupRequestService.getPendingGroupRequest(userId));
+    }
+
+
+
     // 그룹 검색
     @GetMapping("/search")
     public ResponseEntity<List<GroupResponseDto>> searchGroups(@RequestParam(required = false) String groupName) {

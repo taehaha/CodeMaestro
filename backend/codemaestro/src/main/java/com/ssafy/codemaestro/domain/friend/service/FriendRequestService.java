@@ -96,9 +96,9 @@ public class FriendRequestService {
 
         FriendRequest request = optionalRequest.get();
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.reject();
         friendRequestRepository.save(request);
