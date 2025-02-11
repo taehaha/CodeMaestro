@@ -6,6 +6,10 @@
   font-family: 'NanumSquareAcb';
   src: url('./fonts/NanumSquare_acB.ttf');
 }
+@font-face {
+  font-family: 'NanumSquareAceb';
+  src: url('./fonts/NanumSquare_acEB.ttf');
+}
 
 .header-style {
     @apply dark:text-darkHighlight font-extrabold mb-2;

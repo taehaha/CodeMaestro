@@ -67,7 +67,7 @@ function Header() {
 
         <button
           onClick={toggleNotifications}
-          className="notification-btn btn text-2xl btn-ghost relative"
+          className="notification-btn btn text-2xl btn-ghost relative hover:bg-transparent hover:shadow-none hover:border-none"
         >
           <FaBell className="w-5 h-5"/>
                           {/* 알림 개수 표시 */}

@@ -53,7 +53,7 @@ const ForgotPassword = () => {
         <p>아래 입력하신 이메일 주소는 회원정보에 등록된 이메일 주소와 반드시 같아야 합니다.</p>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="forgot-form-group">
             <label htmlFor="email">이메일</label>
             <input 
               type="email" 
@@ -63,7 +63,7 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <button type="submit" className="submit-btn">확인</button>
+          <button type="submit" className="forgot-submit-btn">확인</button>
         </form>
       </div>
     </div>
