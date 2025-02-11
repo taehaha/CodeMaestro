@@ -1,11 +1,11 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../reducer/userSlice';
 import tokenStorage from '../utils/tokenstorage';
 import { FaBell } from "react-icons/fa";
 import NotificationModal from '../pages/Notifications/NotificationPage';
-import { NotificationsContext } from '../context/NotificationContext';
+import { fetchNotifications } from '../reducer/notificationSlice';
 import './Header.css';
 
 function Header() {
@@ -13,9 +13,16 @@ function Header() {
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false)
-  const { notifications } = useContext(NotificationsContext);
+  const userId = useSelector((state) => state.user.myInfo?.userId);
+ 
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchNotifications(userId));
+    }
+  }, [userId]);
 
   // 로그인 상태 확인
+  const notifications = useSelector(state => state.notifications.items);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   // 로그아웃
   const handelLogout = () => {
@@ -58,7 +65,7 @@ function Header() {
             >
         <FaBell />
                           {/* 알림 개수 표시 */}
-            {notifications && (
+            {notifications.length>0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                 {notifications.length}
               </span>

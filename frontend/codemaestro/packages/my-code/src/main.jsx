@@ -12,6 +12,10 @@ import store, {persistor} from './reducer/store.js'
 import { NotificationsProvider } from './context/NotificationContext';
 
 axios.defaults.withCredentials = true
+// react-toastify 알림 표시용 라이브러리
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 createRoot(document.getElementById('root')).render(
 
@@ -24,6 +28,7 @@ createRoot(document.getElementById('root')).render(
 
     <NotificationsProvider>
       <App />
+      <ToastContainer position="bottom-right" autoClose={5000} />
       </NotificationsProvider>
   </BrowserRouter>
   </PersistGate>
