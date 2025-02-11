@@ -40,6 +40,13 @@ public class SecurityConfig {
     @Value("${spring.jwt.login.local.uri}")
     private String LOGIN_URI;
 
+    @Value("${codemaestro.front.url}")
+    private String FRONTEND_URL;
+
+    @Value("${codemaestro.backend.url}")
+    private String BACKEND_URL;
+
+
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
@@ -67,7 +74,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8081", "https://www.codemaestro.site", "http://localhost:5173"));
+                        config.setAllowedOrigins(Collections.singletonList(FRONTEND_URL));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("access", "Set-Cookie"));
