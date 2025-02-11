@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   server: {
+    port:3000,
     open: true, // 서버 시작 시 브라우저 자동 열기
     historyApiFallback: true, // React Router 새로고침 문제 해결
   },

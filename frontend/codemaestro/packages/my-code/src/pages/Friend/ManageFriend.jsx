@@ -1,9 +1,14 @@
 import Swal from "sweetalert2";
 import { deleteFriend } from "../../api/FriendApi";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import SolvedacModal from "../MyPage/SolvdacPage";
 
 const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.myInfo);
+  const [solvedacModalOpen, setSolvedacModalOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!checkedUsers.length) {
@@ -35,15 +40,12 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
           title: "삭제 완료",
           text: "친구 삭제가 완료되었습니다.",
           icon: "success",
-        }).then((res)=>{
+        }).then((res) => {
           if (res.isConfirmed) {
-            window.location.reload()
+            window.location.reload();
             navigate("/mypage", { state: { tab: "friends" } });
-
           }
         });
-
-        // 필요에 따라 checkedUsers를 초기화하거나, 친구 목록을 새로 고침하는 로직 추가
       } catch (error) {
         console.error("친구 삭제 실패:", error);
         Swal.fire({
@@ -54,6 +56,11 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
       }
     }
   };
+
+  // user.solvedacTire 값에 따라 버튼 문구 결정 (값이 있으면 연동 완료, 없으면 연동 진행)
+  const solvedacButtonText = user?.solvedacTire
+    ? "Solved.ac 연동됨"
+    : "Solved.ac 연동하기";
 
   return (
     <div className="flex flex-col justify-center items-center h-full">
@@ -69,7 +76,18 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
       >
         친구 삭제
       </button>
-      <button className="btn rounded-full w-40 mb-3">Solved.ac 연동중</button>
+      <button
+        onClick={() => setSolvedacModalOpen(true)}
+        className="btn rounded-full w-40 mb-3"
+      >
+        {solvedacButtonText}
+      </button>
+
+      {/* 모달 컴포넌트 */}
+      <SolvedacModal
+        open={solvedacModalOpen}
+        onClose={() => setSolvedacModalOpen(false)}
+      />
     </div>
   );
 };
