@@ -44,12 +44,6 @@ const Sidebar = ({ onSelect, user }) => {
         >
           그룹 목록
         </button>
-        <button 
-          className={`sidebar-item ${selectedTab === "recordings" ? "active" : ""}`} 
-          onClick={() => handleTabClick("recordings")}
-        >
-          녹화 목록
-        </button>
       </div>
 
       {/* 🔥 선택된 탭에 따라 콘텐츠 표시 */}
