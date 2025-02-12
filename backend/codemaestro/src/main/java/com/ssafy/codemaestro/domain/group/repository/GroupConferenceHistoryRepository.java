@@ -41,4 +41,9 @@ public interface GroupConferenceHistoryRepository extends JpaRepository<GroupCon
 
 
     Optional<GroupConferenceHistory> findByGroupAndEndTimeIsNull(Group group);
+
+    @Query("SELECT COUNT(gch) " +
+            "FROM GroupConferenceHistory gch " +
+            "WHERE gch.group.id = :groupId")
+    Integer countByGroupId(@Param("groupId") Long groupId);
 }

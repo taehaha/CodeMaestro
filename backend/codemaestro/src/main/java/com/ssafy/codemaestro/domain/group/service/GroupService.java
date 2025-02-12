@@ -1,10 +1,7 @@
 package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.*;
-import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
+import com.ssafy.codemaestro.domain.group.repository.*;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
@@ -31,6 +28,7 @@ public class GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final GroupJoinRequestRepository groupJoinRequestRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
+    private final GroupConferenceMemberHistoryRepository memberHistoryRepository;
 
     // 그룹 생성
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
@@ -184,5 +182,24 @@ public class GroupService {
                 endDate,
                 PageRequest.of(0, 10)
         );
+    }
+
+    // 유저별 그룹 회의 참여 정보 조회
+    public GroupConferenceStateResponse getUserConferenceStats(Long groupId, Long userId) {
+        // 그룹 전체 회의 수 조회
+        Integer totalConferences = groupConferenceHistoryRepository.countByGroupId(groupId);
+
+        // 참여 이력 조회
+        List<GroupConferenceMemberHistory> histories =
+                memberHistoryRepository.findByParticipantIdAndGroupConferenceHistory_GroupId(userId, groupId);
+
+        // DTO 반환
+        List<ConferenceParticipationDto> participations = new ArrayList<>();
+        for(GroupConferenceMemberHistory history : histories) {
+            ConferenceParticipationDto dto = ConferenceParticipationDto.from(history);
+            participations.add(dto);
+        }
+
+        return new GroupConferenceStateResponse(totalConferences, participations);
     }
 }

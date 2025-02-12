@@ -14,13 +14,13 @@ import org.springframework.stereotype.*;
 import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
 
     // 게시글 전체 조회
-    @Transactional(readOnly = true)
     public List<BoardResponseDto> getAllBoards() {
         List<Board> boards = boardRepository.findAll();
         List<BoardResponseDto> boardDtoList = new ArrayList<>();
@@ -33,7 +33,7 @@ public class BoardService {
         return boardDtoList;
     }
 
-    @Transactional(readOnly = true)
+
     // 게시글 상세 조회
     public BoardResponseDto getBoardById(Long id) {
         Board board = boardRepository.findById(id)
@@ -42,6 +42,7 @@ public class BoardService {
     }
 
     // 게시글 생성
+    @Transactional
     public BoardResponseDto createBoard(BoardRequestDto requestDto) {
         User user = userRepository.findById(requestDto.getUserId())
                 .orElseThrow(() -> new BadRequestException("User not found"));
@@ -55,6 +56,7 @@ public class BoardService {
     }
 
     // 게시글 수정
+    @Transactional
     public BoardResponseDto updateBoard(Long id, BoardRequestDto requestDto) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Board not found"));
@@ -66,6 +68,7 @@ public class BoardService {
     }
 
     // 게시글 삭제
+    @Transactional
     public void deleteBoard(Long id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Board not found"));
