@@ -13,17 +13,19 @@ function Header() {
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false)
-  const userId = useSelector((state) => state.user.myInfo?.userId);
- 
+  // user state에서 userId와 로그인 상태를 가져옴
+  const { myInfo, isLoggedIn } = useSelector((state) => state.user);
+  const userId = myInfo?.userId; // myInfo가 null이면 undefined
+
   useEffect(() => {
-    if (userId) {
+    // userId가 존재하고 로그인 상태일 때만 알림 요청
+    if (isLoggedIn && userId) {
       dispatch(fetchNotifications(userId));
     }
-  }, [userId]);
+  }, [dispatch, isLoggedIn, userId]);
 
   // 로그인 상태 확인
   const notifications = useSelector(state => state.notifications.items);
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   // 로그아웃
   const handelLogout = () => {
     dispatch(logoutUser());

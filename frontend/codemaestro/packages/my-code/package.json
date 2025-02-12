@@ -21,6 +21,7 @@
     "debounce": "^2.2.0",
     "event-source-polyfill": "^1.0.31",
     "formik": "^2.4.6",
+    "github-markdown-css": "^5.8.1",
     "heroicons": "^2.2.0",
     "highlight.js": "^11.11.1",
     "install": "^0.13.0",

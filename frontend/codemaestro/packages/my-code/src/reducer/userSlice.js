@@ -3,6 +3,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { signin, signout, getUserInfo } from "../api/AuthApi";
 import tokenStorage from "../utils/tokenstorage";
 import Swal from "sweetalert2";
+import { clearNotifications } from "./notificationSlice";
+import { useDispatch } from "react-redux";
 // 1) 로그인
 export const loginUser = createAsyncThunk(
   "user/login",
@@ -44,14 +46,7 @@ export const getMyInfo = createAsyncThunk("user/getMyInfo", async () => {
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    myInfo: {
-      id: 'kopybara8421',
-      name: '익명의 카피바라 8421',
-      email: 'test@test.com',
-      description: '오늘도 열심히 코딩합시다',
-      tier: 27,
-      // profile_image_url,
-  },
+    myInfo: {},
     isLoggedIn: false,
   },
   reducers: {
@@ -74,8 +69,8 @@ const userSlice = createSlice({
     });
 
     // 로그아웃 성공
-    builder.addCase(logoutUser.fulfilled, (state) => {
-      state.myInfo = null;
+    builder.addCase(logoutUser.fulfilled, async (state) => {
+      state.myInfo = await null;
       state.isLoggedIn = false;
     });
 
