@@ -4,6 +4,7 @@ import com.ssafy.codemaestro.domain.auth.entty.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
 import com.ssafy.codemaestro.domain.openvidu.service.ConferenceService;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.ConferenceTag;
 import com.ssafy.codemaestro.global.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,8 @@ public class ConferenceController {
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getAccessCode(),
-                dto.getGroupId()
+                dto.getGroupId(),
+                dto.getTagNameList()
         );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
@@ -89,6 +91,7 @@ public class ConferenceController {
                     .thumbnailUrl(conference.getThumbnailUrl())
                     .hostNickName(conference.getModerator().getNickname())
                     .participantNum(participantNum)
+                    .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                     .createdAt(conference.getCreatedAt())
                     .build();
 
@@ -117,6 +120,7 @@ public class ConferenceController {
                 .thumbnailUrl(conference.getThumbnailUrl())
                 .hostNickName(conference.getModerator().getNickname())
                 .participantNum(participantNum)
+                .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                 .createdAt(conference.getCreatedAt())
                 .build();
 

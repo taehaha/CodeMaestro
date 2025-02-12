@@ -4,6 +4,7 @@ import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepos
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
+import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceTagRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
@@ -40,12 +41,13 @@ import java.util.Locale;
 public class ConferenceService {
     private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
+    private final ConferenceTagRepository conferenceTagRepository;
     private final UserConferenceRepository userConferenceRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
+    private final GroupRepository groupRepository;
 
     private final OpenViduUtil openViduUtil;
     private final S3Util s3Util;
-    private final GroupRepository groupRepository;
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -61,6 +63,11 @@ public class ConferenceService {
     @PostConstruct
     private void init() {
         openVidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
+        try {
+            openVidu.fetch();
+        } catch (OpenViduHttpException | OpenViduJavaClientException e) {
+            log.error("Openvidu 서버와 통신에 실패했습니다. {}", e.getMessage());
+        }
     }
 
     /**
@@ -78,7 +85,7 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId) {
+    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId, List<String> tagNameList) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
@@ -135,6 +142,11 @@ public class ConferenceService {
             conferenceRepository.save(conference);
         }
 
+        // 태그 저장
+        List<ConferenceTag> conferenceTagList = ConferenceTag.fromTagNameList(conference, tagNameList);
+        conferenceTagRepository.saveAll(conferenceTagList);
+
+        // 세션 생성
         SessionProperties properties =
                 new SessionProperties.Builder()
                 .customSessionId(String.valueOf(conference.getId()))
