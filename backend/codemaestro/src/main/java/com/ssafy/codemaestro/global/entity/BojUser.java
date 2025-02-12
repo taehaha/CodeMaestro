@@ -33,4 +33,9 @@ public class BojUser {
         this.tier = tier;
         this.lastUpdated = LocalDateTime.now();
     }
+
+    public void updateHandle(String handle) {
+        this.handle = handle;
+        this.lastUpdated = LocalDateTime.now();
+    }
 }

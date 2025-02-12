@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,25 +44,31 @@ public class BojService {
 
     // 티어 정보 수정 및 등록
     private BojUser updateBojUserInfo(Long userId, String bojId) {
+        // 1. bojId 저장/수정
+        Optional<BojUser> optionalBojUser = bojUserRepository.findByUserId(userId);
+        BojUser bojUser;
+
+        if (optionalBojUser.isPresent()) {
+            // 기존 BojUser가 있으면 handle 수정
+            bojUser = optionalBojUser.get();
+            bojUser.updateHandle(bojId);
+        } else {
+            // 없으면 새로 생성
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not Found"));
+
+            bojUser = BojUser.builder()
+                    .user(user)
+                    .handle(bojId)
+                    .build();
+        }
+        bojUser = bojUserRepository.save(bojUser);  // DB에 저장
+
+        // 2. 그 다음 solved.ac API로 티어 정보 가져오기
         BojUserDto userInfo = fetchUserInfoFromSolvedAc(bojId);
-        int tier = userInfo.getTier();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not Found"));
-
-        BojUser bojUser = bojUserRepository.findByHandle(bojId)
-                //  DB에 사용자가 있는 경우
-                .map(existingUser -> {
-                    existingUser.updateTierInfo(tier);
-                    return existingUser;
-                })
-                // DB에 사용자가 없는 경우
-                .orElseGet(() -> BojUser.builder()
-                        .user(user)
-                        .handle(bojId)
-                        .tier(tier)
-                        .lastUpdated(LocalDateTime.now())
-                        .build());
+        // 3. tier 정보 업데이트
+        bojUser.updateTierInfo(userInfo.getTier());
 
         return bojUserRepository.save(bojUser);
     }
