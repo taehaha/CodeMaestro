@@ -1,11 +1,10 @@
 package com.ssafy.codemaestro.domain.openvidu.controller;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
+import com.ssafy.codemaestro.domain.auth.entty.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
 import com.ssafy.codemaestro.domain.openvidu.service.ConferenceService;
 import com.ssafy.codemaestro.global.entity.Conference;
 import com.ssafy.codemaestro.global.entity.User;
-import io.openvidu.java.client.Connection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

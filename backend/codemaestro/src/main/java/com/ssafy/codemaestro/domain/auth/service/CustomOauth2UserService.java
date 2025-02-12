@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.auth.service;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomOAuth2UserDetails;
+import com.ssafy.codemaestro.domain.auth.entty.CustomOAuth2UserDetails;
 import com.ssafy.codemaestro.domain.auth.dto.KakaoOAuth2Response;
 import com.ssafy.codemaestro.domain.auth.dto.NaverOAuth2Response;
 import com.ssafy.codemaestro.domain.auth.dto.OAuth2Response;

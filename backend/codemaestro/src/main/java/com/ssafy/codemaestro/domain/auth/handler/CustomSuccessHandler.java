@@ -1,6 +1,6 @@
 package com.ssafy.codemaestro.domain.auth.handler;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomOAuth2UserDetails;
+import com.ssafy.codemaestro.domain.auth.entty.CustomOAuth2UserDetails;
 import com.ssafy.codemaestro.global.entity.RefreshEntity;
 import com.ssafy.codemaestro.domain.auth.repository.RefreshRepository;
 import com.ssafy.codemaestro.global.util.JwtUtil;
