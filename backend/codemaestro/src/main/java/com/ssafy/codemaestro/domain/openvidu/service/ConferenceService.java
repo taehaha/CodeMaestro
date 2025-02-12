@@ -42,6 +42,7 @@ public class ConferenceService {
 
     private final OpenViduUtil openViduUtil;
     private final S3Util s3Util;
+    private final GroupRepository groupRepository;
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -138,7 +139,7 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu와 상호작용 중 오류가 발생한 경우
      */
     @Transactional
-    public Connection issueToken(User requestUser, String conferenceId, String accessCode) {
+    public ConferenceConnectResponse issueToken(User requestUser, String conferenceId, String accessCode) {
         Session session = openVidu.getActiveSession(conferenceId);
 
         /* 유효성 검증 */
