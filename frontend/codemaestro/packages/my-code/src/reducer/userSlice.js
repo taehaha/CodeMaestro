@@ -62,7 +62,11 @@ const userSlice = createSlice({
     isLoggedIn: false,
   },
   reducers: {
+    setLoggedIn: (state, action) => {
+      state.isLoggedIn = action.payload;
+    },
     // 세션 만료 등으로 인한 강제 로그아웃 시 호출하여 상태를 변경할 수 있음
+
     setLoggedOut: (state) => {
       state.myInfo = null;
       state.isLoggedIn = false;
@@ -96,5 +100,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setLoggedOut, logout } = userSlice.actions;
+export const { setLoggedOut,setLoggedIn, logout } = userSlice.actions;
 export default userSlice.reducer;
