@@ -168,3 +168,32 @@
 .signup a:hover {
   text-decoration: underline;
 }
+
+/* 전체 팝업 스타일 */
+.swal-custom-popup {
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 제목 스타일 */
+.swal-custom-title {
+  font-size: 22px;
+  color: #333;
+}
+
+/* 본문 텍스트 스타일 */
+.swal-custom-text {
+  font-size: 16px;
+  color: #666;
+}
+
+/* 확인 버튼 스타일 */
+.swal-custom-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #FFCC00 !important;
+  color: #ffffff !important;
+}
