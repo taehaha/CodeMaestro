@@ -15,7 +15,7 @@ const OAuth2RedirectHandler = () => {
 
     if (refreshToken) {
       // 만약 access token 교환 API가 있다면 호출
-      axios.post(`${baseURL}/auth/reissue`, { Cookie: { refresh: refreshToken } })
+      axios.post(`${baseURL}/auth/reissue`, { withCredentials: true})
         .then(response => {
           // 예시: 헤더에 access token이 담겨 있다고 가정
           const accessToken = response.headers.access; // 또는 response.data.accessToken;
