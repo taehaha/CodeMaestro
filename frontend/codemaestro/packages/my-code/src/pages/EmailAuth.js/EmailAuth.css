@@ -213,3 +213,10 @@
   color: #666;
   margin-bottom: 50px;
 }
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  font-size: 12px;
+  margin-top: 2px;
+}
