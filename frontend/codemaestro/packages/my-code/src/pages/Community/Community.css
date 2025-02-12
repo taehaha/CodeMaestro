@@ -25,7 +25,7 @@
 }
 
 .create-post-btn {
-  background-color: #007bff;
+  background-color: #ffcc00;
   color: white;
   padding: 8px 15px;
   border: none;
@@ -35,7 +35,7 @@
 }
 
 .create-post-btn:hover {
-  background-color: #0056b3;
+  background-color: #f0c000;
 }
 
 .nav-menu {
