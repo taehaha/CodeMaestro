@@ -13,6 +13,12 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    @Value("${spring.jwt.expire-ms.access-token}")
+    private long ACCESS_TOKEN_VALIDITY_MS;
+
+    @Value("${spring.jwt.expire-ms.refresh-token}")
+    private long REFRESH_TOKEN_VALIDITY_MS;
+
     private SecretKey secretKey;
 
     private JwtParser parser; // JWT Token 파싱에 사용되는 Parser
@@ -33,6 +39,14 @@ public class JwtUtil {
 
     public Boolean isExpired(String token) {
         return parser.parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    }
+
+    public String createAccessToken(String id) {
+        return this.createToken("access", id, ACCESS_TOKEN_VALIDITY_MS);
+    }
+
+    public String createRefreshToken(String id) {
+        return this.createToken("refresh", id, REFRESH_TOKEN_VALIDITY_MS);
     }
 
     public String createToken(String category, String id, Long expiresMs) {

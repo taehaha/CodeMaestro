@@ -24,6 +24,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${codemaestro.front.url}")
     private String FRONTEND_URL;
 
+    @Value("${spring.jwt.expire-ms.refresh-token}")
+    private Long REFRESH_TOKEN_VALIDITY_MS;
+
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
@@ -44,10 +47,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //        GrantedAuthority authority = iterator.next();
 //        String role = authority.getAuthority();
 
-        String access = jwtUtil.createToken("access", userId, 7200000L); // (지원) 25.02.03 API 연동 위해 토큰 유효 시간 변경(2시간), 추후 600000L 으로 추후 수정
-        String refresh = jwtUtil.createToken("refresh", userId, 86400000L);
+        String refresh = jwtUtil.createRefreshToken(userId);
 
-        addRefreshEntity(userId, refresh, 86400000L);
+        addRefreshEntity(userId, refresh, REFRESH_TOKEN_VALIDITY_MS);
 
         response.setStatus(HttpServletResponse.SC_OK);
 
