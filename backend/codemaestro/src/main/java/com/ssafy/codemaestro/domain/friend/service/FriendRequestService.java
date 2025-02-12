@@ -9,6 +9,7 @@ import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.FriendRequest;
 import com.ssafy.codemaestro.global.entity.FriendRequestStatus;
+import com.ssafy.codemaestro.global.exception.AlreadyRequestExistExceptions;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class FriendRequestService {
                 request.getSenderId(), request.getReceiverId(), FriendRequestStatus.PENDING);
 
         if (alreadyExists) {
-            throw new IllegalStateException("Friend request already exists");
+            throw new AlreadyRequestExistExceptions("Friend request already exists");
         }
 
         FriendRequest friendRequest = FriendRequest.builder()

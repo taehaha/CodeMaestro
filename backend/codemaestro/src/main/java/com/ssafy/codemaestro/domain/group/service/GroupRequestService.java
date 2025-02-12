@@ -8,6 +8,7 @@ import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
+import com.ssafy.codemaestro.global.exception.AlreadyRequestExistExceptions;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ public class GroupRequestService {
         );
 
         if (alreadyExists) {
-            throw new BadRequestException("Group join request already exists");
+            throw new AlreadyRequestExistExceptions("Group join request already exists");
         }
 
         // User와 Group 조회

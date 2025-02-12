@@ -26,9 +26,8 @@ public class UserService {
     // 개인 정보 조회
     // readOnly 로 바꾸기
     public UserProfileResponseDto getUserProfile(Long userId) {
-        User user = userRepository.findById(userId)
+        return userRepository.findUserWithBojInfo(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return UserProfileResponseDto.from(user);
     }
 
     // 개인 정보 수정

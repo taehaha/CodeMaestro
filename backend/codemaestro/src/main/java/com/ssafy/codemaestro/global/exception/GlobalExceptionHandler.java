@@ -21,6 +21,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AlreadyRequestExistExceptions.class)
+    public ResponseEntity<ErrorResponse> alreadyRequestExistException(AlreadyRequestExistExceptions ex) {
+        log.error("Already Reqeusts Exists: ", ex);
+        return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
         log.error("Unauthorized error: ", ex);

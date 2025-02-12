@@ -7,6 +7,7 @@ import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Board;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.*;
 
@@ -19,6 +20,7 @@ public class BoardService {
     private final UserRepository userRepository;
 
     // 게시글 전체 조회
+    @Transactional(readOnly = true)
     public List<BoardResponseDto> getAllBoards() {
         List<Board> boards = boardRepository.findAll();
         List<BoardResponseDto> boardDtoList = new ArrayList<>();
@@ -31,6 +33,7 @@ public class BoardService {
         return boardDtoList;
     }
 
+    @Transactional(readOnly = true)
     // 게시글 상세 조회
     public BoardResponseDto getBoardById(Long id) {
         Board board = boardRepository.findById(id)

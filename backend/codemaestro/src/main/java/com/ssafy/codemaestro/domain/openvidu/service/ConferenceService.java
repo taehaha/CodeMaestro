@@ -1,5 +1,6 @@
 package com.ssafy.codemaestro.domain.openvidu.service;
 
+import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
@@ -7,6 +8,7 @@ import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.Group;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.entity.UserConference;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
@@ -40,6 +42,7 @@ public class ConferenceService {
 
     private final OpenViduUtil openViduUtil;
     private final S3Util s3Util;
+    private final GroupRepository groupRepository;
 
     @Value("${openvidu.url}")
     private String OPENVIDU_URL;
@@ -72,21 +75,35 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode) {
+    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
                     throw new ConnectionAlreadyExistException("유저가 이미 Connection을 가지고 있습니다. : userId : " + requestUser.getId() + ", conferenceId : " + conference.getId());
                 });
 
-        Conference conference = Conference.builder()
-                .moderator(requestUser)
-                .title(title)
-                .description(description)
-                .thumbnailUrl("https://picsum.photos/400/200")
-                .accessCode(accessCode)
-                .build();
+        Conference.ConferenceBuilder conferenceBuilder = Conference.builder();
+        // 그룹 회의인 경우
+        if(groupId != null) {
+            Group group = groupRepository.findById(groupId)
+                    .orElseThrow(() -> new NotFoundException("Group not Found"));
 
+            conferenceBuilder.moderator(requestUser);
+            conferenceBuilder.title(group.getName());
+            conferenceBuilder.description(group.getName()+"의 회의입니다.");
+            conferenceBuilder.thumbnailUrl("https://picsum.photos/400/200");
+//            conferenceBuilder.accessCode();
+            conferenceBuilder.group(group);
+        }
+        else {
+            conferenceBuilder.moderator(requestUser);
+            conferenceBuilder.title(title);
+            conferenceBuilder.description(description);
+            conferenceBuilder.thumbnailUrl("https://picsum.photos/400/200");
+            conferenceBuilder.accessCode(accessCode);
+        }
+
+        Conference conference = conferenceBuilder.build();
         conferenceRepository.save(conference);
     
         SessionProperties properties =

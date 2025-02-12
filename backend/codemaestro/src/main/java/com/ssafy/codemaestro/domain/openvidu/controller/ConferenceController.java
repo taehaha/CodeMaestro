@@ -34,16 +34,31 @@ public class ConferenceController {
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 현재 유저 정보 가져오기
+    public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto,
+                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        String conferenceId =
-                conferenceService.initializeConference(
-                        currentUser,
-                        dto.getTitle(),
-                        dto.getDescription(),
-                        dto.getAccessCode()
-                );
+        String conferenceId;
+
+        // groupId만 있는 경우
+        if (dto.getGroupId() != null && dto.getTitle() == null) {
+            conferenceId = conferenceService.initializeConference(
+                    currentUser,
+                    null,   // title
+                    null,   // description
+                    null,   // accessCode
+                    dto.getGroupId()
+            );
+        }
+        // 일반 회의로 처리
+        else {
+            conferenceId = conferenceService.initializeConference(
+                    currentUser,
+                    dto.getTitle(),
+                    dto.getDescription(),
+                    dto.getAccessCode(),
+                    null    // groupId
+            );
+        }
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
 

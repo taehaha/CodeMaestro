@@ -26,12 +26,6 @@ public class NotificationController {
         log.info("userId: {} 연결 시도", userId);
         log.info("연결 전 emitters ID ({}개) : {}", sseService.getEmitters().size(), sseService.getEmitters().keySet());
 
-        // 권한 검사
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new AccessDeniedException("Authentication required");
-        }
-
         SseEmitter emitter = sseService.subscribe(userId);
 
         log.info("연결 후 emitters ID ({}개) : {}", sseService.getEmitters().size(), sseService.getEmitters().keySet());

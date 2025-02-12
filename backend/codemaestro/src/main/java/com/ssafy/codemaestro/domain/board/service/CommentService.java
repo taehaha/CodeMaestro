@@ -4,6 +4,7 @@ import com.ssafy.codemaestro.domain.board.dto.CommentRequestDto;
 import com.ssafy.codemaestro.domain.board.dto.CommentResponseDto;
 import com.ssafy.codemaestro.domain.board.repository.BoardRepository;
 import com.ssafy.codemaestro.domain.board.repository.CommentRepository;
+import com.ssafy.codemaestro.domain.notification.service.NotificationService;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.Board;
 import com.ssafy.codemaestro.global.entity.Comment;
@@ -11,6 +12,7 @@ import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -21,8 +23,10 @@ public class CommentService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     // 게시글 별 댓글 조회
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByBoardId(long boardId) {
         List<Comment> comments = commentRepository.findByBoardId(boardId);
         List<CommentResponseDto> commentDtoList = new ArrayList<>();
@@ -48,6 +52,13 @@ public class CommentService {
         comment.setWriter(user);
 
         commentRepository.save(comment);
+
+        // Board 작성자에게 알림 전송
+        Long boardWriter = board.getWriter().getId();
+        notificationService.sendCommentNotification(
+                boardWriter,
+                CommentResponseDto.from(comment)
+        );
     }
 
     // 댓글 삭제

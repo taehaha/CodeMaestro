@@ -1,6 +1,6 @@
-package com.ssafy.codemaestro.domain.groupConference.repository;
+package com.ssafy.codemaestro.domain.group.repository;
 
-import com.ssafy.codemaestro.domain.groupConference.dto.GroupRankingResponseDto;
+import com.ssafy.codemaestro.domain.group.dto.GroupRankingResponseDto;
 import com.ssafy.codemaestro.global.entity.GroupConferenceHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +16,7 @@ public interface GroupConferenceHistoryRepository extends JpaRepository<GroupCon
 
     // : 파라미터바인딩
     @Query("""
-        SELECT new com.ssafy.codemaestro.domain.groupConference.dto.GroupRankingResponseDto(
+        SELECT new com.ssafy.codemaestro.domain.group.dto.GroupRankingResponseDto(
             g.id,
             g.name,
             CAST(SUM(SIZE(gch.memberHistories) * 100.0 / g.currentMembers) as double),
