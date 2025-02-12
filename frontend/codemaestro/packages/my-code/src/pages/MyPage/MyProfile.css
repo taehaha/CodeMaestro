@@ -78,7 +78,7 @@
 }
 
 .name {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -134,4 +134,11 @@
   display: block;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
+}
+
+/* 새롭게 추가할 CSS */
+.nickname-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 닉네임과 아이콘 사이의 간격 */
 }

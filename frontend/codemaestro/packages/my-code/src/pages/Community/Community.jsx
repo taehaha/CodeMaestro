@@ -1,14 +1,32 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PostsContext } from "../../context/PostsContext";
 import { CommentsContext } from "../../context/CommentsContext";
+import { getBoardList } from "../../api/BoardApi";
 import "./Community.css";
 
 const Community = () => {
   const navigate = useNavigate();
-  const { posts } = useContext(PostsContext);
+  const { posts, setPosts } = useContext(PostsContext);
   const { comments } = useContext(CommentsContext);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ 검색어 상태 추가 (오타 수정)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true); // 로딩 시작
+      try {
+        const data = await getBoardList();
+        setPosts(data || []);
+      } catch (error) {
+        console.error("게시글 목록 불러오기 실패:", error);
+      } finally {
+        setLoading(false); // 로딩 종료
+      }
+    };
+
+    fetchPosts();
+  }, [setPosts]);
 
   // 검색어가 포함된 게시글 필터링
   const filteredPosts = posts.filter((post) =>
@@ -29,29 +47,34 @@ const Community = () => {
             type="text"
             placeholder="🔍 커뮤니티 내에서 검색"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // ✅ 검색어 입력 시 상태 업데이트
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
+      {loading ? (
+        <p className="loading-message">게시글을 불러오는 중...</p>
+      ) : (
       <ul className="post-list">
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => {
             const commentCount = comments.filter((c) => c.board_id === post.id).length;
             return (
               <li key={post.id} className="post-item">
-                <Link to={`/boards/${post.id}`} className="post-title">{post.title}</Link>
+                <Link to={`/boards/${post.boardId}`} className="post-title">{post.title}</Link>
                 <div className="post-meta">
-                  <span className="post-author">{post.author}</span> ・ <span className="post-time">{post.created_at}</span>
+                  <span className="post-author">{post.author}</span> | 
+                  <span className="post-time">{post.created_at}</span>
                 </div>
                 <div className="post-comments">💬 {commentCount}개</div>
               </li>
             );
           })
         ) : (
-          <p className="no-results">검색 결과가 없습니다.</p> // ✅ 검색 결과 없을 경우 메시지 표시
+          <p className="no-results">검색 결과가 없습니다.</p>
         )}
       </ul>
+      )}
     </div>
   );
 };

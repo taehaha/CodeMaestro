@@ -86,7 +86,7 @@ import UserAxios from "./userAxios";
             return response.status
 
         } catch (error) {
-            console.error("수락 요청 실패", error);
+            console.error("거절 요청 실패", error);
             return error.response?.status || 500;
             
         }
@@ -95,7 +95,7 @@ import UserAxios from "./userAxios";
     // 그룹 랭킹 조회
     export const GroupRankingList = async (payload) =>{
         try {
-            const result = await UserAxios.get(`/groups/conference/rankings`,
+            const result = await UserAxios.get(`/groups/rankings`,
                 {params:{year:payload.year,
                     month:payload.month,}}
             )
@@ -105,3 +105,14 @@ import UserAxios from "./userAxios";
             console.error("그룹 랭킹 호출 중 오류 발생", error);
         }
     }
+
+    export const getGroupRequest = async (userId) => {
+        try {
+          const result = await UserAxios.get(`/groups/requests/${userId}/pending`);
+          return result.data;
+        } catch (error) {
+          console.error("요청 목록 가져오는 중 오류 발생", error);
+          // 에러 발생 시 빈 배열 반환 (notifications가 배열이라고 가정)
+          return [];
+        }
+      };

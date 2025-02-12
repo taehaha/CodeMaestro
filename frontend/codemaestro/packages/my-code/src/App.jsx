@@ -8,6 +8,7 @@ import MainPage from './pages/MainPage';
 import Contents from './components/Contents/Contents';
 import WaveComponent from './components/WaveComponent/WaveComponent';
 import MainSection from './components/MainSection/MainSection';
+import Footer from './components/Footer';
 
 // 페이지 컴포넌트
 import CreateMeetingPage from './pages/CreatMeeting/CreateMeetingPage';
@@ -20,7 +21,7 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import GroupPage from './pages/Group/GroupPage';
 import EmailAuth from './pages/EmailAuth.js/EmailAuth';
 import PostDetail from './pages/Community/PostDetail';
-
+import OAuth2RedirectHandler from './components/AutoLogin';
 // 프로텍트 라우트
 import ProtectedRoute from './router/ProtectedRoute';
 
@@ -37,7 +38,7 @@ import PostCreate from './pages/Community/PostCreate';
 
 function App() {
   return (
-    <NotificationsProvider>
+    // <NotificationsProvider>
           <PostsProvider>
         <CommentsProvider>
           <div className="w-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
@@ -58,6 +59,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />  
                 <Route path="/signup" element={<EmailAuth></EmailAuth>}></Route>
                 <Route path="/forgotpassword" element={<ForgotPassword />}></Route>
+                <Route path="/oauth2/signin" element={<OAuth2RedirectHandler />} />
+
                             {/* 로그인 필요 페이지 */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/meeting" element={<MeetingPage />} />
@@ -66,15 +69,16 @@ function App() {
                   <Route path="/mypage" element={<MyPage />} />
                   <Route path="/boards" element={<Community />} />
                   <Route path="/boards/create" element={<PostCreate />} />
-                  <Route path="/boards/:id" element={<PostDetail/>}></Route>
+                  <Route path="/boards/:boardId" element={<PostDetail/>}></Route>
                   <Route path="/group/:groupId" element={<GroupPage />} />
                 </Route>
               </Routes>
             </main>
+            <Footer/>
           </div> 
         </CommentsProvider>
        </PostsProvider>
-    </NotificationsProvider>
+    // </NotificationsProvider>
   );
 }
 

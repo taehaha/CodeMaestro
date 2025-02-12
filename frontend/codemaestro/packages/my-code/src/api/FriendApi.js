@@ -80,3 +80,14 @@ export const getFriendsInfo = async (userId) => {
       throw error;
     }
   };
+
+  export const getFriendRequest = async (userId) => {
+    try {
+      const result = await UserAxios.get(`/friends/requests/${userId}/pending`);
+      return result.data;
+    } catch (error) {
+      console.error("요청 목록 가져오는 중 오류 발생", error);
+      // 에러 발생 시 빈 배열 반환 (notifications가 배열이라고 가정)
+      return [];
+    }
+  };

@@ -251,21 +251,19 @@ const GroupDetail = () => {
         {userRole === ROLE.MEMBER && (
           <>
             <button className="btn btn-success rounded-sm">그룹회의 생성</button>
-            <button
-              onClick={handleChangeToAdmin}
-              className="btn btn-neutral rounded-sm"
-            >
-              관리자 전환
-            </button>
           </>
         )}
 
         {userRole === ROLE.ADMIN && (
-          <button 
+          <>
+          <button className="btn btn-success rounded-sm">그룹회의 생성</button>
+                      <button 
           onClick={() => setIsModalOpen(true)}
           className=" btn btn-neutral rounded-sm">
           그룹 관리
           </button>
+          </>
+
         )}
 {/* 
         {(userRole === ROLE.MEMBER || userRole === ROLE.ADMIN) && (
