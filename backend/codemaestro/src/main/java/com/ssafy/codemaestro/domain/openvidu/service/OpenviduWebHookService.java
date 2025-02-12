@@ -104,7 +104,6 @@ public class OpenviduWebHookService {
             log.warn("Conference 삭제 실패. 이미 삭제되었을 수 있습니다. {}", sessionId);
         }
     }
-
     public void onParticipantJoined(String serverDataJson, String sessionId, String connectionId, Long timestamp) {
         log.debug("OpenVidu Webhook : Participant Joined:");
         // screenShare용 connection 구분
@@ -178,8 +177,21 @@ public class OpenviduWebHookService {
         Conference conference = userConference.getConference();
         User participant = userConference.getUser();
 
-        // 그룹 회의인 경우 참가자 히스토리 업데이트
+        // 그룹 회의이고 참가자가 그룹 멤버인 경우 히스토리 업데이트
         if(conference.getGroup() != null) {
+            boolean isGroupMember = groupMemberRepository.findByGroupAndUser(conference.getGroup(), participant)
+                    .isPresent();
+
+            if(!isGroupMember) {
+                log.debug("그룹 참가자가 아니므로 히스토리 업데이트 하지 않음. userId: {}", participant.getId());
+                try {
+                    userConferenceRepository.deleteByConnectionId(connectionId);
+                } catch (Exception e) {
+                    log.warn("UserConference 삭제 실패, 이미 삭제되었을 수 있습니다: {}", connectionId);
+                }
+                return;
+            }
+
             try {
                 LocalDateTime leaveTime = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(timestamp),
