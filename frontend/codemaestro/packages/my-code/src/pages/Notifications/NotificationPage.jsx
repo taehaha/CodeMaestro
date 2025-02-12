@@ -25,7 +25,7 @@ const NotificationModal = ({ onClose }) => {
         title: "요청 수락",
         text: "초대받은 회의실로 이동합니다",
       }).then(() => {
-        navigate(`/meeting/${notification.roomId}`);
+        navigate(`/meeting/${notification.conferenceId}`);
       });
     } else if (notification.type === "friend") {
       await AcceptFriendsRequest(notification.requestId);
