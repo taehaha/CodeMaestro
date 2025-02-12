@@ -2,6 +2,7 @@
   "compilerOptions": {
     "checkJs": false,
     "target": "es2015",
+    
     "lib": [
       "dom",
       "dom.iterable",
@@ -20,7 +21,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "typeRoots": ["src/types", "./node_modules/@types"],
     "jsx": "react-jsx"
     
   },

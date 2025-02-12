@@ -73,7 +73,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
       ],
     };
     try {
-      const response = await axios.post("http://localhost:3001/api/chat", payload);
+      const response = await axios.post("http://192.168.31.193:3001/api/chat", payload);
       const data = response.data;
       if (data && data.choices && data.choices.length > 0) {
         const answer = data.choices[0].message.content.trim().toLowerCase();
@@ -163,7 +163,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
         setStreamingMessage("");
         let accumulatedText = "";
 
-        const response = await fetch("http://localhost:3001/api/chat", {
+        const response = await fetch("http://192.168.31.193:3001/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(reviewPayload),
@@ -245,7 +245,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
             const newCode = codeMatch[1].trim();
             updateCode(newCode);
             setMessages(prev => [
-              ...prev,
+              ...prev, // 현재 이 기능은 텍스트 커서 (캐럿) 이 튀는 관계로 봉인합니다.
               { sender: "bot", text: "코드가 에디터에 반영되었어요! 확인해봐요!", type: "text" },
             ]);
           } else {
@@ -277,7 +277,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
           { role: "user", content: userMessage },
         ],
       };
-      const relevanceCheckResponse = await axios.post("http://localhost:3001/api/chat", relevanceCheckPayload);
+      const relevanceCheckResponse = await axios.post("http://192.168.31.193:3001/api/chat", relevanceCheckPayload);
       const relevanceData = relevanceCheckResponse.data;
       if (!relevanceData || !relevanceData.choices || !relevanceData.choices.length) {
         throw new Error("Unexpected response structure for relevance check");
@@ -357,7 +357,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
       setStreamingMessage("");
       let accumulatedText = "";
 
-      const responseStream = await fetch("http://localhost:3001/api/chat", {
+      const responseStream = await fetch("http://192.168.31.193:3001/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(responsePayload),
