@@ -1,4 +1,5 @@
 import UserAxios from "./userAxios"
+import Swal from "sweetalert2";
 
 // 친구 목록 불러오기 (GET)
 export const getFriendsInfo = async (userId) => {
@@ -27,16 +28,22 @@ export const getFriendsInfo = async (userId) => {
   };
   
   // 친구 추가 요청 (POST)
-  export const FriendRequest = async (payload) => {
-    try {
-      const response = await UserAxios.post(`/friends/requests`, payload);
-      return response.data;
-    } catch (error) {
-      console.error("Error adding friend:", error);
-      throw error;
-    }
-  };
-  
+export const FriendRequest = async (payload) => {
+
+  try {
+
+    const response = await UserAxios.post("/friends/requests", payload, // 검색어를 쿼리 파라미터로 전달
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    throw error;
+  }
+};
+
+
+
   // 받은 친구 추가 요청 불러오기 (GET)
   export const getRequests = async (userId) => {
     try {
