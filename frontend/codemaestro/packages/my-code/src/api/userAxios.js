@@ -8,7 +8,7 @@ import { setLoggedOut } from "../reducer/userSlice";
 // =======================================
 // export const baseURL = "https://api.codemaestro.site"
 // export const baseURL = "https://test.api.codemaestro.site"
- export const baseURL = "http://192.168.31.58:8080"
+export const baseURL = "http://192.168.31.58:8080"
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 3000,                      

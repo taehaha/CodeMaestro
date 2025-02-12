@@ -118,6 +118,7 @@ const PostDetail = () => {
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
             />
+            
             <button className="post-save-btn" onClick={handleSaveEdit}>
               저장
             </button>
@@ -129,11 +130,11 @@ const PostDetail = () => {
               <span className="post-author">{post.writerNickname}</span>
               <span className="post-time">| {post.createdAt}</span>
             </div>
-            <ReactMarkdown
-              className="post-content markdown-body"
-              rehypePlugins={[rehypeHighlight]}>
-              {post.content}
-            </ReactMarkdown>
+              <ReactMarkdown
+                className="post-content markdown-body"
+                rehypePlugins={[rehypeHighlight]}>
+                {post.content}
+              </ReactMarkdown>
 
           </>
         )}
