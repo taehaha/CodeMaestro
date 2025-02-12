@@ -100,8 +100,8 @@ public class AuthService {
         String userId = jwtUtil.getId(refreshToken);
 
         // 새로 발급할 AccessToken, RefreshToken
-        String newAccess = jwtUtil.createToken("access", userId, 60 * 60 * 10L);
-        String newRefresh = jwtUtil.createToken("refresh", userId, 60 * 60 * 10L);
+        String newAccess = jwtUtil.createAccessToken(userId);
+        String newRefresh = jwtUtil.createRefreshToken(userId);
 
         refreshRepository.deleteByRefreshToken(refreshToken);
         addRefreshEntity(userId, newRefresh, 60 * 60 * 10L);
