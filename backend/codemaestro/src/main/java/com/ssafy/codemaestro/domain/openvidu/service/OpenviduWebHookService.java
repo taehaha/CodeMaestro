@@ -54,6 +54,9 @@ public class OpenviduWebHookService {
 
     public void onParticipantJoined(String serverDataJson, String sessionId, String connectionId) {
         log.debug("OpenVidu Webhook : Participant Joined:");
+        // screenShare용 connection 구분
+        if (serverDataJson.isBlank()) return;
+
         ConnectionDataVo connectionVo = ConnectionDataVo.fromJson(serverDataJson);
         // AccessToken에서 유저 ID 파싱
         String participantId = connectionVo.getUserId();

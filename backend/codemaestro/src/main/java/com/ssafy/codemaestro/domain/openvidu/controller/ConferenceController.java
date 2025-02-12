@@ -76,9 +76,8 @@ public class ConferenceController {
         User currentUser = userDetails.getUser();
         String accessCode = dto.getAccessCode();
 
-        Connection connection = conferenceService.issueToken(currentUser, conferenceId, accessCode);
+        ConferenceConnectResponse response = conferenceService.issueToken(currentUser, conferenceId, accessCode);
 
-        ConferenceConnectResponse response = new ConferenceConnectResponse(connection.getToken());
         return new ResponseEntity<>((response), HttpStatus.OK);
     }
 

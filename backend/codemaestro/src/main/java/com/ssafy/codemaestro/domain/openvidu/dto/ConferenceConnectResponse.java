@@ -9,4 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ConferenceConnectResponse {
     String connectionToken;
+    String screenShareConnectionToken;
 }

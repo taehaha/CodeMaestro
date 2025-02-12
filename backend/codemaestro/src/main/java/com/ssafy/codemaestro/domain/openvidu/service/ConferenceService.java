@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
+import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
@@ -38,7 +39,6 @@ public class ConferenceService {
     private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
     private final UserConferenceRepository userConferenceRepository;
-    private final GroupRepository groupRepository;
 
     private final OpenViduUtil openViduUtil;
     private final S3Util s3Util;
@@ -168,13 +168,21 @@ public class ConferenceService {
                         .build();
 
         ConnectionProperties properties = new ConnectionProperties.Builder()
-                .role(OpenViduRole.MODERATOR)
+                .role(OpenViduRole.PUBLISHER)
                 .data(connectionVo.toJson())
                 .build();
 
+        ConnectionProperties screenShareConnectionProperties = new ConnectionProperties.Builder()
+                .role(OpenViduRole.PUBLISHER)
+                .build();
+
         Connection connection;
+        Connection screenShareConnection;
         try {
             connection = session.createConnection(properties);
+            screenShareConnection = session.createConnection(screenShareConnectionProperties);
+
+            return new ConferenceConnectResponse(connection.getToken(), screenShareConnection.getToken());
         } catch (OpenViduHttpException e) {
             log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
             log.error(e.getMessage());
@@ -184,8 +192,6 @@ public class ConferenceService {
             log.error(e.getMessage());
             throw new RuntimeException("Openvidu 관련 동작 오류");
         }
-
-        return connection;
     }
 
     public Conference getConference(String conferenceId) {
