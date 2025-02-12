@@ -12,10 +12,10 @@ const OAuth2RedirectHandler = () => {
     // URL에서 쿼리 파라미터 파싱
     const params = new URLSearchParams(location.search);
     const refreshToken = params.get('refresh');
-
+ 
     if (refreshToken) {
       // 만약 access token 교환 API가 있다면 호출
-      axios.post(`${baseURL}/auth/reissue`, { withCredentials: true})
+      axios.post(`${baseURL}/auth/reissue`, { refreshToken }, { withCredentials: true })
         .then(response => {
           // 예시: 헤더에 access token이 담겨 있다고 가정
           const accessToken = response.headers.access; // 또는 response.data.accessToken;
@@ -27,7 +27,6 @@ const OAuth2RedirectHandler = () => {
         });
 
       // URL에서 토큰 파라미터 제거 (replace 옵션으로 브라우저 기록에도 남지 않게 함)
-      navigate(location.pathname, { replace: true });
 
       // 인증 후 이동할 페이지로 리다이렉트 (예: 홈 페이지)
       navigate('/');

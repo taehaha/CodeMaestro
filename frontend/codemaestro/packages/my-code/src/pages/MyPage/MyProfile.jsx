@@ -12,7 +12,6 @@ import './MyProfile.css';
 const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
   const user = useSelector((state) => state.user.myInfo);
-  console.log(user);
   
   
   // 모달 상태
