@@ -20,6 +20,7 @@
 
 .text-content .highlight {
   color: #FFCC00;
+  font-family: 'NanumSquareAceb';
 }
 
 .text-content p {
@@ -33,6 +34,7 @@
   opacity: 0;  /* 기본적으로 투명 */
   transform: translateY(30px);  /* 아래쪽에서 시작 */
   transition: opacity 1s ease-out, transform 1s ease-out;
+  font-family: 'NanumSquareAceb';
 }
 
 .buttons.visible {

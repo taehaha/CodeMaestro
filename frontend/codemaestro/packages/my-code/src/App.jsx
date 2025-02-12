@@ -8,6 +8,7 @@ import MainPage from './pages/MainPage';
 import Contents from './components/Contents/Contents';
 import WaveComponent from './components/WaveComponent/WaveComponent';
 import MainSection from './components/MainSection/MainSection';
+import Footer from './components/Footer';
 
 // 페이지 컴포넌트
 import CreateMeetingPage from './pages/CreatMeeting/CreateMeetingPage';
@@ -73,6 +74,7 @@ function App() {
                 </Route>
               </Routes>
             </main>
+            <Footer/>
           </div> 
         </CommentsProvider>
        </PostsProvider>

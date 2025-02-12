@@ -280,7 +280,7 @@ const handleComplete = async (e) => {
                 회원 가입 시, 서비스 이용약관, 개인정보처리 방침에 동의하는 것으로 간주합니다.
                 </label>
               </div>
-              <button type="submit" className="signup-btn">회원가입</button>
+              <button type="submit" className="auth-signup-btn">회원가입</button>
               </div>
             </form>
           </div>
