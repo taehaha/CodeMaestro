@@ -12,6 +12,7 @@ import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -25,6 +26,7 @@ public class CommentService {
     private final NotificationService notificationService;
 
     // 게시글 별 댓글 조회
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByBoardId(long boardId) {
         List<Comment> comments = commentRepository.findByBoardId(boardId);
         List<CommentResponseDto> commentDtoList = new ArrayList<>();

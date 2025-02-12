@@ -70,6 +70,7 @@ public class GroupService {
     }
 
     // 전체 그룹 조회
+    @Transactional(readOnly = true)
     public List<GroupResponseDto> getAllGroups() {
         List<Group> groups = groupRepository.findAll();
 
@@ -83,6 +84,7 @@ public class GroupService {
     }
 
     // 개별 그룹 조회
+    @Transactional(readOnly = true)
     public List<GroupResponseDto> getUserGroups(Long userId) {
         List<GroupMember> groupMembers = groupMemberRepository.findByUserId(userId);
 
