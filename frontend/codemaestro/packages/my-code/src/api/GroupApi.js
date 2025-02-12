@@ -95,7 +95,7 @@ import UserAxios from "./userAxios";
     // 그룹 랭킹 조회
     export const GroupRankingList = async (payload) =>{
         try {
-            const result = await UserAxios.get(`/groups/conference/rankings`,
+            const result = await UserAxios.get(`/groups/rankings`,
                 {params:{year:payload.year,
                     month:payload.month,}}
             )

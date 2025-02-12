@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getFriendRequest } from '../api/FriendApi';
 import { getGroupRequest } from '../api/GroupApi';
+import { logoutUser } from './userSlice';
 // 비동기 thunk: 서버의 알림 목록을 가져옵니다.
 
 export const fetchRequests = async (userId) => {
@@ -79,7 +80,12 @@ const notificationsSlice = createSlice({
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        // logoutUser.fulfilled 액션 발생 시 알림 초기화
+        state.items = [];
       });
+
   }
 });
 
