@@ -245,7 +245,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
             const newCode = codeMatch[1].trim();
             updateCode(newCode);
             setMessages(prev => [
-              ...prev,
+              ...prev, // 현재 이 기능은 텍스트 커서 (캐럿) 이 튀는 관계로 봉인합니다.
               { sender: "bot", text: "코드가 에디터에 반영되었어요! 확인해봐요!", type: "text" },
             ]);
           } else {
