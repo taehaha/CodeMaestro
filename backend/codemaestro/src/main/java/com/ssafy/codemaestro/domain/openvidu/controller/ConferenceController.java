@@ -36,28 +36,15 @@ public class ConferenceController {
     public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto,
                                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        String conferenceId;
+        System.out.println(dto);
 
-        // groupId만 있는 경우
-        if (dto.getGroupId() != null && dto.getTitle() == null) {
-            conferenceId = conferenceService.initializeConference(
-                    currentUser,
-                    null,   // title
-                    null,   // description
-                    null,   // accessCode
-                    dto.getGroupId()
-            );
-        }
-        // 일반 회의로 처리
-        else {
-            conferenceId = conferenceService.initializeConference(
-                    currentUser,
-                    dto.getTitle(),
-                    dto.getDescription(),
-                    dto.getAccessCode(),
-                    null    // groupId
-            );
-        }
+        String conferenceId = conferenceService.initializeConference(
+                currentUser,
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getAccessCode(),
+                dto.getGroupId()
+        );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
 

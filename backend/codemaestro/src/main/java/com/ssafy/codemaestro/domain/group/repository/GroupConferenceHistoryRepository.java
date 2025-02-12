@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.group.repository;
 
 import com.ssafy.codemaestro.domain.group.dto.GroupRankingResponseDto;
+import com.ssafy.codemaestro.global.entity.Group;
 import com.ssafy.codemaestro.global.entity.GroupConferenceHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GroupConferenceHistoryRepository extends JpaRepository<GroupConferenceHistory, Long> {
@@ -38,4 +40,5 @@ public interface GroupConferenceHistoryRepository extends JpaRepository<GroupCon
     );
 
 
+    Optional<GroupConferenceHistory> findByGroupAndEndTimeIsNull(Group group);
 }

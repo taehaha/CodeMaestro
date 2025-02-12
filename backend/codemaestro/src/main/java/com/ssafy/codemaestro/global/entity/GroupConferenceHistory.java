@@ -23,14 +23,22 @@ public class GroupConferenceHistory {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conference_id")
-    private Conference conference;
+    // Conference 관련 정보
+    private String title;
+    private String description;
+    private String thumbnailUrl;
 
+    // 회의 진행자 정보
+    // Conference에서 User 타입으로 저장되어있음
+    private Long moderatorId;
+    private String moderatorName;
+
+    // 시간 관련 정보
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private int duration;
+    private int duration; // 총 진행 시간(분)
 
+    // 참여자 히스토리
     @OneToMany(mappedBy = "groupConferenceHistory", cascade = CascadeType.ALL)
     private List<GroupConferenceMemberHistory> memberHistories = new ArrayList<>();
 
@@ -43,5 +51,10 @@ public class GroupConferenceHistory {
     public void removeMemberHistory(GroupConferenceMemberHistory memberHistory) {
         this.memberHistories.remove(memberHistory);
         memberHistory.setGroupConferenceHistory(null);
+    }
+
+    public void setModerator(User moderator) {
+        this.moderatorId = moderator.getId();
+        this.moderatorName = moderator.getNickname();
     }
 }

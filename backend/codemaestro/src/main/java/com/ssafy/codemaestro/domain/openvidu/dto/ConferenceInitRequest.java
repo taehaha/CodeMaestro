@@ -10,4 +10,14 @@ public class ConferenceInitRequest {
     String description;
     String accessCode;
     Long groupId;
+
+    @Override
+    public String toString() {
+        return "ConferenceInitRequest{" +
+                "title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", accessCode='" + accessCode + '\'' +
+                ", groupId=" + groupId +
+                '}';
+    }
 }
