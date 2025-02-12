@@ -43,9 +43,7 @@ const EmailAuth = () => {
     } catch (error) {
       console.error(error);
       setMessage("이메일 전송 실패. 다시 시도해 주세요.");
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
   
   
