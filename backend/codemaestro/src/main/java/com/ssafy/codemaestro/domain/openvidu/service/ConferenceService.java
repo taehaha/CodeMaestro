@@ -1,5 +1,6 @@
 package com.ssafy.codemaestro.domain.openvidu.service;
 
+import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
@@ -7,10 +8,7 @@ import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.openvidu.vo.OpenviduSignalType;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
-import com.ssafy.codemaestro.global.entity.Conference;
-import com.ssafy.codemaestro.global.entity.Group;
-import com.ssafy.codemaestro.global.entity.User;
-import com.ssafy.codemaestro.global.entity.UserConference;
+import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import com.ssafy.codemaestro.global.exception.NotFoundException;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindConnectionException;
@@ -28,9 +26,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class ConferenceService {
     private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
     private final UserConferenceRepository userConferenceRepository;
+    private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
 
     private final OpenViduUtil openViduUtil;
     private final S3Util s3Util;
@@ -83,29 +86,55 @@ public class ConferenceService {
                 });
 
         Conference.ConferenceBuilder conferenceBuilder = Conference.builder();
+        Conference conference;
+
         // 그룹 회의인 경우
         if(groupId != null) {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new NotFoundException("Group not Found"));
 
-            conferenceBuilder.moderator(requestUser);
-            conferenceBuilder.title(group.getName());
-            conferenceBuilder.description(group.getName()+"의 회의입니다.");
-            conferenceBuilder.thumbnailUrl("https://picsum.photos/400/200");
-//            conferenceBuilder.accessCode();
-            conferenceBuilder.group(group);
+            // 회의 기본정보 설정
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E)", Locale.KOREAN);
+            String date = now.format(formatter);
+            String groupTitle = date + " " + group.getName() + " 회의";
+            String groupDescription = date + " " + group.getName() + "의 회의입니다.";
+
+            conferenceBuilder.moderator(requestUser)
+                             .title(groupTitle)
+                             .description(groupDescription)
+                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .group(group);
+
+            // Conference 저장
+            conference = conferenceBuilder.build();
+            conferenceRepository.save(conference);
+
+            // Group_Conference_History 저장
+            GroupConferenceHistory history = GroupConferenceHistory.builder()
+                    .group(group)
+                    .title(groupTitle)
+                    .description(groupDescription)
+                    .thumbnailUrl(conference.getThumbnailUrl())
+                    .moderatorId(requestUser.getId())
+                    .moderatorName(requestUser.getNickname())
+                    .startTime(now)
+                    .build();
+
+            groupConferenceHistoryRepository.save(history);
         }
+        // 일반 회의인 경우
         else {
-            conferenceBuilder.moderator(requestUser);
-            conferenceBuilder.title(title);
-            conferenceBuilder.description(description);
-            conferenceBuilder.thumbnailUrl("https://picsum.photos/400/200");
-            conferenceBuilder.accessCode(accessCode);
+            conferenceBuilder.moderator(requestUser)
+                             .title(title)
+                             .description(description)
+                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .accessCode(accessCode);
+
+            conference = conferenceBuilder.build();
+            conferenceRepository.save(conference);
         }
 
-        Conference conference = conferenceBuilder.build();
-        conferenceRepository.save(conference);
-    
         SessionProperties properties =
                 new SessionProperties.Builder()
                 .customSessionId(String.valueOf(conference.getId()))
