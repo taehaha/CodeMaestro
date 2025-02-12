@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<List<ConferenceInfoResponse>> getAllConferenceInfo() {
         List<Conference> conferenceList = conferenceService.getAllConferences();
 
@@ -102,6 +104,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("/{conferenceId}")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<ConferenceInfoResponse> conferenceInfo(@PathVariable String conferenceId) {
         Conference conference = conferenceService.getConference(conferenceId);
 
