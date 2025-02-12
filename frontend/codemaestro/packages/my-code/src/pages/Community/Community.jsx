@@ -1,3 +1,4 @@
+// Community.js
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PostsContext } from "../../context/PostsContext";
@@ -33,6 +34,11 @@ const Community = () => {
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 최신 게시글이 위에 오도록 filteredPosts를 날짜 기준 내림차순 정렬 (가정: created_at이 ISO 형식 문자열)
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
   return (
     <div className="community-container">
       <h1 className="community-title">커뮤니티</h1>
@@ -41,7 +47,9 @@ const Community = () => {
       </p>
 
       <div className="community-header">
-        <button className="create-post-btn" onClick={() => navigate("/boards/create")}>✏️ 작성하기</button>
+        <button className="create-post-btn" onClick={() => navigate("/boards/create")}>
+          ✏️ 작성하기
+        </button>
         <div className="search-bar">
           <input
             type="text"
@@ -55,25 +63,27 @@ const Community = () => {
       {loading ? (
         <p className="loading-message">게시글을 불러오는 중...</p>
       ) : (
-      <ul className="post-list">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => {
-            const commentCount = comments.filter((c) => c.board_id === post.id).length;
-            return (
-              <li key={post.id} className="post-item">
-                <Link to={`/boards/${post.boardId}`} className="post-title">{post.title}</Link>
-                <div className="post-meta">
-                  <span className="post-author">{post.author}</span> | 
-                  <span className="post-time">{post.created_at}</span>
-                </div>
-                <div className="post-comments">💬 {commentCount}개</div>
-              </li>
-            );
-          })
-        ) : (
-          <p className="no-results">검색 결과가 없습니다.</p>
-        )}
-      </ul>
+        <ul className="post-list">
+          {sortedPosts.length > 0 ? (
+            sortedPosts.map((post) => {
+              const commentCount = comments.filter((c) => c.board_id === post.id).length;
+              return (
+                <li key={post.id} className="post-item">
+                  <Link to={`/boards/${post.boardId}`} className="post-title">
+                    {post.title}
+                  </Link>
+                  <div className="post-meta">
+                    <span className="post-author">{post.writerNickname}</span> | 
+                    <span className="post-time">{post.createdAt.slice(0, 10)}</span>
+                  </div>
+                  <div className="post-comments">💬 {commentCount}개</div>
+                </li>
+              );
+            })
+          ) : (
+            <p className="no-results">검색 결과가 없습니다.</p>
+          )}
+        </ul>
       )}
     </div>
   );

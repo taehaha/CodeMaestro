@@ -26,8 +26,6 @@ const MyPage = () => {
         return <FriendsList user={user}/>;
       case "groups":
         return <MyGroupList />;
-      case "recordings":
-        return <RecordingsList />;
       default:
         return <MyProfile />;
     }

@@ -31,6 +31,8 @@ const PostDetail = () => {
       return;
     }
 
+
+
     const fetchPost = async () => {
       const validBoardId = Number(boardId);
       const fetchedPost = await getBoardDetail(validBoardId);
@@ -50,11 +52,16 @@ const PostDetail = () => {
     }
   }, [post]);
 
+
+
   if (!post) {
     return <h2>게시글을 불러오는 중...</h2>;
   }
 
   const isAuthor = post.writerId === CURRENT_USER_ID && CURRENT_USER_ID !== null;
+
+
+
   const handleDelete = async () => {
     if (!isAuthor) {
       alert("본인이 작성한 게시글만 삭제할 수 있습니다.");
@@ -128,7 +135,7 @@ const PostDetail = () => {
             <h1 className="post-title2">{post.title}</h1>
             <div className="post-header">
               <span className="post-author">{post.writerNickname}</span>
-              <span className="post-time">| {post.createdAt}</span>
+              <span className="post-time">| {post.createdAt.replace("T", " ").substring(0, 19)}</span>
             </div>
               <ReactMarkdown
                 className="post-content markdown-body"

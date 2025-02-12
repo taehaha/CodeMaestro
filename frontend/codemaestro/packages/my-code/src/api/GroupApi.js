@@ -100,7 +100,7 @@ import UserAxios from "./userAxios";
                     month:payload.month,}}
             )
 
-            return result
+            return result.data
         } catch (error) {
             console.error("그룹 랭킹 호출 중 오류 발생", error);
         }
