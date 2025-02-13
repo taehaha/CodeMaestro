@@ -255,6 +255,7 @@ const App: React.FC = () => {
       console.error("유효하지 않은 roomId입니다.");
       return;
     }
+    
     const conferenceId = parseInt(roomId, 10);
     const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
