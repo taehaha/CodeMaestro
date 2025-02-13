@@ -1,15 +1,27 @@
 import PropTypes from "prop-types";
-import dayjs from "dayjs";
 import { useState } from "react";
 import "./StudyHistoryCard.css"
-const StudyHistoryCard = ({ history, formatDuration }) => {
+import { useEffect } from "react";
+import { GetMemo, DeleteMemo } from "../../api/HistoyApi";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+
+const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
   
   const [isFlipped, setIsFlipped] = useState(false)
+  const [memo, setMemo] = useState(null)
 
   const toggleFlipped = () => {
     setIsFlipped((prev)=> !prev)
   }
 
+  useEffect(()=>{
+    const fetchMemo = async () => {
+        const res = await GetMemo(history.id)
+        setMemo(res || "")
+    }
+
+    fetchMemo()
+  },[history.id])
 
 
   return (
@@ -21,7 +33,7 @@ const StudyHistoryCard = ({ history, formatDuration }) => {
         <div className="front">
           <div className="card-body">
             <h3 className="card-title text-md font-medium mx-auto text-gray-800">
-              스터디 ID: {history.group_conference_history_id}
+              스터디 ID: {history.groupConferenceHistoryId}
             </h3>
             <hr className="font-extrabold"/>
             <p className="text-gray-600 text-sm">
@@ -34,12 +46,36 @@ const StudyHistoryCard = ({ history, formatDuration }) => {
 
         {/* 뒷면 */}
         <div className="back">
-          <div className="card-body">
-            <h3 className="text-md font-medium text-gray-800">스터디 메모</h3>
-            <p className="text-gray-600 text-sm">메모가 표시될 공간입니다.</p>
-          </div>
+        {!memo && (
+            <div className="card-body flex flex-col items-center justify-center gap-2 text-gray-600">
+                {/* 안내 아이콘 */}
+                <AiOutlineInfoCircle className="w-8 h-8 mb-1 text-gray-400" />
+                {/* 안내 문구 */}
+                <p className="text-sm">아직 메모가 작성되지 않았습니다.</p>
+                {/* 메모 작성 버튼 */}
+                <button
+                className="btn btn-primary rounded-sm"
+                onClick={(e) => {
+                    e.stopPropagation(); // 카드 뒤집기 방지용 (필요 시)
+                    toggleModal(history.id);
+                }}
+                >
+                메모 작성하기
+                </button>
+            </div>
+            )}
+
+        {memo && (
+            <div className="card-body flex flex-col items-center justify-center gap-2 text-gray-600">
+                {/* 메모 작성 버튼 */}
+                <p className="text-gray-600 text-sm">{memo.studyContent}</p>
+            </div>
+            )}
         </div>
       </div>
+      
+
+
     </div>
   );
 };
@@ -47,12 +83,13 @@ const StudyHistoryCard = ({ history, formatDuration }) => {
 StudyHistoryCard.propTypes = {
   history: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    group_conference_history_id: PropTypes.number.isRequired,
+    groupConferenceHistoryId: PropTypes.number.isRequired,
     joinTime: PropTypes.string,
     leaveTime: PropTypes.string,
     duration: PropTypes.number,
   }).isRequired,
   formatDuration:PropTypes.func,
+  toggleModal:PropTypes.func,
 };
 
 export default StudyHistoryCard;

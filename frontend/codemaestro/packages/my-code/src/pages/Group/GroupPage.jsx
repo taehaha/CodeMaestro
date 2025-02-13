@@ -9,7 +9,7 @@ import {LeaveGroup } from "../../api/GroupApi";
 import UserAxios from "../../api/userAxios";
 import DummyGroupMembersDemo from "./Dummy";
 import GroupManagement from "./GroupManagement";
-import GroupStudiesPage from "./GroupStudies";
+import GroupStudies from "./GroupStudies";
 
 const ROLE = {
   NONE: "NONE",
@@ -23,11 +23,11 @@ const GroupDetail = () => {
   const { groupId } = useParams();
 
   const [group, setGroup] = useState({});
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -141,18 +141,6 @@ const GroupDetail = () => {
     }
   };
 
-  // 관리자 전환 (테스트용)
-  const handleChangeToAdmin = () => {
-    setUserRole(ROLE.ADMIN);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-60">
-        <div className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
 
   // 날짜 포맷 (moment 사용 예시)
   const formattedDate = group?.createdAt
@@ -233,7 +221,9 @@ const GroupDetail = () => {
       )}
       {activeTab === "studies" && (
         <div className="text-center text-gray-700">
-          <GroupStudiesPage></GroupStudiesPage>
+          <GroupStudies
+          groupId={groupId}
+          ></GroupStudies>
         </div>
       )}
 

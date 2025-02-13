@@ -5,8 +5,8 @@ const tagValidation = Yup.string()
   .test("tag-split", "태그는 쉼표(,)로 구분해 최대 3개, 각 10자 이하로 입력해주세요.", (value) => {
     if (!value) return true; // 비어있다면 통과
     const tags = value.split(",").map((t) => t.trim());
-    if (tags.length > 3) return false; // 3개 초과
-    return tags.every((t) => t.length <= 10); // 각 태그 10자 이하
+    if (tags.length > 5) return false; // 3개 초과
+    return tags.every((t) => t.length <= 100); // 각 태그 10자 이하
   });
 
 export const CreateMeetingSchema = Yup.object().shape({

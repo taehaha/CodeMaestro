@@ -4,31 +4,60 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import { MdAccessTime } from "react-icons/md";
 import StudyHistoryCard from "./StudyHistoryCard";
+import MemoModal from "./MemoModal";
+import { CreateMemo, GetGroupHistory } from "../../api/HistoyApi";
+
 Chart.register(ArcElement, Tooltip, Legend);
 
-const GroupStudies = ({ conferenceHistory }) => {
-  // 전체 회의 수 vs 내 참석 횟수
-  const totalMeetings = 4;
-  const myAttendances = conferenceHistory.length;
+const GroupStudies = ({ groupId }) => {
+  // 1) 그룹 히스토리 상태
+  const [conferenceHistory, setConferenceHistory] = useState({
+    totalConfrences: 0,
+    participations: [],
+  });
 
-  // 출석률 애니메이션
+  // 2) groupId가 변할 때만 fetchHistory 실행
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const result = await GetGroupHistory(groupId);
+        // 서버 응답 형태 예시: { totalConfrences: number, participations: [] }
+        setConferenceHistory(result);
+      } catch (error) {
+        console.error("그룹 히스토리 불러오기 오류:", error);
+        setConferenceHistory({ totalConfrences: 0, participations: [] });
+      }
+    };
+
+    if (groupId) {
+      fetchHistory();
+    }
+  }, [groupId]); // <-- 여기서 conferenceHistory를 제거하고, groupId만 의존성으로
+
+  // 3) 출석률 계산
+  const totalMeetings = conferenceHistory.totalConfrences || 0;
+  const myAttendances = conferenceHistory.participations?.length || 0;
   const [attendanceRate, setAttendanceRate] = useState(0);
-  const targetRate = Math.round((myAttendances / totalMeetings) * 100);
+  const targetRate = totalMeetings > 0
+    ? Math.round((myAttendances / totalMeetings) * 100)
+    : 0;
 
+  // 4) 출석률 애니메이션
   useEffect(() => {
     let currentRate = 0;
     const interval = setInterval(() => {
-      currentRate += 1;
+      currentRate++;
       if (currentRate > targetRate) {
         clearInterval(interval);
       } else {
         setAttendanceRate(currentRate);
       }
     }, 25);
+
     return () => clearInterval(interval);
   }, [targetRate]);
 
-  // Doughnut 차트 데이터
+  // 5) 차트 데이터
   const data = {
     labels: ["출석", "결석"],
     datasets: [
@@ -40,7 +69,6 @@ const GroupStudies = ({ conferenceHistory }) => {
       },
     ],
   };
-
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -51,30 +79,56 @@ const GroupStudies = ({ conferenceHistory }) => {
     },
   };
 
-  // 누적 참여 시간 계산 (단위: 분)
-  const totalDuration = conferenceHistory.reduce((acc, record) => acc + (record.duration || 0), 0);
-  const  formatDuration= (seconds)=> {
-    if (seconds <= 0) return "0초";
-  
+  // 6) 누적 참여 시간 계산
+  const totalDuration = (conferenceHistory.participations || []).reduce(
+    (acc, record) => acc + (record.duration || 0),
+    0
+  );
+
+  const formatDuration = (seconds) => {
+    if (!seconds || seconds <= 0) return "0초";
     const hours = Math.floor(seconds / 3600);
     const remainder = seconds % 3600;
     const minutes = Math.floor(remainder / 60);
     const secs = remainder % 60;
-  
+
     let result = "";
     if (hours > 0) result += `${hours}시간 `;
     if (minutes > 0) result += `${minutes}분 `;
     if (secs > 0) result += `${secs}초`;
-  
     return result.trim();
-  }
+  };
+
   const totalStudyTime = formatDuration(totalDuration);
+
+  // 7) 메모 모달
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const toggleModal = (historyId) => {
+    setSelectedId(historyId);
+    setIsOpenModal((prev) => !prev);
+  };
+
+  // 8) 메모 작성 API
+  const handleCreateMemo = async (payload) => {
+    try {
+      await CreateMemo({
+        historyId: payload.historyId,
+        studyContent: payload.studyContent,
+      });
+      // 모달 닫고 새로고침
+      toggleModal(payload.historyId);
+      window.location.reload();
+    } catch (error) {
+      console.error("메모 생성 중 오류 발생:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 p-6 w-4xl">
-      {/* 왼쪽 섹션 (차트, 누적시간 카드) */}
+      {/* 왼쪽 섹션: 출석률, 누적 시간 */}
       <div className="flex flex-col gap-8 w-full lg:w-1/3 my-auto">
-        {/* 출석률 차트 */}
         <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
           <h2 className="text-lg font-semibold mb-4">내 출석률</h2>
           <div className="relative w-40 h-40">
@@ -85,8 +139,6 @@ const GroupStudies = ({ conferenceHistory }) => {
             </div>
           </div>
         </div>
-
-        {/* 누적 참여 시간 카드 */}
         <div className="p-4 bg-white shadow-md rounded-lg">
           <div className="flex items-center">
             <MdAccessTime className="w-6 h-6 text-blue-500 mr-2" />
@@ -99,78 +151,40 @@ const GroupStudies = ({ conferenceHistory }) => {
         </div>
       </div>
 
-      {/* 오른쪽 섹션 (회색 박스, 참여 기록) */}
-      <div
-        className="
-          flex-1
-          bg-gray-100 
-          rounded-sm 
-          shadow-lg 
-          p-6 
-          overflow-y-auto 
-          max-h-[600px]
-        "
-      >
+      {/* 오른쪽 섹션: 참여 기록 */}
+      <div className="flex-1 bg-gray-100 rounded-sm shadow-lg p-6 overflow-y-auto max-h-[600px]">
         <h2 className="text-lg font-semibold mb-4">최근 참여 스터디</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {conferenceHistory.length === 0 ? (
-            <p className="text-gray-500">참여 기록이 없습니다.</p>
-          ) : (
-            conferenceHistory.map((history) => (
-              <StudyHistoryCard key={history.id} history={history} formatDuration={formatDuration} />
+          {conferenceHistory.participations?.length > 0 ? (
+            conferenceHistory.participations.map((history) => (
+              <StudyHistoryCard
+                key={history.id}
+                history={history}
+                formatDuration={formatDuration}
+                // 여기서 함수를 넘겨야 합니다. 즉, 클릭 시 실행되도록 콜백을 전달
+                toggleModal={() => toggleModal(history.id)}
+              />
             ))
+          ) : (
+            <p className="text-gray-500">참여 기록이 없습니다.</p>
           )}
         </div>
       </div>
+
+      {/* 메모 모달 */}
+      {isOpenModal && (
+        <MemoModal
+          onCreate={handleCreateMemo}
+          onClose={() => setIsOpenModal(false)}
+          historyId={selectedId}
+        />
+      )}
     </div>
   );
 };
 
 GroupStudies.propTypes = {
-  conferenceHistory: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      group_conference_history_id: PropTypes.number.isRequired,
-      user_id: PropTypes.number.isRequired,
-      joinTime: PropTypes.string,
-      leaveTime: PropTypes.string,
-      duration: PropTypes.number,
-      createdAt: PropTypes.string.isRequired,
-    })
-  ).isRequired,
+  groupId: PropTypes.number,
 };
 
-// 테스트용 더미 데이터
-const dummyData = [
-  {
-    id: 1,
-    group_conference_history_id: 101,
-    user_id: 5,
-    joinTime: "2024-02-05T14:00:00",
-    leaveTime: "2024-02-05T15:30:00",
-    duration: 5200,
-    createdAt: "2024-02-05T14:00:00",
-  },
-  {
-    id: 2,
-    group_conference_history_id: 102,
-    user_id: 5,
-    joinTime: "2024-02-03T16:00:00",
-    leaveTime: "2024-02-03T17:00:00",
-    duration: 3600,
-    createdAt: "2024-02-03T16:00:00",
-  },
-  {
-    id: 3,
-    group_conference_history_id: 103,
-    user_id: 5,
-    joinTime: "2024-02-01T18:00:00",
-    leaveTime: "2024-02-01T19:30:00",
-    duration: 5400,
-    createdAt: "2024-02-01T18:00:00",
-  },
-];
-
-export default function GroupStudiesPage() {
-  return <GroupStudies conferenceHistory={dummyData} />;
-}
+export default GroupStudies;
