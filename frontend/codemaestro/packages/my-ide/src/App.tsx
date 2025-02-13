@@ -256,7 +256,7 @@ const App: React.FC = () => {
       return;
     }
     const conferenceId = parseInt(roomId, 10);
-    const HOST_URL = new URL("http://192.168.31.194:8080");
+    const HOST_URL = new URL(process.env.REACT_APP_OPENVIDU as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
     const client = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
@@ -264,6 +264,28 @@ const App: React.FC = () => {
     client.setMessageReceivedCallback((userId: number, nickname: string, message: string) => {
       setChatMessages((prev) => [...prev, { userId, nickname, message }]);
     });
+
+    // 유저 접속콜백 설정
+    client.setSubscriberAddedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) => [...prev, remoteStreamManager]);
+    });
+
+    // 유저 접속해제 콜백 설정
+    client.setSubscriberDeletedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) =>
+        prev.filter(item => item.remoteStreamManager !== remoteStreamManager));
+    });
+
+    // 스크린 접속됨 콜백 설정
+    client.setScreenAddedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(screenStreamManager);
+    });
+
+    // 스크린 접속해제 콜백 설정
+    client.setScreenDeletedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(null);
+    });
+
     client
       .initConnection(1234, true, true)
       .then(() => {
@@ -289,46 +311,43 @@ const App: React.FC = () => {
     }
   };
 
-  // 화면 공유 시작/종료 버튼 핸들러
   const handleToggleScreenShare = () => {
     if (!ovClient) return;
     if (!isScreenSharing) {
-      // 화면 공유 시작: publishMyScreen() 호출 후, 화면 공유 스트림을 state에 저장
-      ovClient.publishMyScreen();
-      // publishMyScreen() 호출 후, OpenviduClient에서 screenStream을 getter로 반환하도록 구현
-      const screenStream = ovClient.getScreenStream && ovClient.getScreenStream();
-      setScreenShareStreamManager(screenStream);
-      setIsScreenSharing(true);
+      try {
+        ovClient.publishMyScreen();
+        // 화면 공유 시작 후, 콜백(OnScreenAdded)이 호출되면
+        // 해당 콜백에서 setScreenShareStreamManager(screenStream)를 실행하게 됩니다.
+        setIsScreenSharing(true);
+      } catch (error) {
+        console.error("화면 공유 시작 실패:", error);
+      }
     } else {
-      // 화면 공유 종료
       ovClient.unpublishMyScreen();
       setScreenShareStreamManager(null);
       setIsScreenSharing(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 flex">
       {/* 왼쪽 영역 (채팅, 챗봇, 화면공유) */}
-      <div
-        style={{ width: leftWidth }}
-        className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom"
-      >
+      <div style={{ width: leftWidth }} className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
         <div className="border-b border-gray-300 dark:border-gray-700 transition-colors duration-300">
           <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chat")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chat"
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "chat"
                     ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
                     : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                }`}
               >
                 <img
                   src="/ide/img/talking.png"
                   alt="Chat"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"
-                    }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
                 />
                 채팅
               </button>
@@ -336,16 +355,16 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chatbot")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chatbot"
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "chatbot"
                     ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
                     : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                }`}
               >
                 <img
                   src="/ide/img/robot.png"
                   alt="Chatbot"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"
-                    }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
                 />
                 챗봇
               </button>
@@ -353,16 +372,16 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("screen_share")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "screen_share"
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "screen_share"
                     ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
                     : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                }`}
               >
                 <img
                   src="/ide/img/video.png"
                   alt="Screen Share"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"
-                    }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
                 />
                 화면공유
               </button>
@@ -372,7 +391,6 @@ const App: React.FC = () => {
         <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
           {currentLeftTab === "chat" && (
             <>
-              {/* 내 영상 영역 */}
               {publisherStreamManager ? (
                 <div className="mb-4">
                   <h3 className="text-lg font-bold mb-2">내 영상</h3>
@@ -381,30 +399,28 @@ const App: React.FC = () => {
               ) : (
                 <div>내 스트림이 설정되지 않았습니다.</div>
               )}
-              {/* 상대방들 영상 영역 */}
               <div className="h-[40vh] resize-y overflow-auto rounded scrollbar-thin-custom">
                 {remoteStreamManagers && remoteStreamManagers.length > 0 ? (
                   <VideoGrid
                     streamManagers={remoteStreamManagers}
                     currentUser={undefined}
-                    onSelectUser={(streamManager) => {
-                      // 사용자 선택 처리
-                    }}
+                    onSelectUser={(streamManager) => {}}
                   />
                 ) : (
                   <div>원격 스트림 관리자가 설정되지 않았습니다.</div>
                 )}
               </div>
-{/* 부모 컨테이너 높이를 60vh로 변경 */}
-<div className="h-[60vh] mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2">
-  <ChatComponent
-    onSendMessage={handleSendMessage}
-    messages={chatMessages}
-    currentUserId={1}
-    isDarkMode={isDarkMode}
-  />
-</div>
-
+              <div
+                className="mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2"
+                style={{ resize: "vertical", minHeight: "40vh", maxHeight: "80vh" }}
+              >
+                <ChatComponent
+                  onSendMessage={handleSendMessage}
+                  messages={chatMessages}
+                  currentUserId={1}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
             </>
           )}
           {currentLeftTab === "chatbot" && (
@@ -415,6 +431,12 @@ const App: React.FC = () => {
           {currentLeftTab === "screen_share" && (
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-2">
+                <button
+                  onClick={handleToggleScreenShare}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  {isScreenSharing ? "화면 공유 종료" : "화면 공유 시작"}
+                </button>
               </div>
               <div className="flex-grow bg-black rounded overflow-hidden">
                 {isScreenSharing && screenShareStreamManager ? (
@@ -430,19 +452,20 @@ const App: React.FC = () => {
         </div>
       </div>
       <div
-        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${isDragging
+        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${
+          isDragging
             ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
             : "bg-gradient-to-b from-gray-300 to-gray-400"
-          }`}
+        }`}
         style={{ height: "100vh" }}
         onMouseDown={() => setIsDragging(true)}
       >
         <div
-          className={`w-6 h-20 rounded-full shadow-md border-2 ${isDragging
+          className={`w-6 h-20 rounded-full shadow-md border-2 ${
+            isDragging
               ? "bg-yellow-500 border-yellow-700"
               : "bg-white border-gray-300 group-hover:border-blue-500"
-            } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"
-            }`}
+          } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"}`}
         ></div>
       </div>
       {/* 오른쪽 영역 (코드, 그림판) */}
@@ -452,16 +475,18 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("code")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "code"
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentRightTab === "code"
                     ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
                     : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                }`}
               >
                 <img
                   src="/ide/img/programming.png"
                   alt="Code"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "code" ? "opacity-100" : "opacity-50"
-                    }`}
+                  className={`w-6 h-6 me-2 ${
+                    currentRightTab === "code" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 코드
               </button>
@@ -476,16 +501,18 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("paint")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "paint"
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentRightTab === "paint"
                     ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
                     : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                }`}
               >
                 <img
                   src="/ide/img/palette.png"
                   alt="Paint"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "paint" ? "opacity-100" : "opacity-50"
-                    }`}
+                  className={`w-6 h-6 me-2 ${
+                    currentRightTab === "paint" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 그림판
               </button>

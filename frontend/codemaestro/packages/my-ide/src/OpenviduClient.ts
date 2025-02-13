@@ -41,7 +41,7 @@ class OpenviduClient {
   private OnScreenAdded: ScreenCallback = () => {};
   private OnScreenDeleted: ScreenCallback = () => {};
 
-  // 각 구독자의 video element를 저장하는 Map (Subscriber를 키로 사용)
+  // 각 구독자의 video element를 저장하는 Map (필요 시 React 컴포넌트에서 활용할 수 있도록)
   private subscriberVideoElements: Map<Subscriber, HTMLVideoElement> = new Map();
 
   /**
@@ -73,16 +73,15 @@ class OpenviduClient {
       // 일반 카메라 스트림의 경우 (typeOfVideo가 없거나 "CAMERA")
       if (stream.typeOfVideo === "CAMERA" || !stream.typeOfVideo) {
         const subscriber = this.session.subscribe(stream, undefined) as Subscriber;
-        // video element 생성 시 DOM에 추가하고 Map에 저장
+        // video element 생성 시 React 컴포넌트에서 활용할 수 있도록 처리
         subscriber.on("videoElementCreated", (evt) => {
           const videoElem = evt.element as HTMLVideoElement;
-          const container = document.getElementById("remote-video-container");
-          if (container) {
-            container.appendChild(videoElem);
-          }
+          // DOM 직접 조작 대신 videoElem을 내부 Map에 저장
           this.subscriberVideoElements.set(subscriber, videoElem);
+          // 필요하다면 여기서 추가 콜백 호출(예: this.OnSubscriberAdded(subscriber))를 할 수 있음
         });
         this.subscribers.push(subscriber);
+        // 콜백을 통해 React 컴포넌트에 subscriber 객체 전달
         this.OnSubscriberAdded(subscriber);
       }
     });
@@ -96,10 +95,6 @@ class OpenviduClient {
         const subscriber = this.subscribers[index];
         this.subscribers.splice(index, 1);
         this.OnSubscriberDeleted(subscriber);
-        const videoElem = this.subscriberVideoElements.get(subscriber);
-        if (videoElem && videoElem.parentNode) {
-          videoElem.parentNode.removeChild(videoElem);
-        }
         this.subscriberVideoElements.delete(subscriber);
       }
     });
@@ -205,10 +200,7 @@ class OpenviduClient {
           const subscriber = this.session.subscribe(manager.stream, undefined) as Subscriber;
           subscriber.on("videoElementCreated", (evt) => {
             const videoElem = evt.element as HTMLVideoElement;
-            const container = document.getElementById("remote-video-container");
-            if (container) {
-              container.appendChild(videoElem);
-            }
+            // DOM 조작 없이 내부 Map에 저장 (React 컴포넌트에서 subscriber 정보를 활용)
             this.subscriberVideoElements.set(subscriber, videoElem);
           });
           this.subscribers.push(subscriber);
@@ -383,7 +375,7 @@ class OpenviduClient {
   publishMyScreen(): void {
     console.log("내 스크린 공유 시작");
     if (!this.localScreenPublisher) {
-      // 로컬 화면 공유 publisher 생성 (DOM element는 undefined로 전달하면 OpenVidu가 기본 preview 생성)
+      // 로컬 화면 공유 publisher 생성 (DOM element를 직접 지정하지 않음)
       const publisher = this.OVScreen.initPublisher(undefined, {
         videoSource: "screen",
         publishVideo: true,
@@ -391,7 +383,6 @@ class OpenviduClient {
       });
       this.localScreenPublisher = publisher;
 
-      // publish 호출 시, Publisher 타입의 인자를 요구하므로 캐스팅
       this.screenShareSession
         .publish(publisher)
         .then(() => {

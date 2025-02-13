@@ -19,8 +19,8 @@ const OpenBidooComponent: React.FC<OpenBidooComponentProps> = ({ streamManager }
   const clientData = useMemo(() => {
     if (!streamManager?.stream?.connection) return null;
     try {
-      const data = JSON.parse(streamManager.stream.connection.data);
-      return data.clientData;
+      const jsonStringData = streamManager.stream.connection.data;
+      return !jsonStringData ? null : JSON.parse(streamManager.stream.connection.data).clientData
     } catch (error) {
       console.error("Connection data 파싱 오류:", error);
       return null;

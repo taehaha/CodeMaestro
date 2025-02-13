@@ -64,7 +64,7 @@ const PaintBoard: React.FC = () => {
 
   // Yjs 문서, WebSocket Provider, 공유 배열, UndoManager 생성
   const [wsProvider] = useState(
-    () => new WebsocketProvider('ws://192.168.31.193:3001', roomId, ydoc)
+    () => new WebsocketProvider(process.env.REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL as string, roomId, ydoc)
   );
   const [yShapes] = useState(() => ydoc.getArray<Shape>('shapes'));
   const awareness = wsProvider.awareness;
