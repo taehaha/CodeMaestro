@@ -98,7 +98,7 @@ public class UserService {
 
         // nickname이 없으면 전체 목록 반환
         if(nickname == null || nickname.trim().isEmpty()) {
-            users = userRepository.findByIdNot(currentUserId);
+            return new ArrayList<>();
         } else {
             users = userRepository.findByNicknameContainingAndIdNot(nickname.trim(), currentUserId);
         }

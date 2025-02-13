@@ -143,7 +143,81 @@ public class AuthService {
         String pin = generateRandomString(6, "0123456789");
 
         String content =
-                "<h1>이메일 인증</h1><h4>인증번호 : " + pin + "</h4>";
+                "<!DOCTYPE html>" +
+                        "<html>" +
+                        "<head>" +
+                        "    <meta charset=\"UTF-8\">" +
+                        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+                        "    <title>Code Maestro 이메일 인증</title>" +
+                        "    <style>" +
+                        "        .container {" +
+                        "            max-width: 600px;" +
+                        "            margin: 0 auto;" +
+                        "            padding: 20px;" +
+                        "            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif;" +
+                        "        }" +
+                        "        .header {" +
+                        "            text-align: center;" +
+                        "            padding: 20px 0;" +
+                        "        }" +
+                        "        .logo {" +
+                        "            font-size: 24px;" +
+                        "            font-weight: bold;" +
+                        "            color: #333;" +
+                        "        }" +
+                        "        .content {" +
+                        "            background-color: #ffffff;" +
+                        "            padding: 30px;" +
+                        "            border-radius: 8px;" +
+                        "            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" +
+                        "        }" +
+                        "        .verification-code {" +
+                        "            text-align: center;" +
+                        "            padding: 20px;" +
+                        "            margin: 20px 0;" +
+                        "            background-color: #f8f9fa;" +
+                        "            border-radius: 4px;" +
+                        "            font-size: 32px;" +
+                        "            font-weight: bold;" +
+                        "            letter-spacing: 4px;" +
+                        "            color: #333;" +
+                        "        }" +
+                        "        .message {" +
+                        "            color: #666;" +
+                        "            line-height: 1.6;" +
+                        "            margin-bottom: 20px;" +
+                        "        }" +
+                        "        .footer {" +
+                        "            text-align: center;" +
+                        "            margin-top: 20px;" +
+                        "            color: #999;" +
+                        "            font-size: 12px;" +
+                        "        }" +
+                        "    </style>" +
+                        "</head>" +
+                        "<body style=\"margin: 0; padding: 0; background-color: #f4f4f4;\">" +
+                        "    <div class=\"container\">" +
+                        "        <div class=\"header\">" +
+                        "            <div class=\"logo\">Code Maestro</div>" +
+                        "        </div>" +
+                        "        <div class=\"content\">" +
+                        "            <p class=\"message\">안녕하세요,<br>" +
+                        "            Code Maestro 서비스 이메일 인증을 위한 인증 코드입니다.</p>" +
+                        "            <div class=\"verification-code\">" +
+                        pin +
+                        "            </div>" +
+                        "            <p class=\"message\">" +
+                        "                인증 코드는 30분 동안 유효합니다.<br>" +
+                        "                본인이 요청하지 않은 경우 이 메일을 무시하셔도 됩니다." +
+                        "            </p>" +
+                        "        </div>" +
+                        "        <div class=\"footer\">" +
+                        "            본 메일은 발신전용이며 회신되지 않습니다.<br>" +
+                        "            ⓒ 2024 Code Maestro. All rights reserved." +
+                        "        </div>" +
+                        "    </div>" +
+                        "</body>" +
+                        "</html>";
 
         VerifyEmailEntity entity = VerifyEmailEntity.builder()
                 .email(email)
