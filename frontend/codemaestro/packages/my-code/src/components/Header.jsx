@@ -17,6 +17,7 @@ function Header() {
   const bellButtonRef = useRef(null);
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const userId = useSelector((state) => state.user.myInfo?.userId);
  
   useEffect(() => {

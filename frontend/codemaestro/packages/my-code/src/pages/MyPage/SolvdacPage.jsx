@@ -56,7 +56,7 @@ const SolvedacModal = ({ open, onClose }) => {
       }).then((result) => {
         if (result.isConfirmed) {
           onClose();
-          await dispatch(getMyInfo());
+          dispatch(getMyInfo());
           window.location.reload();
         }
       });
