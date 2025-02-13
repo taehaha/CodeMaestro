@@ -33,12 +33,10 @@ const CreateMeetingForm = () => {
       const payload = {
         title: values.title,
         description: values.description || "",
-        // 태그는 콤마로 합쳐서 보낼 수도 있습니다. (백엔드 요구사항에 맞게 처리)
-        // 예) tags: values.tags.join(","), 
-        // 공개 여부
-        // visible: values.isVisible,
-        // 비밀방 => password (없으면 null)
+        tags:values.tags, 
         accessCode: values.isPrivate ? values.entry_password : null,
+        thumbnail:values.thumbnail,
+        // visible: values.isVisible,
       };
 
       // 3) 방 생성 API
@@ -163,11 +161,11 @@ const CreateMeetingForm = () => {
             if (!trimTag) return;
 
             // 간단한 유효성 검사 (최대 3개, 중복, 길이 등)
-            if (values.tags.length >= 3) {
+            if (values.tags.length >= 5) {
               MySwal.fire("에러", "태그는 최대 5개까지 추가할 수 있습니다.", "error");
               return;
             }
-            if (trimTag.length > 10) {
+            if (trimTag.length > 100) {
               MySwal.fire("에러", "태그는 최대 100자까지 가능합니다.", "error");
               return;
             }
@@ -259,11 +257,11 @@ const CreateMeetingForm = () => {
                 )}
 
                 {/* 실제로 추가된 태그들 표시 */}
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-row flex-wrap gap-2 mt-2 max-w-lg">
                   {values.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-2 py-1 bg-gray-200 rounded"
+                      className="flex items-center px-2 py-1 bg-gray-200 rounded"
                     >
                       {tag}
                       <button

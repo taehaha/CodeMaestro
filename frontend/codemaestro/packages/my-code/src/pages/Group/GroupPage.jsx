@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import {LeaveGroup } from "../../api/GroupApi";
+import {getGroupStric, LeaveGroup } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
 import DummyGroupMembersDemo from "./Dummy";
@@ -23,12 +23,18 @@ const GroupDetail = () => {
   const { groupId } = useParams();
 
   const [group, setGroup] = useState({});
-  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
   const [isModalOpen, setIsModalOpen] = useState(false);  
+  useEffect( ()=>{
+    const result = getGroupStric(groupId)
+    console.log(result);
+    
+  },[groupId])
   useEffect(() => {
+    console.log(1);
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -36,11 +42,8 @@ const GroupDetail = () => {
         // 그룹 정보 설정        
         setGroup(result.data);
         //더미로
-
-
         // 내 역할 설정
           const member = result.data.members.find(member => member.userId === user.userId);
-          
           if (member) {
             setUserRole(member.role);
           } else {
@@ -56,6 +59,32 @@ const GroupDetail = () => {
     };
     fetchData();
   }, [groupId]);
+
+
+  useEffect(() => {
+    const fetchGroup = async () => {
+      try {
+        setLoading(true);
+        const { data } = await UserAxios.get(`/groups/${groupId}/detail`);
+        setGroup(data);
+      } catch (err) {
+        console.error("그룹 상세 조회 에러:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroup();
+  }, [groupId]);
+
+  // 로딩 중이면 아직 group.members를 접근할 수 없음
+  if (loading) {
+    return <div>로딩중...</div>;
+  }
+
+  // group이 없거나 group.members가 없으면 UI 표시 X
+  if (!group || !group.members) {
+    return <div>그룹 정보가 없습니다.</div>;
+  }
 
 
   // 가입 신청
@@ -203,7 +232,7 @@ const GroupDetail = () => {
             activeTab === "members" ? "tab-active border-blue-500 text-blue-500" : ""
           }`}
         >
-          Members
+          그룹 멤버
         </button>
         <button
           onClick={() => setActiveTab("studies")}
@@ -211,8 +240,9 @@ const GroupDetail = () => {
             activeTab === "studies" ? "tab-active border-blue-500 text-blue-500" : ""
           }`}
         >
-          Studies
+          스터디 기록
         </button>
+        
       </div>
 
       {/* --------- 탭 컨텐츠 영역 --------- */}

@@ -70,7 +70,7 @@ export const NotificationsProvider = ({ children }) => {
         message = parsedData.title || "새로운 댓글이 달렸습니다.";
       }
       else {
-        message = parsedData.message || "새로운 초대 알림이 도착했습니다.";
+        message = parsedData.message || "새로운 알림이 도착했습니다.";
       }
 
       // API를 호출해 전체 알림 목록을 Redux 저장소에 업데이트합니다.
@@ -78,7 +78,7 @@ export const NotificationsProvider = ({ children }) => {
       
       // 토스트 알림 표시
       toast.info(message, {
-        position: toast.POSITION.BOTTOM_RIGHT,
+        position:"bottom-right",
         autoClose: 5000,
       });
     });
