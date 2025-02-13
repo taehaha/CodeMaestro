@@ -1,12 +1,27 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useTable } from "react-table";
-import Swal from "sweetalert2";
+import Swal from "sweetalert2"; 
+import { getGroupStric } from "../../api/GroupApi";
+
+
 
 /**
  * @param {Array} members    - 그룹 멤버 배열 (예: [{ userId, name, profileUrl, role }, ...])
  * @param {string} userRole  - 현재 로그인 유저의 그룹 내 역할 (ADMIN, MEMBER 등)
  */
-function GroupTable({ members, userRole }) {
+function GroupTable({ members, userRole, groupId }) {
+
+
+  useEffect( ()=>{
+    const fetchStric = async () => {
+      const result = await getGroupStric(groupId)
+      console.log(result);
+    }
+    
+    fetchStric()
+  },[groupId])
+
+
   const isAdmin = userRole === "OWNER";
 
   // 유저 탈퇴 버튼 클릭 시 (실제 프로젝트에서는 API 호출)

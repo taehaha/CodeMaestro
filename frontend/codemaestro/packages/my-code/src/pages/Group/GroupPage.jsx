@@ -7,9 +7,10 @@ import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
 import {getGroupStric, LeaveGroup } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
-import DummyGroupMembersDemo from "./Dummy";
 import GroupManagement from "./GroupManagement";
 import GroupStudies from "./GroupStudies";
+import LoadAnimation from "../../components/LoadAnimation";
+import GroupTable from "./GroupTable"
 
 const ROLE = {
   NONE: "NONE",
@@ -27,14 +28,8 @@ const GroupDetail = () => {
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
   const [isModalOpen, setIsModalOpen] = useState(false);  
-  useEffect( ()=>{
-    const result = getGroupStric(groupId)
-    console.log(result);
-    
-  },[groupId])
+
   useEffect(() => {
-    console.log(1);
-    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -58,7 +53,7 @@ const GroupDetail = () => {
       }
     };
     fetchData();
-  }, [groupId]);
+  }, [groupId])
 
 
   useEffect(() => {
@@ -78,7 +73,7 @@ const GroupDetail = () => {
 
   // 로딩 중이면 아직 group.members를 접근할 수 없음
   if (loading) {
-    return <div>로딩중...</div>;
+    return <LoadAnimation />;
   }
 
   // group이 없거나 group.members가 없으면 UI 표시 X
@@ -247,7 +242,7 @@ const GroupDetail = () => {
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       {activeTab === "members" && (
-        <DummyGroupMembersDemo userRole={userRole} members={group.members} />
+        <GroupTable members={group.members} userRole={userRole} groupId={groupId}/>
       )}
       {activeTab === "studies" && (
         <div className="text-center text-gray-700">
