@@ -256,7 +256,7 @@ const App: React.FC = () => {
       return;
     }
     const conferenceId = parseInt(roomId, 10);
-    const HOST_URL = new URL(process.env.REACT_APP_OPENVIDU as string);
+    const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
     const client = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
