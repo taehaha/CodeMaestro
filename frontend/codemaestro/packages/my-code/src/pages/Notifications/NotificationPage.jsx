@@ -24,6 +24,16 @@ const NotificationModal = ({ onClose }) => {
       Swal.fire({
         title: "요청 수락",
         text: "초대받은 회의실로 이동합니다",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       }).then(() => {
         navigate(`/meeting/${notification.conferenceId}`);
       });
@@ -92,13 +102,13 @@ const NotificationModal = ({ onClose }) => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  className="px-3 py-1 bg-blue-500 text-white rounded-sm hover:bg-blue-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-[#FFCC00] text-white rounded-sm hover:bg-[#ffbb00] transition-colors duration-200"
                   onClick={() => handleAccept(notification)}
                 >
                   수락
                 </button>
                 <button
-                  className="px-3 py-1 bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-[#DB4D4D] text-white rounded-sm hover:bg-red-600 transition-colors duration-200"
                   onClick={() => handleReject(notification)}
                 >
                   거절

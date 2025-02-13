@@ -13,7 +13,7 @@
 .comment-section-title {
   font-size: 15px;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .comment-list {
@@ -38,7 +38,7 @@
 .comment-time {
   font-size: 12px;
   color: gray;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .comment-content {
@@ -55,7 +55,7 @@
 
 .comment-input {
   flex-grow: 1;
-  padding: 20px;
+  padding: 12px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
@@ -63,8 +63,9 @@
 
 .comment-button {
   padding: 6px 12px;
-  background-color: #007bff;
-  color: white;
+  background-color: #ffcc00;
+  color: #182235;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -73,31 +74,16 @@
 }
 
 .comment-button:hover {
-  background-color: #0056b3;
+  background-color: #f0c000;
 }
 
-.comment-edit-btn,
-.comment-delete-btn,
-.comment-save-btn {
-  margin-left: 5px;
+.comment-delete-btn {
+  /* margin-left: 5px; */
   padding: 2px 6px;
   font-size: 12px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-.comment-edit-btn {
-  background-color: #ddd;
-  color: black;
-}
-
-.comment-delete-btn {
   background-color: #ddd;
   color: rgb(0, 0, 0);
-}
-
-.comment-save-btn {
-  background-color: #28a745;
-  color: white;
 }

@@ -289,7 +289,7 @@ const Editor: React.FC<EditorProps> = ({
 
   // inlineCopilot 등록 (AI 자동완성)
   inlineCopilot(async (prefix, suffix) => {
-    const response = await fetch("http://localhost:3001/api/chat", {
+    const response = await fetch(process.env.REACT_APP_CONCURRENCY_BACKEND_URL + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -306,7 +306,7 @@ const Editor: React.FC<EditorProps> = ({
     try {
       setIsAnalyzing(true);
       console.log("코드 분석 요청:", code);
-      const response = await fetch("http://localhost:3001/api/analyze", {
+      const response = await fetch(process.env.REACT_APP_CONCURRENCY_BACKEND_URL + "/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language: selectedLanguage }),
@@ -391,9 +391,10 @@ const Editor: React.FC<EditorProps> = ({
   );
 };
 
-/* CollaborativeEditor 컴포넌트 (동시 편집 및 collab) */
+// CollaborativeEditor 컴포넌트 (동시 편집 및 collab) 
 
 const CollaborativeEditor = React.memo((props: any) => {
+
   const [ydoc] = useState(new Y.Doc());
   const ytext = useMemo(() => ydoc.getText("codemirror"), [ydoc]);
   const editorViewRef = useRef<EditorView | null>(null);
@@ -456,7 +457,7 @@ const CollaborativeEditor = React.memo((props: any) => {
 
       // WebsocketProvider 생성 
       const wsProvider = new WebsocketProvider(
-        "ws://localhost:3001",
+        process.env.REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL as string,
         roomName,
         ydoc
       );
@@ -472,7 +473,7 @@ const CollaborativeEditor = React.memo((props: any) => {
       // AI 자동완성을 위한 함수 (inlineCopilot에 사용)
       const aiCompletion = async (prefix: string, suffix: string) => {
         try {
-          const response = await fetch("http://localhost:3001/api/chat", {
+          const response = await fetch(process.env.REACT_APP_CONCURRENCY_BACKEND_URL + "/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

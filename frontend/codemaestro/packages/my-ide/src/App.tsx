@@ -17,6 +17,7 @@ import tokenStorage from "my-code/src/utils/tokenstorage";
 import OpenBidooComponent from "./components/OpenBidooComponent";
 import VideoControls from "./components/VideoControls";
 import VideoGrid from "./components/VideoGrid";
+import ScreenShareComponent from "./components/ScreenShareComponent";
 
 const languages: Language[] = [
   { name: "Python", id: 71 },
@@ -32,6 +33,8 @@ const App: React.FC = () => {
   const [currentRightTab, setCurrentRightTab] = useState<"code" | "paint">("code");
   const [leftWidth, setLeftWidth] = useState<number>(400);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+  const [screenShareStreamManager, setScreenShareStreamManager] = useState<any>(null);
 
   // 코드 관련 상태
   const [code, setCode] = useState<string>("");
@@ -121,17 +124,20 @@ const App: React.FC = () => {
     setOutput("");
     setExecTime(null);
     setExecMemory(null);
+
     try {
+      // Base64 인코딩 처리
       const encodedCode = Base64.encode(code);
       const encodedInput = Base64.encode(input);
+
+      // Judge0 제출 요청 (Docker 배포 인스턴스 사용)
       const response = await fetch(
-        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true",
+        "https://judge0.codemaestro.site/submissions?base64_encoded=true",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": process.env.REACT_APP_RAPIDAPI_KEY || "",
-            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+            "Content-Type": "application/json"
+            // 필요한 경우 인증 헤더 추가 가능 (예: API 키 등)
           },
           body: JSON.stringify({
             source_code: encodedCode,
@@ -140,21 +146,19 @@ const App: React.FC = () => {
           }),
         }
       );
+
       const { token } = await response.json();
       if (!token) throw new Error("Execution token not received.");
+
       let retries = 6;
       while (retries > 0) {
         const statusResponse = await fetch(
-          `https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=true&fields=stdout,stderr,time,memory,status,compile_output`,
-          {
-            headers: {
-              "X-RapidAPI-Key": process.env.REACT_APP_RAPIDAPI_KEY || "",
-              "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-            },
-          }
+          `https://judge0.codemaestro.site/submissions/${token}?base64_encoded=true&fields=stdout,stderr,time,memory,status,compile_output`
         );
         const result = await statusResponse.json();
         console.log("Judge0 result:", result);
+
+        // 실행 성공 (status.id === 3)
         if (result.status.id === 3) {
           const decodedStdout = result.stdout ? Base64.decode(result.stdout) : "";
           const decodedStderr = result.stderr ? Base64.decode(result.stderr) : "";
@@ -168,21 +172,28 @@ const App: React.FC = () => {
             if (!isNaN(memVal)) setExecMemory(memVal);
           }
           break;
-        } else if (result.status.id === 7) {
+        }
+        // 런타임 에러 (status.id === 7)
+        else if (result.status.id === 7) {
           const errOutput = result.stderr ? Base64.decode(result.stderr) : "Unknown runtime error.";
           setOutput(`Runtime Error:\n${errOutput}`);
           break;
-        } else if (result.status.id === 6) {
+        }
+        // 컴파일 에러 (status.id === 6)
+        else if (result.status.id === 6) {
           const compileError = result.compile_output ? Base64.decode(result.compile_output) : "Unknown compilation error.";
           setOutput(`Compilation Error:\n${compileError}`);
           break;
-        } else if (result.status.id === 11) {
+        }
+        // 기타 에러 (status.id === 11)
+        else if (result.status.id === 11) {
           const errorOutput = result.stderr ? Base64.decode(result.stderr) : "Unknown error.";
           setOutput(`Error:\n${errorOutput}`);
           break;
         }
+
         retries--;
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1초 대기
       }
     } catch (error) {
       setOutput(`Execution error: ${(error as Error).message}`);
@@ -238,22 +249,46 @@ const App: React.FC = () => {
   // Openvidu 연결: 쿼리 파라미터 roomId를 사용하여 연결
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const roomId = searchParams.get('roomId');
+    const roomId = searchParams.get("roomId");
     console.log("쿼리 파라미터에서 가져온 roomId:", roomId);
     if (!roomId || isNaN(Number(roomId))) {
       console.error("유효하지 않은 roomId입니다.");
       return;
     }
+    
     const conferenceId = parseInt(roomId, 10);
-    const HOST_URL = new URL("http://192.168.31.194:8080");
+    const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
     const client = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
     // 채팅 메시지 수신 콜백 설정
     client.setMessageReceivedCallback((userId: number, nickname: string, message: string) => {
-      setChatMessages(prev => [...prev, { userId, nickname, message }]);
+      setChatMessages((prev) => [...prev, { userId, nickname, message }]);
     });
-    client.initConnection(1234, true, true)
+
+    // 유저 접속콜백 설정
+    client.setSubscriberAddedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) => [...prev, remoteStreamManager]);
+    });
+
+    // 유저 접속해제 콜백 설정
+    client.setSubscriberDeletedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) =>
+        prev.filter(item => item.remoteStreamManager !== remoteStreamManager));
+    });
+
+    // 스크린 접속됨 콜백 설정
+    client.setScreenAddedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(screenStreamManager);
+    });
+
+    // 스크린 접속해제 콜백 설정
+    client.setScreenDeletedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(null);
+    });
+
+    client
+      .initConnection(1234, true, true)
       .then(() => {
         // 내 퍼블리셔 스트림 저장
         const publisher = client.getMyPublisher();
@@ -276,13 +311,29 @@ const App: React.FC = () => {
       ovClient.sendMessage(message);
     }
   };
+
+  const handleToggleScreenShare = () => {
+    if (!ovClient) return;
+    if (!isScreenSharing) {
+      try {
+        ovClient.publishMyScreen();
+        // 화면 공유 시작 후, 콜백(OnScreenAdded)이 호출되면
+        // 해당 콜백에서 setScreenShareStreamManager(screenStream)를 실행하게 됩니다.
+        setIsScreenSharing(true);
+      } catch (error) {
+        console.error("화면 공유 시작 실패:", error);
+      }
+    } else {
+      ovClient.unpublishMyScreen();
+      setScreenShareStreamManager(null);
+      setIsScreenSharing(false);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 flex">
       {/* 왼쪽 영역 (채팅, 챗봇, 화면공유) */}
-      <div
-        style={{ width: leftWidth }}
-        className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom"
-      >
+      <div style={{ width: leftWidth }} className="flex flex-col bg-gray-100 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
         <div className="border-b border-gray-300 dark:border-gray-700 transition-colors duration-300">
           <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
             <li className="flex-1">
@@ -297,9 +348,7 @@ const App: React.FC = () => {
                 <img
                   src="/ide/img/talking.png"
                   alt="Chat"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "chat" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
                 />
                 채팅
               </button>
@@ -316,9 +365,7 @@ const App: React.FC = () => {
                 <img
                   src="/ide/img/robot.png"
                   alt="Chatbot"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
                 />
                 챗봇
               </button>
@@ -335,9 +382,7 @@ const App: React.FC = () => {
                 <img
                   src="/ide/img/video.png"
                   alt="Screen Share"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
                 />
                 화면공유
               </button>
@@ -347,7 +392,6 @@ const App: React.FC = () => {
         <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
           {currentLeftTab === "chat" && (
             <>
-              {/* 내 영상 영역 */}
               {publisherStreamManager ? (
                 <div className="mb-4">
                   <h3 className="text-lg font-bold mb-2">내 영상</h3>
@@ -356,25 +400,26 @@ const App: React.FC = () => {
               ) : (
                 <div>내 스트림이 설정되지 않았습니다.</div>
               )}
-              {/* 상대방들 영상 영역 */}
               <div className="h-[40vh] resize-y overflow-auto rounded scrollbar-thin-custom">
                 {remoteStreamManagers && remoteStreamManagers.length > 0 ? (
                   <VideoGrid
                     streamManagers={remoteStreamManagers}
                     currentUser={undefined}
-                    onSelectUser={(streamManager) => {
-                      // 사용자 선택 처리
-                    }}
+                    onSelectUser={(streamManager) => {}}
                   />
                 ) : (
                   <div>원격 스트림 관리자가 설정되지 않았습니다.</div>
                 )}
               </div>
-              {/* 채팅 영역 */}
-              <div className="h-[40vh] mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2">
+              <div
+                className="mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2"
+                style={{ resize: "vertical", minHeight: "40vh", maxHeight: "80vh" }}
+              >
                 <ChatComponent
                   onSendMessage={handleSendMessage}
-                  messages={chatMessages} currentUserId={1}        
+                  messages={chatMessages}
+                  currentUserId={1}
+                  isDarkMode={isDarkMode}
                 />
               </div>
             </>
@@ -384,7 +429,27 @@ const App: React.FC = () => {
               <ChatBot currentCode={code} updateCode={setCode} />
             </div>
           )}
-          {currentLeftTab === "screen_share" && <div>제작중</div>}
+          {currentLeftTab === "screen_share" && (
+            <div className="h-full flex flex-col">
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  onClick={handleToggleScreenShare}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  {isScreenSharing ? "화면 공유 종료" : "화면 공유 시작"}
+                </button>
+              </div>
+              <div className="flex-grow bg-black rounded overflow-hidden">
+                {isScreenSharing && screenShareStreamManager ? (
+                  <ScreenShareComponent streamManager={screenShareStreamManager} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-white">
+                    {isScreenSharing ? "화면 공유 스트림 로딩 중..." : "화면 공유가 활성화되지 않았습니다."}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div
@@ -401,9 +466,7 @@ const App: React.FC = () => {
             isDragging
               ? "bg-yellow-500 border-yellow-700"
               : "bg-white border-gray-300 group-hover:border-blue-500"
-          } transition-all transform ${
-            isDragging ? "scale-125" : "group-hover:scale-110"
-          }`}
+          } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"}`}
         ></div>
       </div>
       {/* 오른쪽 영역 (코드, 그림판) */}

@@ -64,7 +64,7 @@ const PaintBoard: React.FC = () => {
 
   // Yjs 문서, WebSocket Provider, 공유 배열, UndoManager 생성
   const [wsProvider] = useState(
-    () => new WebsocketProvider('ws://localhost:3001', roomId, ydoc)
+    () => new WebsocketProvider(process.env.REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL as string, roomId, ydoc)
   );
   const [yShapes] = useState(() => ydoc.getArray<Shape>('shapes'));
   const awareness = wsProvider.awareness;
@@ -525,6 +525,7 @@ const PaintBoard: React.FC = () => {
                       y={shape.y}
                       width={shape.width}
                       height={shape.height}
+                      rotation={shape.rotation || 0}
                       fill={shape.fill}
                       stroke={selectedId === shape.id ? 'blue' : shape.stroke}
                       strokeWidth={selectedId === shape.id ? 2 : 0}

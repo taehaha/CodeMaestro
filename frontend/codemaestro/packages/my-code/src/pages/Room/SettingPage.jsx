@@ -67,38 +67,38 @@ function SettingPage({ onSettingCheck }) {
   };
 
   return (
-    <div className="p-4 max-w-sm mx-auto bg-base-100">
-      <h2 className="text-lg font-bold mb-4">오디오·비디오 세팅 (Toggle 방식)</h2>
+    <div className="p-4 max-w-sm mx-auto bg-base-100 flex flex-col h-[420px]">
+  <h2 className="text-lg mb-4 ml-5">오디오·비디오 세팅 (Toggle 방식)</h2>
 
-      <div className="mb-4 w-[320px] h-[240px] bg-black relative">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          autoPlay
-          muted // 자기 영상은 보통 muted
-        />
-      </div>
+  <div className="mb-4 w-[320px] h-[240px] bg-black mx-auto relative">
+    <video
+      ref={videoRef}
+      className="w-full h-full object-cover"
+      autoPlay
+      muted
+    />
+  </div>
 
-      <div className="flex gap-4 mb-4">
-        {/* 카메라 버튼 */}
-        <button className="btn gap-2" onClick={toggleCamera}>
-          {camera ? <MdOutlineTv size={24} /> : <MdOutlineTvOff size={24} />}
-          {camera ? "카메라 ON" : "카메라 OFF"}
-        </button>
+  <div className="flex gap-4 mb-4">
+    <button className="btn gap-2 ml-9" onClick={toggleCamera}>
+      {camera ? <MdOutlineTv size={24} /> : <MdOutlineTvOff size={24} />}
+      {camera ? "카메라 ON" : "카메라 OFF"}
+    </button>
 
-        {/* 마이크 버튼 */}
-        <button className="btn gap-2" onClick={toggleAudio}>
-          {audio ? <MdOutlineMic size={24} /> : <MdOutlineMicOff size={24} />}
-          {audio ? "마이크 ON" : "마이크 OFF"}
-        </button>
-      </div>
+    <button className="btn gap-2" onClick={toggleAudio}>
+      {audio ? <MdOutlineMic size={24} /> : <MdOutlineMicOff size={24} />}
+      {audio ? "마이크 ON" : "마이크 OFF"}
+    </button>
+  </div>
 
-      <div className="flex justify-end">
-        <button className="btn btn-accent" onClick={handleConfirm}>
-          확인
-        </button>
-      </div>
-    </div>
+  {/* 🔥 "확인" 버튼을 컨테이너 하단에 배치 */}
+  <div className="flex justify-end pl-3 mt-auto">
+    <button className="btn px-4 text-white bg-[#FFCC00] hover:bg-[#f0c000]" onClick={handleConfirm}>
+      확인
+    </button>
+  </div>
+</div>
+
   );
 }
 

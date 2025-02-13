@@ -25,6 +25,23 @@ const PostDetail = () => {
   const [newContent, setNewContent] = useState("");
   const [editing, setEditing] = useState(false);
 
+  const formatDate = (isoString) => {
+    if (!isoString) return "";
+  
+    const date = new Date(isoString);
+  
+    // 연, 월, 일 추출
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // 0부터 시작하므로 +1 필요
+    const day = String(date.getDate()).padStart(2, "0");
+  
+    // 시간, 분 추출
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+  
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   useEffect(() => {
     if (!boardId) {
       console.error("🚨 boardId가 없습니다! 요청 중단");
@@ -55,8 +72,13 @@ const PostDetail = () => {
 
 
   if (!post) {
-    return <h2>게시글을 불러오는 중...</h2>;
-  }
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <span>게시글을 불러오는 중...</span>
+      </div>
+    );
+  }  
 
   const isAuthor = post.writerId === CURRENT_USER_ID && CURRENT_USER_ID !== null;
 
@@ -113,7 +135,7 @@ const PostDetail = () => {
     <div className="post-container">
       <div className="post-box">
         {editing ? (
-          <>
+          <div className="edit-container">
             <input
               className="post-edit-title"
               type="text"
@@ -125,17 +147,21 @@ const PostDetail = () => {
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
             />
-            
-            <button className="post-save-btn" onClick={handleSaveEdit}>
-              저장
-            </button>
-          </>
+            <div className="post-edit-actions">
+              <button className="post-save-btn" onClick={handleSaveEdit}>
+                저장
+              </button>
+              <button className="post-cancel-btn" onClick={() => setEditing(false)}>
+                취소
+              </button>
+            </div>
+          </div>
         ) : (
           <>
             <h1 className="post-title2">{post.title}</h1>
             <div className="post-header">
               <span className="post-author">{post.writerNickname}</span>
-              <span className="post-time">| {post.createdAt.replace("T", " ").substring(0, 19)}</span>
+              <span className="post-time2">| {formatDate(post.createdAt)}</span>
             </div>
               <ReactMarkdown
                 className="post-content markdown-body"
@@ -145,22 +171,24 @@ const PostDetail = () => {
 
           </>
         )}
-      </div>
-
-      {!editing && <Comments board_id={post.boardId} />}
-
       {isAuthor && (
-        <div className="post-actions">
+        <div className="post-actions2">
           {!editing && (
             <button className="post-edit-btn" onClick={handleEdit}>
               수정
             </button>
           )}
-          <button className="post-delete-btn" onClick={handleDelete}>
+          {!editing && (
+            <button className="post-delete-btn" onClick={handleDelete}>
             삭제
-          </button>
+            </button>
+          )}
         </div>
       )}
+      </div>
+
+      {!editing && <Comments board_id={post.boardId} />}
+
 
       <button className="list-button" onClick={() => navigate("/boards")}>
         목록
