@@ -6,6 +6,7 @@
   padding: 40px 20px;
   text-align: center;
   background: none;
+  min-height: 73vh;
 }
 
 .post-create-title {
@@ -46,9 +47,9 @@
 
 .post-box {
   background: #fff;
-  max-width: 700px;
-  width: 80%;
-  padding: 15px;
+  max-width: 1000px;
+  width: 100%;
+  padding: 25px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -90,5 +91,5 @@
 }
 
 .submit-btn:hover {
-  background-color: f0c000;
+  background-color: #f0c000;
 }

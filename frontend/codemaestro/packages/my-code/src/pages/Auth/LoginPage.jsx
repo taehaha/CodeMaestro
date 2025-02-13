@@ -34,7 +34,7 @@ function LoginPage() {
         dispatch(getMyInfo());
         Swal.fire({
           title: "로그인 성공",
-          text: "Code Maestro에 오신 것을 환영합니다!",
+          text: "코드 마에스트로에 오신 것을 환영합니다!",
           icon: "success",
           iconColor:"#5FD87D",
           width: "500px",
@@ -55,6 +55,17 @@ function LoginPage() {
         title: "로그인 실패",
         text: "아이디 또는 비밀번호를 확인해주세요.",
         icon: "error",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
     }
   };

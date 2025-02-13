@@ -18,6 +18,16 @@ const EditPassword = () => {
         icon: "warning",
         title: "비밀번호 불일치",
         text: "새 비밀번호가 일치하지 않습니다.",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
       });
       return;
     }
@@ -27,9 +37,20 @@ const EditPassword = () => {
   
       if (response.status === 200) {
         await Swal.fire({
-          icon: "success",
           title: "변경 완료",
           text: "비밀번호가 변경되었습니다!",
+          icon: "success",
+          iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
         navigate("/"); // 성공 시 홈으로 이동
       } else if (response.status === 400) {
@@ -37,12 +58,32 @@ const EditPassword = () => {
           icon: "error",
           title: "변경 실패",
           text: "비밀번호 변경에 실패하였습니다. 입력 정보를 확인해주세요.",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       } else {
         await Swal.fire({
           icon: "error",
           title: "오류 발생",
           text: `알 수 없는 오류가 발생했습니다. (에러 코드: ${response.status})`,
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       }
     } catch (error) {
@@ -51,6 +92,16 @@ const EditPassword = () => {
         icon: "error",
         title: "서버 오류",
         text: "비밀번호 변경 요청 중 문제가 발생했습니다. 나중에 다시 시도해주세요.",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
       });
     }
   };

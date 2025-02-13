@@ -61,6 +61,16 @@ const EditBackgroundImage = ({ onClose }) => {
           text: "프로필 배경이 변경되었습니다.",
           icon: "success",
           confirmButtonColor: "#3085d6",
+          confirmButtonText: "확인",
+          iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
         // 성공 시 새로고침s
  
@@ -71,7 +81,16 @@ const EditBackgroundImage = ({ onClose }) => {
           title: "오류",
           text: "프로필 배경 변경 중 문제가 발생했습니다.",
           icon: "error",
-          confirmButtonColor: "#d33",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       }
       onClose();
@@ -81,7 +100,16 @@ const EditBackgroundImage = ({ onClose }) => {
         title: "오류",
         text: "프로필 배경 변경 중 문제가 발생했습니다.",
         icon: "error",
-        confirmButtonColor: "#d33",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
       });
     }
   }, [imageSrc, croppedAreaPixels, onClose]);

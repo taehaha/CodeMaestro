@@ -187,6 +187,7 @@
 .swal-custom-text {
   font-size: 16px;
   color: #666;
+  white-space: pre-line;
 }
 
 /* 확인 버튼 스타일 */
@@ -196,4 +197,13 @@
   border-radius: 5px;
   background-color: #FFCC00 !important;
   color: #ffffff !important;
+}
+
+/* 취소 버튼 스타일 */
+.swal-custom-button2 {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #ccc !important;
+  color: #000000 !important;
 }
