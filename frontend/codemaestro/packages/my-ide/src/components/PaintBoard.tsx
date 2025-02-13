@@ -1,5 +1,6 @@
 // PaintBoard.tsx
 import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Stage,
   Layer,
@@ -11,10 +12,10 @@ import {
   Transformer,
   Image as KonvaImage,
 } from 'react-konva';
-import Konva from 'konva'; 
+import Konva from 'konva';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { UndoManager } from 'yjs'; 
+import { UndoManager } from 'yjs';
 import './PaintBoard.css';
 import {
   FaPencilAlt,
@@ -27,8 +28,10 @@ import {
   FaImage,
   FaUndo,
   FaRedo,
+  FaSave,
 } from 'react-icons/fa';
 import useImage from 'use-image';
+import throttle from 'lodash.throttle';
 
 interface Shape {
   id: string;
@@ -46,32 +49,48 @@ interface Shape {
   src?: string;
   selectable?: boolean;
   rotation?: number;
+  eraser?: boolean;
+  fontSize?: number;
 }
 
-
-// Yjs 문서, Provider
-const ydoc = new Y.Doc();
-const wsProvider = new WebsocketProvider('ws://localhost:3001', 'paintboard', ydoc);
-const yShapes = ydoc.getArray<Shape>('shapes');
-const awareness = wsProvider.awareness;
-
-// UndoManager로 Undo Redo 
-const undoManager = new UndoManager(yShapes);
-
 const PaintBoard: React.FC = () => {
-  const [shapes, setShapes] = useState<Shape[]>(yShapes.toArray());
+  // URL 쿼리에서 roomId 추출
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get('roomId') || 'paintboard';
+
+  // Yjs 문서 생성 및 명령용 Map 생성 - clear를 위해 
+  const [ydoc] = useState(() => new Y.Doc());
+  const commands = ydoc.getMap("commands");
+
+  // Yjs 문서, WebSocket Provider, 공유 배열, UndoManager 생성
+  const [wsProvider] = useState(
+    () => new WebsocketProvider('ws://192.168.31.193:3001', roomId, ydoc)
+  );
+  const [yShapes] = useState(() => ydoc.getArray<Shape>('shapes'));
+  const awareness = wsProvider.awareness;
+  const [undoManager] = useState(() => new UndoManager(yShapes));
+
+  // 로컬 상태
+  const [shapes, setShapes] = useState<Shape[]>([]);
   const [tool, setTool] = useState<'select' | 'freeDraw' | 'eraser'>('select');
   const [color, setColor] = useState<string>('#000000');
   const [brushWidth, setBrushWidth] = useState<number>(5);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [userCount, setUserCount] = useState<number>(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // 로컬 드로잉 상태 (아직 공유되지 않은 선 - 내 그리는 포인트와 상대방 포인트가 연결되어 튐 방지지)
+  const [localLine, setLocalLine] = useState<Shape | null>(null);
+
+  // 추가: awareness 상태(커서 등) 저장
+  const [awarenessStates, setAwarenessStates] = useState<Map<number, any>>(new Map());
 
   const stageRef = useRef<Konva.Stage | null>(null);
   const transformerRef = useRef<Konva.Transformer | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // 현재 드로잉 중인 도형 id (사용자별로 독립)
+  const currentShapeIdRef = useRef<string | null>(null);
 
-  // 지우개 제외 색상
+  // 색상상
   const presetColors = [
     '#000000',
     '#ff0000',
@@ -85,10 +104,17 @@ const PaintBoard: React.FC = () => {
     '#00FFFF',
   ];
 
-  // Yjs, Awareness
+  // yShapes 및 awareness의 원격 업데이트 반영 (로컬 드로잉 상태 우선 적용)
   useEffect(() => {
     const updateShapes = () => {
-      setShapes(yShapes.toArray());
+      const remoteShapes = yShapes.toArray();
+      // 만약 내가 드로잉 중이면 remote에서 내 도형(같은 id)을 제거하고 localLine을 덧붙임
+      if (drawing && localLine) {
+        const filtered = remoteShapes.filter((s) => s.id !== localLine.id);
+        setShapes([...filtered, localLine]);
+      } else {
+        setShapes(remoteShapes);
+      }
     };
     yShapes.observe(updateShapes);
 
@@ -98,14 +124,33 @@ const PaintBoard: React.FC = () => {
     awareness.on('change', updateUserCount);
     updateUserCount();
 
+    const updateAwareness = () => {
+      setAwarenessStates(new Map(awareness.getStates()));
+    };
+    awareness.on('change', updateAwareness);
+    updateAwareness();
+
     return () => {
       yShapes.unobserve(updateShapes);
       awareness.off('change', updateUserCount);
+      awareness.off('change', updateAwareness);
     };
-  }, []);
+  }, [yShapes, awareness, drawing, localLine]);
 
+  // 전역 clear 명령 수신: clear 명령이 들어오면 로컬 드로잉 상태도 초기화
+  useEffect(() => {
+    const clearHandler = (event: Y.YMapEvent<any>) => {
+      if (event.keysChanged.has("clear")) {
+        setLocalLine(null);
+      }
+    };
+    commands.observe(clearHandler);
+    return () => {
+      commands.unobserve(clearHandler);
+    };
+  }, [commands]);
 
-  // Transformer 업데이트 (객체 회전, 객체 크기 조절절)
+  // 선택된 도형에 대해 Konva Transformer 작동
   useEffect(() => {
     if (!selectedId) {
       transformerRef.current?.nodes([]);
@@ -115,7 +160,6 @@ const PaintBoard: React.FC = () => {
     const stage = stageRef.current;
     const transformer = transformerRef.current;
     if (!stage || !transformer) return;
-
     const selectedNode = stage.findOne(`#${selectedId}`) as Konva.Node;
     if (selectedNode) {
       transformer.nodes([selectedNode]);
@@ -125,17 +169,15 @@ const PaintBoard: React.FC = () => {
     }
   }, [selectedId, shapes]);
 
-  // TransformEnd -> Yjs
+  // 도형의 이동/회전/크기변경 등 Transform 후 업데이트 (텍스트 제외)
   const handleTransformEnd = (node: Konva.Node) => {
     const id = node.id();
     const shapeIndex = shapes.findIndex((s) => s.id === id);
     if (shapeIndex === -1) return;
-
     const updatedShape = { ...shapes[shapeIndex] };
     updatedShape.x = node.x();
     updatedShape.y = node.y();
     updatedShape.rotation = node.rotation();
-
     if (node instanceof Konva.Rect || node instanceof Konva.RegularPolygon) {
       updatedShape.width = node.width() * node.scaleX();
       updatedShape.height = node.height() * node.scaleY();
@@ -151,43 +193,70 @@ const PaintBoard: React.FC = () => {
       node.scaleX(1);
       node.scaleY(1);
     }
-
     yShapes.delete(shapeIndex, 1);
-    yShapes.push([updatedShape]);
+    yShapes.insert(shapeIndex, [updatedShape]);
   };
 
+  // 최신 상태값을 참조하기 위한 ref 생성 (stale closure 문제 해결)
+  const drawingRef = useRef(drawing);
+  const localLineRef = useRef<Shape | null>(localLine);
+
+  useEffect(() => {
+    drawingRef.current = drawing;
+  }, [drawing]);
+
+  useEffect(() => {
+    localLineRef.current = localLine;
+  }, [localLine]);
+
+  // 마우스 이동에 쓰로틀 적용 
+  const throttledMouseMove = useRef(
+    throttle((e: Konva.KonvaEventObject<MouseEvent>) => {
+      const stage = e.target.getStage();
+      if (!stage) return;
+      const pos = stage.getPointerPosition();
+      if (!pos) return;
+      awareness.setLocalStateField('cursor', pos);
+      // ref를 통해 최신 상태값 
+      if (!drawingRef.current || !localLineRef.current) return;
+      const updatedLine: Shape = {
+        ...localLineRef.current,
+        points: [...(localLineRef.current.points || []), pos.x, pos.y],
+      };
+      setLocalLine(updatedLine);
+    }, 50)
+  );
+
+  // 마우스 이벤트 핸들러
   const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
     if (!stage) return;
     const pos = stage.getPointerPosition();
     if (!pos) return;
-
     if (tool === 'freeDraw' || tool === 'eraser') {
       setDrawing(true);
       let currentColor = color;
       let selectable = true;
+      let isEraser = false;
       if (tool === 'eraser') {
-        currentColor = '#ffffff';
-        selectable = false;
+        isEraser = true;
       }
-      yShapes.push([
-        {
-          id: `${Date.now()}`,
-          type: 'line',
-          points: [pos.x, pos.y],
-          stroke: currentColor,
-          brushWidth,
-          selectable,
-        },
-      ]);
+      const newShape: Shape = {
+        id: `${Date.now()}_${Math.random()}`,
+        type: 'line',
+        points: [pos.x, pos.y],
+        stroke: isEraser ? '#000000' : currentColor,
+        brushWidth,
+        selectable,
+        eraser: isEraser,
+      };
+      currentShapeIdRef.current = newShape.id;
+      setLocalLine(newShape);
       return;
     }
-
-    // select
     if (tool === 'select') {
       const isTransformer = e.target.getParent()?.className === 'Transformer';
       if (isTransformer) return;
-
       if (e.target === stage) {
         setSelectedId(null);
         return;
@@ -202,35 +271,24 @@ const PaintBoard: React.FC = () => {
     }
   };
 
-
-  // 마우스 움직임임
   const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    if (!drawing) return;
-    const stage = e.target.getStage();
-    if (!stage) return;
-    const pos = stage.getPointerPosition();
-    if (!pos) return;
-
-    // 마지막 라인에 points 추가
-    const lastShape = shapes[shapes.length - 1];
-    if (lastShape?.type === 'line') {
-      lastShape.points = [...(lastShape.points || []), pos.x, pos.y];
-      yShapes.delete(yShapes.length - 1, 1);
-      yShapes.push([lastShape]);
-    }
+    throttledMouseMove.current(e);
   };
 
-  // S마우스업
   const handleStageMouseUp = () => {
+    if (drawing && localLine) {
+      yShapes.push([localLine]);
+    }
     setDrawing(false);
-    // 마우스 업 시점에서, UndoManager에게 트랙 잭션 구분 (undo, redo시 한번에 지우는 게 아니라 구분을 시키기 위해해)
+    currentShapeIdRef.current = null;
+    setLocalLine(null);
     undoManager.stopCapturing();
   };
 
-  // 새 도형 추가
+  // 도형 추가
   const addShape = (type: 'rect' | 'circle' | 'triangle' | 'text') => {
     const shape: Shape = {
-      id: `${Date.now()}`,
+      id: `${Date.now()}_${Math.random()}`,
       type,
       x: 50,
       y: 50,
@@ -246,17 +304,19 @@ const PaintBoard: React.FC = () => {
     if (type === 'text') {
       shape.text = '텍스트';
       shape.fill = color;
+      shape.fontSize = 16;
     }
     yShapes.push([shape]);
   };
 
-  // 전체 지우기
+  // Clear canvas: 공유 배열과 로컬 드로잉 상태 초기화, 그리고 clear 명령 전파 - 다른 사용자도 clear 공유하기 위해 
   const clearCanvas = () => {
     yShapes.delete(0, yShapes.length);
     setSelectedId(null);
+    setLocalLine(null);
+    commands.set("clear", Date.now());
   };
 
-  // 색상 변경 (팔레트) 클릭
   const handlePresetColorClick = (newColor: string) => {
     if (selectedId) {
       const shapeIndex = shapes.findIndex((s) => s.id === selectedId);
@@ -271,14 +331,13 @@ const PaintBoard: React.FC = () => {
           shape.stroke = newColor;
         }
         yShapes.delete(shapeIndex, 1);
-        yShapes.push([shape]);
+        yShapes.insert(shapeIndex, [shape]);
       }
     } else {
       setColor(newColor);
     }
   };
 
-  // 이미지 업로드
   const handleImageUploadClick = () => {
     fileInputRef.current?.click();
   };
@@ -286,12 +345,11 @@ const PaintBoard: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
       const src = reader.result as string;
       const shape: Shape = {
-        id: `${Date.now()}`,
+        id: `${Date.now()}_${Math.random()}`,
         type: 'image',
         x: 100,
         y: 100,
@@ -306,7 +364,6 @@ const PaintBoard: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  // 지우개
   const handleEraserButtonClick = () => {
     if (selectedId) {
       const shapeIndex = shapes.findIndex((s) => s.id === selectedId);
@@ -319,7 +376,6 @@ const PaintBoard: React.FC = () => {
     }
   };
 
-  // Undo / Redo
   const handleUndo = () => {
     undoManager.undo();
   };
@@ -327,53 +383,29 @@ const PaintBoard: React.FC = () => {
     undoManager.redo();
   };
 
+  const handleSaveCanvas = () => {
+    if (stageRef.current) {
+      const dataURL = stageRef.current.toDataURL({ pixelRatio: 2, mimeType: 'image/png' });
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = 'my_painting.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <div
-      className="
-        paint-board
-        w-full
-        flex flex-col items-center
-        p-5
-        bg-gray-100
-        dark:bg-gray-800
-        text-black
-        dark:text-white
-        transition-colors duration-300
-        min-h-screen
-      "
-    >
+    <div className="paint-board w-full flex flex-col items-center p-5 bg-gray-100 dark:bg-gray-800 text-black dark:text-white transition-colors duration-300 min-h-screen">
       {/* 툴바 */}
-      <div
-        className="
-          toolbar
-          flex flex-wrap gap-2 mb-4
-          bg-white
-          dark:bg-gray-700
-          p-3
-          rounded shadow
-        "
-      >
-        {/* Undo / Redo 버튼 */}
-        <button
-          onClick={handleUndo}
-          title="되돌리기"
-          className="text-black dark:text-black"
-        >
+      <div className="toolbar flex flex-wrap gap-2 mb-4 bg-white dark:bg-gray-700 p-3 rounded shadow">
+        <button onClick={handleUndo} title="되돌리기" className="text-black dark:text-black">
           <FaUndo />
         </button>
-        <button
-          onClick={handleRedo}
-          title="재실행"
-          className="text-black dark:text-black"
-        >
+        <button onClick={handleRedo} title="재실행" className="text-black dark:text-black">
           <FaRedo />
         </button>
-
-        <button
-          onClick={clearCanvas}
-          title="캔버스 지우기"
-          className="text-black dark:text-black"
-        >
+        <button onClick={clearCanvas} title="캔버스 지우기" className="text-black dark:text-black">
           <FaTrashAlt />
         </button>
         <button
@@ -390,32 +422,16 @@ const PaintBoard: React.FC = () => {
         >
           <FaEraser />
         </button>
-        <button
-          onClick={() => addShape('rect')}
-          title="사각형 추가"
-          className="text-black dark:text-black"
-        >
+        <button onClick={() => addShape('rect')} title="사각형 추가" className="text-black dark:text-black">
           <FaSquare />
         </button>
-        <button
-          onClick={() => addShape('circle')}
-          title="원 추가"
-          className="text-black dark:text-black"
-        >
+        <button onClick={() => addShape('circle')} title="원 추가" className="text-black dark:text-black">
           <FaCircle />
         </button>
-        <button
-          onClick={() => addShape('triangle')}
-          title="삼각형 추가"
-          className="text-black dark:text-black"
-        >
+        <button onClick={() => addShape('triangle')} title="삼각형 추가" className="text-black dark:text-black">
           <FaPlay />
         </button>
-        <button
-          onClick={() => addShape('text')}
-          title="텍스트 추가"
-          className="text-black dark:text-black"
-        >
+        <button onClick={() => addShape('text')} title="텍스트 추가" className="text-black dark:text-black">
           <FaTextHeight />
         </button>
         <button
@@ -425,12 +441,11 @@ const PaintBoard: React.FC = () => {
         >
           선택
         </button>
-        <button
-          onClick={handleImageUploadClick}
-          title="이미지 추가"
-          className="text-black dark:text-black"
-        >
+        <button onClick={handleImageUploadClick} title="이미지 추가" className="text-black dark:text-black">
           <FaImage />
+        </button>
+        <button onClick={handleSaveCanvas} title="그림 저장" className="text-black dark:text-black">
+          <FaSave />
         </button>
         <input
           type="file"
@@ -441,18 +456,8 @@ const PaintBoard: React.FC = () => {
         />
       </div>
 
-      {/* ----- 붓 두께 ----- */}
-      <div
-        className="
-          stroke-width-control
-          flex items-center gap-2 mb-4
-          bg-white
-          dark:bg-gray-700
-          p-3
-          rounded shadow
-          text-black dark:text-white
-        "
-      >
+      {/* 붓 두께 조절 */}
+      <div className="stroke-width-control flex items-center gap-2 mb-4 bg-white dark:bg-gray-700 p-3 rounded shadow text-black dark:text-white">
         <label htmlFor="brushWidth">붓 두께:</label>
         <input
           type="range"
@@ -466,32 +471,14 @@ const PaintBoard: React.FC = () => {
       </div>
 
       {/* 색상 팔레트 */}
-      <div
-        className="
-          color-palette
-          flex items-center gap-2 mb-4
-          bg-white
-          dark:bg-gray-700
-          p-3
-          rounded shadow
-        "
-      >
+      <div className="color-palette flex items-center gap-2 mb-4 bg-white dark:bg-gray-700 p-3 rounded shadow">
         <div className="preset-colors flex gap-2">
           {presetColors.map((presetColor) => (
             <div
               key={presetColor}
-              className={`
-                color-swatch
-                w-6
-                h-6
-                rounded
-                cursor-pointer
-                border-2
-                border-white
-                hover:scale-110
-                transition-transform
-                ${presetColor === color ? 'selected' : ''}
-              `}
+              className={`color-swatch w-6 h-6 rounded cursor-pointer border-2 border-white hover:scale-110 transition-transform ${
+                presetColor === color ? 'selected' : ''
+              }`}
               style={{ backgroundColor: presetColor }}
               onClick={() => handlePresetColorClick(presetColor)}
               title={presetColor}
@@ -500,26 +487,8 @@ const PaintBoard: React.FC = () => {
         </div>
       </div>
 
-      {/* 접속자 수 */}
-      <div className="user-count mb-4 text-black dark:text-white">
-        현재 접속자: {userCount}명
-      </div>
-
-      {/*  Konva 그림판판 */}
-      <div
-        className="
-          canvas-container
-          w-[800px]
-          h-[600px]
-          border border-gray-400
-          dark:border-gray-500
-          bg-white
-          dark:bg-gray-700
-          rounded
-          shadow
-          relative
-        "
-      >
+      {/* Konva 캔버스 */}
+      <div className="canvas-container w-[800px] h-[600px] border border-gray-400 dark:border-gray-500 rounded shadow relative" style={{ background: 'transparent' }}>
         <Stage
           width={800}
           height={600}
@@ -529,7 +498,7 @@ const PaintBoard: React.FC = () => {
           onMouseUp={handleStageMouseUp}
         >
           <Layer>
-            {shapes.map((shape, i) => {
+            {shapes.map((shape) => {
               switch (shape.type) {
                 case 'line':
                   return (
@@ -542,6 +511,7 @@ const PaintBoard: React.FC = () => {
                       tension={0.5}
                       lineCap="round"
                       draggable={tool === 'select' && shape.selectable !== false}
+                      globalCompositeOperation={shape.eraser ? 'destination-out' : 'source-over'}
                       onTransformEnd={(e: Konva.KonvaEventObject<Event>) => handleTransformEnd(e.target)}
                       onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => handleTransformEnd(e.target)}
                     />
@@ -555,6 +525,7 @@ const PaintBoard: React.FC = () => {
                       y={shape.y}
                       width={shape.width}
                       height={shape.height}
+                      rotation={shape.rotation || 0}
                       fill={shape.fill}
                       stroke={selectedId === shape.id ? 'blue' : shape.stroke}
                       strokeWidth={selectedId === shape.id ? 2 : 0}
@@ -604,8 +575,11 @@ const PaintBoard: React.FC = () => {
                       shape={shape}
                       isSelected={shape.id === selectedId}
                       onChange={(newAttrs) => {
-                        yShapes.delete(i, 1);
-                        yShapes.push([newAttrs]);
+                        const shapeIndex = shapes.findIndex((s) => s.id === shape.id);
+                        if (shapeIndex !== -1) {
+                          yShapes.delete(shapeIndex, 1);
+                          yShapes.insert(shapeIndex, [newAttrs]);
+                        }
                       }}
                       tool={tool}
                     />
@@ -625,7 +599,19 @@ const PaintBoard: React.FC = () => {
                   return null;
               }
             })}
-
+            {/* 로컬 드로잉 중인 선 렌더링 - 내 드로잉 지점과 상대 지점이 연결되어 선분이 튀는 이유를 없애기 위해 */}
+            {localLine && (
+              <Line
+                key={localLine.id}
+                id={localLine.id}
+                points={localLine.points!}
+                stroke={localLine.stroke}
+                strokeWidth={localLine.brushWidth}
+                tension={0.5}
+                lineCap="round"
+                globalCompositeOperation={localLine.eraser ? 'destination-out' : 'source-over'}
+              />
+            )}
             <Transformer
               ref={transformerRef}
               rotateEnabled={true}
@@ -635,9 +621,14 @@ const PaintBoard: React.FC = () => {
               borderStroke="red"
               borderDash={[3, 3]}
               enabledAnchors={[
-                'top-left', 'top-center', 'top-right',
-                'middle-left', 'middle-right',
-                'bottom-left', 'bottom-center', 'bottom-right',
+                'top-left',
+                'top-center',
+                'top-right',
+                'middle-left',
+                'middle-right',
+                'bottom-left',
+                'bottom-center',
+                'bottom-right',
               ]}
               boundBoxFunc={(oldBox, newBox) => {
                 if (newBox.width < 20 || newBox.height < 20) {
@@ -647,6 +638,23 @@ const PaintBoard: React.FC = () => {
               }}
             />
           </Layer>
+
+          {/* 각 사용자의 커서를 표시하는 레이어 */}
+          <Layer>
+            {Array.from(awarenessStates.entries()).map(([clientId, state]) => {
+              if (clientId === awareness.clientID) return null;
+              if (!state.cursor) return null;
+              return (
+                <Circle
+                  key={clientId}
+                  x={state.cursor.x}
+                  y={state.cursor.y}
+                  radius={5}
+                  fill="red"
+                />
+              );
+            })}
+          </Layer>
         </Stage>
       </div>
     </div>
@@ -655,6 +663,7 @@ const PaintBoard: React.FC = () => {
 
 export default PaintBoard;
 
+// EditableText (텍스트 도형에서 더블클릭 시 편집, 변환 후 fontSize, rotation 등이 업데이트됨)
 interface EditableTextProps {
   shape: Shape;
   isSelected: boolean;
@@ -662,55 +671,39 @@ interface EditableTextProps {
   tool: 'select' | 'freeDraw' | 'eraser';
 }
 
-const EditableText: React.FC<EditableTextProps> = ({
-  shape,
-  isSelected,
-  onChange,
-  tool,
-}) => {
+const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange, tool }) => {
   const textRef = useRef<Konva.Text>(null);
-
   useEffect(() => {
     if (!isSelected || !textRef.current) return;
-
     const textNode = textRef.current;
-
     const handleDblClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
       const stage = textNode.getStage();
       if (!stage) return;
-
       const absPos = textNode.getAbsolutePosition();
       const containerRect = stage.container().getBoundingClientRect();
-
       const textarea = document.createElement('textarea');
       document.body.appendChild(textarea);
-
       textarea.value = textNode.text() || '';
       textarea.style.position = 'absolute';
       textarea.style.border = 'none';
       textarea.style.outline = 'none';
       textarea.style.background = 'rgba(255,255,255,0.9)';
       textarea.style.fontSize = `${textNode.fontSize()}px`;
-      textarea.style.color =
-        typeof textNode.fill() === 'string' ? (textNode.fill() as string) : '#000';
+      textarea.style.color = typeof textNode.fill() === 'string' ? (textNode.fill() as string) : '#000';
       textarea.style.resize = 'none';
       textarea.style.padding = '0px';
       textarea.style.margin = '0px';
       textarea.style.zIndex = '1000';
       textarea.style.lineHeight = '1.2';
       textarea.style.whiteSpace = 'pre-wrap';
-
       const textWidth = shape.width || 200;
       textarea.style.width = `${textWidth}px`;
-
       const offsetX = containerRect.left + absPos.x;
       const offsetY = containerRect.top + absPos.y;
       textarea.style.top = '0px';
       textarea.style.left = '0px';
       textarea.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-
       textarea.focus();
-
       let removed = false;
       const removeTextarea = () => {
         if (!removed) {
@@ -720,7 +713,6 @@ const EditableText: React.FC<EditableTextProps> = ({
           }
         }
       };
-
       const finishTextarea = () => {
         onChange({
           ...shape,
@@ -728,17 +720,14 @@ const EditableText: React.FC<EditableTextProps> = ({
         });
         removeTextarea();
       };
-
       const handleBlur = () => finishTextarea();
       textarea.addEventListener('blur', handleBlur);
     };
-
     textNode.on('dblclick', handleDblClick);
     return () => {
       textNode.off('dblclick', handleDblClick);
     };
   }, [isSelected, onChange, shape]);
-
   return (
     <KonvaText
       ref={textRef}
@@ -748,18 +737,23 @@ const EditableText: React.FC<EditableTextProps> = ({
       y={shape.y}
       rotation={shape.rotation || 0}
       fill={shape.fill}
-      fontSize={16}
+      fontSize={shape.fontSize || 16}  
       wrap="word"
-      width={shape.width || 200} 
+      width={shape.width || 200}
       draggable={tool === 'select' && shape.selectable !== false}
       onTransformEnd={(e: Konva.KonvaEventObject<Event>) => {
         const node = textRef.current;
         if (!node) return;
+        const scaleX = node.scaleX();
+        const newFontSize = node.fontSize() * scaleX;
+        node.scaleX(1);
+        node.scaleY(1);
         onChange({
           ...shape,
           x: node.x(),
           y: node.y(),
           rotation: node.rotation(),
+          fontSize: newFontSize,
         });
       }}
       onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => {
@@ -773,8 +767,6 @@ const EditableText: React.FC<EditableTextProps> = ({
   );
 };
 
-
-// URLImage 이미지
 interface URLImageProps {
   shape: Shape;
   tool: 'select' | 'freeDraw' | 'eraser';
@@ -791,7 +783,6 @@ const URLImage: React.FC<URLImageProps> = ({
   selectedId,
 }) => {
   const [image] = useImage(shape.src || '');
-
   return (
     <KonvaImage
       id={shape.id}

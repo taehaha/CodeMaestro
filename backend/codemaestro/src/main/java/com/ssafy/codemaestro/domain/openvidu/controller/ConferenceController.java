@@ -1,16 +1,17 @@
 package com.ssafy.codemaestro.domain.openvidu.controller;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
+import com.ssafy.codemaestro.domain.auth.entty.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
 import com.ssafy.codemaestro.domain.openvidu.service.ConferenceService;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.ConferenceTag;
 import com.ssafy.codemaestro.global.entity.User;
-import io.openvidu.java.client.Connection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -27,18 +28,26 @@ public class ConferenceController {
         this.conferenceService = conferenceService;
     }
 
+    /**
+     * 회의실을 생성합니다.
+     * @param dto
+     * @param userDetails
+     * @return
+     */
     @PostMapping("/create")
-    public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 현재 유저 정보 가져오기
+    public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto,
+                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
-        String conferenceId =
-                conferenceService.initializeConference(
-                        currentUser,
-                        dto.getTitle(),
-                        dto.getDescription(),
-                        dto.getAccessCode(),
-                        dto.getProgrammingLanguage()
-                );
+        System.out.println(dto);
+
+        String conferenceId = conferenceService.initializeConference(
+                currentUser,
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getAccessCode(),
+                dto.getGroupId(),
+                dto.getTagNameList()
+        );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
 
@@ -56,9 +65,8 @@ public class ConferenceController {
         User currentUser = userDetails.getUser();
         String accessCode = dto.getAccessCode();
 
-        Connection connection = conferenceService.issueToken(currentUser, conferenceId, accessCode);
+        ConferenceConnectResponse response = conferenceService.issueToken(currentUser, conferenceId, accessCode);
 
-        ConferenceConnectResponse response = new ConferenceConnectResponse(connection.getToken());
         return new ResponseEntity<>((response), HttpStatus.OK);
     }
 
@@ -67,6 +75,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<List<ConferenceInfoResponse>> getAllConferenceInfo() {
         List<Conference> conferenceList = conferenceService.getAllConferences();
 
@@ -82,6 +91,7 @@ public class ConferenceController {
                     .thumbnailUrl(conference.getThumbnailUrl())
                     .hostNickName(conference.getModerator().getNickname())
                     .participantNum(participantNum)
+                    .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                     .createdAt(conference.getCreatedAt())
                     .build();
 
@@ -97,6 +107,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("/{conferenceId}")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<ConferenceInfoResponse> conferenceInfo(@PathVariable String conferenceId) {
         Conference conference = conferenceService.getConference(conferenceId);
 
@@ -109,6 +120,7 @@ public class ConferenceController {
                 .thumbnailUrl(conference.getThumbnailUrl())
                 .hostNickName(conference.getModerator().getNickname())
                 .participantNum(participantNum)
+                .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                 .createdAt(conference.getCreatedAt())
                 .build();
 
@@ -116,8 +128,27 @@ public class ConferenceController {
     }
 
     /**
+     * 컨퍼런스 정보를 갱신함
+     * @param conferenceId
+     * @param dto
+     * @return
+     */
+    @PutMapping("/{conferenceId}")
+    public ResponseEntity<ConferenceInfoResponse> updateConference(@PathVariable String conferenceId,
+                                                                   @ModelAttribute ConferenceUpdateRequest dto) {
+        conferenceService.updateConference(
+                conferenceId,
+                dto.getTitle(),
+                dto.getDescription(),
+                dto.getAccessCode(),
+                dto.getThumbnailFile()
+        );
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
      * 특정 회의의 관리자를 업데이트합니다.
-     *
      * @param conferenceId 회의의 고유 식별자
      * @param newModeratorUserId 새로운 관리자의 사용자 ID를 포함한 요청 데이터
      * @param userDetails 현재 로그인된 사용자의 인증 정보
@@ -133,6 +164,13 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * targetUserId를 회의실에서 강퇴함.
+     * @param conferenceId
+     * @param targetUserId
+     * @param userDetails
+     * @return
+     */
     @DeleteMapping("/{conferenceId}/user/{targetUserId}")
     public ResponseEntity<Void> kickOut(@PathVariable String conferenceId,
                                         @PathVariable Long targetUserId,
@@ -143,6 +181,13 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * targetUserId의 캠을 끔
+     * @param conferenceId
+     * @param targetUserId
+     * @param userDetails
+     * @return
+     */
     @DeleteMapping("/{conferenceId}/video/{targetUserId}")
     public ResponseEntity<Void> unpublishVideo(@PathVariable String conferenceId,
                                           @PathVariable Long targetUserId,
@@ -153,6 +198,13 @@ public class ConferenceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * targetUserId의 오디오를 끔
+     * @param conferenceId
+     * @param targetUserId
+     * @param userDetails
+     * @return
+     */
     @DeleteMapping("/{conferenceId}/audio/{targetUserId}")
     public ResponseEntity<Void> unpublishAudio(@PathVariable String conferenceId,
                                           @PathVariable Long targetUserId,

@@ -5,6 +5,8 @@ import { CreateMeetingSchema } from "./CreateMeetingSchema"; // 위에서 만든
 import UserAxios from "../../api/userAxios"; // 실제 axios 연동 (주석 처리)
 import withReactContent from "sweetalert2-react-content";
 import { MdContentCopy } from "react-icons/md";
+import { createRoom } from "../../api/RoomApi";
+import { loginUser } from "../../reducer/userSlice";
 
 const CreateMeetingForm = () => {
   const navigate = useNavigate();
@@ -29,35 +31,24 @@ const CreateMeetingForm = () => {
       const roomUrl = generateRandomLink();
       const inviteLink = `http://localhost:5174/meeting/${roomUrl}`;
       console.log(values);
-      
-      // 2) FormData로 변환 (multipart/form-data)
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("description", values.description || "");
-      formData.append("language", values.language);
-      formData.append("tags", values.tags || "");
-      formData.append("url", roomUrl);
-      formData.append("visible", values.isVisible || "");
-
-      // 비밀방 => password (없으면 null)
-      formData.append("entry_password", values.isPrivate ? values.entry_password : "");
-
-      // 썸네일 (파일)
-      if (values.thumbnail) {
-        formData.append("thumbnail", values.thumbnail); 
-      }
+  
+      // 2) JSON payload 구성 (application/json)
+      const payload = {
+        title: values.title,
+        description: values.description || "",
+        // language: values.language,
+        // tags: values.tags || "",
+        // url: roomUrl,
+        // visible: values.isVisible || "",
+        // 비밀방 => password (없으면 null)
+        accessCode: values.isPrivate ? values.entry_password : null,
+      };
 
       // 3) 백엔드 전송 (multipart/form-data) : 주석 처리
-      /*
-      const response = await UserAxios.post("/rooms", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const roomData = response.data;
-      */
-
+      const response = await createRoom(payload)
+      console.log(response);
+      
       // 4) 임시 응답 처리
-      console.log("백엔드로 전송할 데이터 (multipart)", formData);
-
       const MySwal = withReactContent(Swal);
       MySwal.fire({
         title: "회의 생성 완료",

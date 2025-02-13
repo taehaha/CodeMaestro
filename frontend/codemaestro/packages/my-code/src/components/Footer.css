@@ -1,0 +1,22 @@
+.content-wrapper {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+    background-color: #182235; /* 배경 색 */
+    color: #e1e5eb;            /* 텍스트 색 */
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    width: 100%;
+    margin-top: auto;
+  }
+  
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }

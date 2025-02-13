@@ -38,17 +38,22 @@ public class ConferenceWebhookController {
 
         } else if ("sessionDestroyed".equals(event)) {
             String sessionId = (String) eventInfo.get("sessionId");
-            openviduWebHookService.onSessionDestroyed(sessionId);
+            Long timestamp = (Long) eventInfo.get("timestamp");
+            int duration = (int) eventInfo.get("duration");
+            openviduWebHookService.onSessionDestroyed(sessionId, timestamp, duration);
 
         } else if ("participantJoined".equals(event)) {
             String sessionId = (String) eventInfo.get("sessionId");
             String connectionId = (String) eventInfo.get("connectionId");
             String serverData = (String) eventInfo.get("serverData");
-            openviduWebHookService.onParticipantJoined(serverData, sessionId, connectionId);
+            Long timestamp = (Long) eventInfo.get("timestamp");
+            openviduWebHookService.onParticipantJoined(serverData, sessionId, connectionId, timestamp);
 
         } else if ("participantLeft".equals(event)) {
             String connectionId = (String) eventInfo.get("connectionId");
-            openviduWebHookService.onParticipantLeft(connectionId);
+            Long timestamp = (Long) eventInfo.get("timestamp");
+            int duration = (int) eventInfo.get("duration");
+            openviduWebHookService.onParticipantLeft(connectionId, timestamp, duration);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);

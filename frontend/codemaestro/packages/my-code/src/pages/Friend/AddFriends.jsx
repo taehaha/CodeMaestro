@@ -2,6 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import UserList from "../../components/UserList";
+import { searchUserInfo } from "../../api/FriendApi";
 
 const AddFriends = ({ onClose }) => {
   const [checkedUsers, setCheckedUsers] = useState([]); 
@@ -15,20 +16,14 @@ const AddFriends = ({ onClose }) => {
 
   // 검색 버튼 or 엔터(submit) 시
   const handleSearch = async (e) => {
-    e.preventDefault(); // 폼 submit 기본 동작 방지
-    console.log("검색어:", searchInput);
-
+    e.preventDefault();
     try {
-      // 실제 백엔드 서버에 GET(또는 POST) 요청 예시
-      // 예) /api/users?keyword=searchInput
-      const response = await axios.get("/api/users", {
-        params: { keyword: searchInput },
-      });
-      // 백엔드가 반환한 검색 결과를 state에 저장
-      setSearchResult(response.data); 
+      const response = await searchUserInfo(searchInput);
+      
+      // 응답 데이터가 배열이 아닐 경우 빈 배열로 fallback
+      setSearchResult(Array.isArray(response) ? response : []);
     } catch (error) {
       console.error("검색 오류:", error);
-      // 에러 발생 시에는 기본값(빈 배열) 사용 또는 에러 처리
       setSearchResult([]);
     }
   };
@@ -36,7 +31,7 @@ const AddFriends = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       {/* 모달 컨테이너 */}
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md mx-auto">
         {/* 검색 폼 */}
         <form className="mb-4" onSubmit={handleSearch}>
           <label
@@ -70,40 +65,40 @@ const AddFriends = ({ onClose }) => {
               id="friend-search"
               value={searchInput}
               onChange={handleInputChange}
-              className="block w-full p-4 pl-10 text-sm text-gray-900 border 
-                         border-gray-300 rounded-sm bg-gray-50 
-                         focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full p-3 pl-10 text-sm text-gray-900 border 
+                         border-gray-300 rounded-sm bg-gray-50"
               placeholder="Search friends..."
             />
             {/* 검색 버튼 (type="submit") */}
             <button
               type="submit"
-              className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 
-                         hover:bg-blue-800 focus:ring-4 focus:outline-none 
-                         focus:ring-blue-300 font-medium rounded-sm text-sm px-4 py-2 
+              className="text-white absolute right-1 bottom-1.5 bg-[#ffcc00] 
+                         hover:bg-[#f0c000] font-medium rounded-sm text-sm px-4 py-2 
                          dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Search
+              검색
             </button>
           </div>
         </form>
 
         {/* 타이틀 */}
-        <h2 className="text-lg font-semibold mb-4">친구추가 페이지</h2>
+        <h2 className="text-lg pt-1">친구 추가</h2>
 
         {/* 검색 결과를 UserList에 전달 */}
         <UserList
+          users={searchResult}
           userData={searchResult}       // 검색 결과
           checkedUsers={checkedUsers}
           setCheckedUsers={setCheckedUsers}
           addPage={true}
+          searchTerm={searchInput}
         />
 
         {/* 버튼 영역 */}
         <div className="flex justify-end gap-2 mt-4">
 
           <button
-            className="text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 
+            className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
                        focus:outline-none focus:ring-gray-300 font-medium 
                        rounded-sm text-sm px-4 py-2"
             onClick={onClose}

@@ -13,6 +13,16 @@ const ForgotPassword = () => {
         title: "오류",
         text: "이메일을 입력해주세요.",
         icon: "error",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       });
       return;
     }
@@ -27,12 +37,33 @@ const ForgotPassword = () => {
           title: "성공",
           text: "비밀번호 재설정 링크가 이메일로 전송되었습니다.",
           icon: "success",
+          iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       } else {
         Swal.fire({
           title: "실패",
           text: response.data.message || "이메일을 확인해주세요.",
           icon: "error",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       }
     } catch (error) {
@@ -40,6 +71,16 @@ const ForgotPassword = () => {
         title: "오류",
         text: "서버와의 통신에 실패했습니다. 다시 시도해주세요.",
         icon: "error",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       });
     }
   };
@@ -53,7 +94,7 @@ const ForgotPassword = () => {
         <p>아래 입력하신 이메일 주소는 회원정보에 등록된 이메일 주소와 반드시 같아야 합니다.</p>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="forgot-form-group">
             <label htmlFor="email">이메일</label>
             <input 
               type="email" 
@@ -63,7 +104,7 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <button type="submit" className="submit-btn">확인</button>
+          <button type="submit" className="forgot-submit-btn">확인</button>
         </form>
       </div>
     </div>

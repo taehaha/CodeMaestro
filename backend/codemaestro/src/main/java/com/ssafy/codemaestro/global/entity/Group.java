@@ -38,4 +38,13 @@ public class Group {
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GroupMember> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    private List<GroupConferenceHistory> conferenceHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
+    private List<Conference> conferences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupJoinRequest> groupJoinRequests = new ArrayList<>();
 }

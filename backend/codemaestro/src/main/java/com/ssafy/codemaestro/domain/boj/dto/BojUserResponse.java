@@ -6,5 +6,5 @@ import lombok.*;
 @Builder
 public class BojUserResponse {
     private String handle;
-    private String tier;
+    private int tier;
 }

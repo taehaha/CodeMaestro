@@ -1,11 +1,11 @@
 package com.ssafy.codemaestro.domain.openvidu.dto;
 
-import com.ssafy.codemaestro.global.entity.ProgrammingLanguage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,8 +15,8 @@ public class ConferenceInfoResponse {
     String title;
     String description;
     String thumbnailUrl;
-    ProgrammingLanguage programmingLanguage;
     int participantNum;
     String hostNickName;
+    List<String> tagNameList;
     LocalDateTime createdAt;
 }

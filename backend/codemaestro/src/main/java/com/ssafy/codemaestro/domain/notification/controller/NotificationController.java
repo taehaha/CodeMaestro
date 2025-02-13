@@ -3,6 +3,9 @@ package com.ssafy.codemaestro.domain.notification.controller;
 import com.ssafy.codemaestro.domain.notification.service.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,16 +22,13 @@ public class NotificationController {
     // 보통 사용자가 로그인 시 스트림 구독
     @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe (@PathVariable Long userId) {
-//        return sseService.subscribe(userId);
-        // 현재 연결된 모든 emitter 정보를 로그로 출력
         log.info("===== SSE 컨트롤러 =====");
         log.info("userId: {} 연결 시도", userId);
-        log.info("연결된 emitters 개수 : {}", sseService.getEmitters().size());
+        log.info("연결 전 emitters ID ({}개) : {}", sseService.getEmitters().size(), sseService.getEmitters().keySet());
 
         SseEmitter emitter = sseService.subscribe(userId);
 
-        // 연결 후 상태
-        log.info("연결 후 emitters 개수 : {}", sseService.getEmitters().size());
+        log.info("연결 후 emitters ID ({}개) : {}", sseService.getEmitters().size(), sseService.getEmitters().keySet());
         log.info("========================");
 
         return emitter;
@@ -37,8 +37,10 @@ public class NotificationController {
     // 구독 종료
     @GetMapping("/unsubscribe/{userId}")
     public void unsubscribe(@PathVariable Long userId) {
-        log.info("사용자 로그아웃 : emitters 연결 종료 시작 : {} ", userId);
-        sseService.removeEmitterIfExists(userId);
+        SseEmitter emitter = sseService.getEmitters().get(userId);
+        if (emitter != null) {
+            emitter.complete();
+            sseService.getEmitters().remove(userId);
+        }
     }
-
 }

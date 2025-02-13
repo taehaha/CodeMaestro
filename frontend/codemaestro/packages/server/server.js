@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, '../my-code/dist')));
 // my-ide 경로로 서빙
 app.use('/ide', express.static(path.join(__dirname, '../my-ide/build')));
 
-// 리액트 라우터 대응 라우팅을 위해 모든 요청에 대해 index.html 제공
+// 리액트 라우터 대응, 라우팅을 위해 모든 요청에 대해 index.html 제공
 app.get('*', (req, res) => {
   if (req.originalUrl.startsWith('/ide')) {
     res.sendFile(path.join(__dirname, '../my-ide/build/index.html'));

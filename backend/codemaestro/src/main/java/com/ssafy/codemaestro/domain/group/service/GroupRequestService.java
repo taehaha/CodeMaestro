@@ -2,20 +2,21 @@ package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinRequestDto;
 import com.ssafy.codemaestro.domain.group.dto.GroupJoinResponseDto;
-import com.ssafy.codemaestro.global.entity.Group;
-import com.ssafy.codemaestro.global.entity.GroupJoinRequest;
-import com.ssafy.codemaestro.global.entity.GroupRequestStatus;
+import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
+import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.notification.service.NotificationService;
-import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
+import com.ssafy.codemaestro.global.exception.AlreadyRequestExistExceptions;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class GroupRequestService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final GroupMemberRepository groupMemberRepository;
     private final GroupJoinRequestRepository groupJoinRequestRepository;
     private final NotificationService notificationService;
 
@@ -51,7 +53,7 @@ public class GroupRequestService {
         );
 
         if (alreadyExists) {
-            throw new BadRequestException("Group join request already exists");
+            throw new AlreadyRequestExistExceptions("Group join request already exists");
         }
 
         // User와 Group 조회
@@ -81,13 +83,24 @@ public class GroupRequestService {
 
         GroupJoinRequest request = optionalRequest.get(); // 객체 가져오기
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.setStatus(GroupRequestStatus.ACCEPTED);
-
         groupJoinRequestRepository.save(request);
+
+        // 그룹 멤버 추가
+        GroupMember member = new GroupMember();
+        member.setUser(request.getUser());
+        member.setGroup(request.getGroup());
+        member.setRole(GroupRole.MEMBER);
+        groupMemberRepository.save(member);
+
+        // 그룹의 현재 멤버 수 증가
+        Group group = request.getGroup();
+        group.setCurrentMembers(group.getCurrentMembers() + 1);
+        groupRepository.save(group);
     }
 
     // 가입 요청 거절
@@ -99,11 +112,25 @@ public class GroupRequestService {
 
         GroupJoinRequest request = optionalRequest.get();
 
-        if(!request.getStatus().equals("PENDING")) {
-            throw new BadRequestException("is not PENDING");
-        }
+//        if(!request.getStatus().equals("PENDING")) {
+//            throw new BadRequestException("is not PENDING");
+//        }
 
         request.reject();
         groupJoinRequestRepository.save(request);
+    }
+
+    // 대기 중인 요청 조회
+    public List<GroupJoinResponseDto> getPendingGroupRequest(Long userId) {
+        List<GroupJoinRequest> pendingRequests = groupJoinRequestRepository
+                .findPendingRequestsByOwnerId(userId, GroupRequestStatus.PENDING);
+
+        List<GroupJoinResponseDto> responseDtos = new ArrayList<>();
+        for(GroupJoinRequest request : pendingRequests) {
+            GroupJoinResponseDto dto = GroupJoinResponseDto.from(request);
+            responseDtos.add(dto);
+        }
+
+        return responseDtos;
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import ReactDOM from 'react-dom';
 
 import MyProfileHeader from './MyProfileHeader';
@@ -12,16 +12,7 @@ import './MyProfile.css';
 const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
   const user = useSelector((state) => state.user.myInfo);
-
-//   const user ={
-//     id: 'kopybara8421',
-//     name: '익명의 카피바라 8421',
-//     email: 'test@test.com',
-//     description: '오늘도 열심히 코딩합시다',
-//     tier: 27,
-//     // profile_image_url,
-// }
-  // console.log(user);
+  
   
   // 모달 상태
   const [isBackgroundEditModalOpen, setisBackgroundEditModalOpen] = useState(false);
@@ -52,13 +43,28 @@ const MyProfile = () => {
        {/* 유저 정보와 사이드바를 개별적으로 배치 */}
       <div className="profile-container">
         {/* 유저 정보 */}
-          <div className="user-info">
-            <p className="text-lg font-semibold">@ {user.email}</p>
-            <div className="items-center mt-2 space-x-2">
-              <p className="text-lg font-bold">{user.userNickname}</p>
-            </div>
-            <p className="text-sm mt-2">{user.description}</p>
+        <div className="user-info">
+  <p className="text-lg font-semibold">{user.email}</p>
+          <div className="nickname-container">
+            <p className="name">{user.nickname}</p>
+            {user.bojTier !== 100 ? (
+              <img
+                className="tier-icon"
+                src={`/solvedac/${user.bojTier}.svg`}
+                alt="tier"
+              />
+            ) : (
+              <img
+                className="tier-icon"
+                src={`/solvedac/default.svg`}
+                alt="tier"
+              />
+            )}
           </div>
+
+          <p className="description">{user.description}</p>
+        </div>
+
 
           {/* 탭 내용 렌더링 */}
           <div className="tab-content">

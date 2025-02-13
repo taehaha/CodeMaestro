@@ -18,6 +18,6 @@ public interface UserConferenceRepository extends JpaRepository<UserConference, 
     void deleteByConnectionId(String connectionId);
 
     List<UserConference> findByConference_Id(Long conferenceId);
-    
-    
+
+    Optional<UserConference> findByConnectionId(String connectionId);
 }

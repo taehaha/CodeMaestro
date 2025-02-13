@@ -3,11 +3,13 @@ package com.ssafy.codemaestro.domain.group.controller;
 import com.ssafy.codemaestro.domain.group.dto.*;
 import com.ssafy.codemaestro.domain.group.service.GroupRequestService;
 import com.ssafy.codemaestro.domain.group.service.GroupService;
+import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -89,10 +91,40 @@ public class GroupController {
         return ResponseEntity.ok("Group Join Request REJECT Ok");
     }
 
+    // 대기 중인 요청 조회
+    @GetMapping("/requests/{userId}/pending")
+    public ResponseEntity<List<GroupJoinResponseDto>> getPendingGroupRequest(@PathVariable Long userId) {
+        return ResponseEntity.ok(groupRequestService.getPendingGroupRequest(userId));
+    }
+
+
+
     // 그룹 검색
     @GetMapping("/search")
     public ResponseEntity<List<GroupResponseDto>> searchGroups(@RequestParam(required = false) String groupName) {
         List<GroupResponseDto> searchGroups = groupService.searchGroups(groupName);
         return ResponseEntity.ok(searchGroups);
+    }
+
+    // 그룹 랭킹 조회
+    @GetMapping("/rankings")
+    public ResponseEntity<List<GroupRankingResponseDto>> getGroupRankings(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month
+    ) {
+        // 만약 param 안넘어오면 자동으로 오늘시간 설정해서 주기
+        if(year == null || month == null) {
+            LocalDateTime now = LocalDateTime.now();
+            year = now.getYear();
+            month = now.getMonthValue();
+        }
+
+        List<GroupRankingResponseDto> rankings = groupService.getGroupByTotalScore(year, month);
+
+        if (rankings == null || rankings.isEmpty()) {
+            throw new BadRequestException("No group rankings found for the specified year and month.");
+        }
+
+        return ResponseEntity.ok(rankings);
     }
 }

@@ -1,20 +1,19 @@
 package com.ssafy.codemaestro.domain.user.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.ssafy.codemaestro.domain.user.dto.UserProfileResponseDto;
 import com.ssafy.codemaestro.domain.user.dto.UserProfileUpdateDto;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.exception.InvalidPasswordException;
 import com.ssafy.codemaestro.global.exception.UserNotFoundException;
-import com.ssafy.codemaestro.global.service.S3Service;
+import com.ssafy.codemaestro.global.util.S3Util;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -22,14 +21,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final S3Service s3Service;
+    private final S3Util s3Util;
 
     // 개인 정보 조회
     // readOnly 로 바꾸기
     public UserProfileResponseDto getUserProfile(Long userId) {
-        User user = userRepository.findById(userId)
+        return userRepository.findUserWithBojInfo(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return UserProfileResponseDto.from(user);
     }
 
     // 개인 정보 수정
@@ -47,14 +45,14 @@ public class UserService {
         // 프로필 이미지 업데이트
         MultipartFile profileImage = dto.getProfileImage();
         if (profileImage != null && !profileImage.isEmpty()) {
-            String profileImageUrl = s3Service.uploadFile(profileImage);
+            String profileImageUrl = s3Util.uploadFile(profileImage);
             user.setProfileImageUrl(profileImageUrl);
         }
 
         // 배경 이미지 업데이트
         MultipartFile backgroundImage = dto.getProfileBackgroundImage();
         if (backgroundImage != null && !backgroundImage.isEmpty()) {
-            String backgroundImageUrl = s3Service.uploadFile(backgroundImage);
+            String backgroundImageUrl = s3Util.uploadFile(backgroundImage);
             user.setProfileBackgroundImageUrl(backgroundImageUrl);
         }
 
@@ -76,5 +74,26 @@ public class UserService {
         String encodePassword = passwordEncoder.encode(userProfileUpdateDto.getNewPassword());
         user.setPassword(encodePassword);
         userRepository.save(user);
+    }
+
+    // 유저 검색
+    public List<UserProfileResponseDto> searchUsers(String nickname, Long currentUserId) {
+        List<User> users;
+
+        // nickname이 없으면 전체 목록 반환
+        if(nickname == null || nickname.trim().isEmpty()) {
+            users = userRepository.findByIdNot(currentUserId);
+        } else {
+            users = userRepository.findByNicknameContainingAndIdNot(nickname.trim(), currentUserId);
+        }
+
+        // DTO 반환
+        List<UserProfileResponseDto> searchUserList = new ArrayList<>();
+        for(User user : users) {
+            UserProfileResponseDto dto = UserProfileResponseDto.from(user); // 이 부분 from 사용해서 수정
+            searchUserList.add(dto);
+        }
+
+        return searchUserList;
     }
 }

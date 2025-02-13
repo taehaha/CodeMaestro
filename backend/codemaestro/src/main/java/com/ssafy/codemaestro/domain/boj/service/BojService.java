@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.codemaestro.domain.boj.dto.BojUserDto;
 import com.ssafy.codemaestro.domain.boj.dto.BojUserResponse;
+import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.BojUser;
 import com.ssafy.codemaestro.domain.boj.repository.BojUserRepository;
+import com.ssafy.codemaestro.global.entity.User;
+import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class BojService {
 
     private final WebClient solvedAcWebClient;
     private final BojUserRepository bojUserRepository;
+    private final UserRepository userRepository;
 
     private static final String SOLVED_AC_API_URL = "https://solved.ac/api/v3";
     private static final Duration CACHE_DURATION = Duration.ofHours(1); // 캐시 갱신 주기 : 1시간
@@ -29,31 +34,41 @@ public class BojService {
     // 캐시된 데이터가 있고 유효기간이 지나지 않았다면 DB 정보 조회
     // 없거나 만료되었다면 백준API 호출
     @Transactional
-    public BojUserResponse getTierInfo(String bojId) {
+    public BojUserResponse getTierInfo(Long userId, String bojId) {
         BojUser bojUser = bojUserRepository.findByHandle(bojId) // DB 정보 조회
                 .filter(user -> user.getLastUpdated().plus(CACHE_DURATION).isAfter(LocalDateTime.now())) // 유효기간 확인
-                .orElseGet(() -> updateBojUserInfo(bojId)); // 필요한 경우에만 실행(지연실행)
+                .orElseGet(() -> updateBojUserInfo(userId, bojId)); // 필요한 경우에만 실행(지연실행)
 
         return convertToResponse(bojUser); // 엔티티 -> DTO 변환
     }
 
     // 티어 정보 수정 및 등록
-    private BojUser updateBojUserInfo(String bojId) {
-        BojUserDto userInfo = fetchUserInfoFromSolvedAc(bojId);
-        String tier = convertTierToString(userInfo.getTier());
+    private BojUser updateBojUserInfo(Long userId, String bojId) {
+        // 1. bojId 저장/수정
+        Optional<BojUser> optionalBojUser = bojUserRepository.findByUserId(userId);
+        BojUser bojUser;
 
-        BojUser bojUser = bojUserRepository.findByHandle(bojId)
-                //  DB에 사용자가 있는 경우
-                .map(user -> {
-                    user.updateTierInfo(tier);
-                    return user;
-                })
-                // DB에 사용자가 없는 경우
-                .orElseGet(() -> BojUser.builder()
-                        .handle(bojId)
-                        .tier(tier)
-                        .lastUpdated(LocalDateTime.now())
-                        .build());
+        if (optionalBojUser.isPresent()) {
+            // 기존 BojUser가 있으면 handle 수정
+            bojUser = optionalBojUser.get();
+            bojUser.updateHandle(bojId);
+        } else {
+            // 없으면 새로 생성
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not Found"));
+
+            bojUser = BojUser.builder()
+                    .user(user)
+                    .handle(bojId)
+                    .build();
+        }
+        bojUser = bojUserRepository.save(bojUser);  // DB에 저장
+
+        // 2. 그 다음 solved.ac API로 티어 정보 가져오기
+        BojUserDto userInfo = fetchUserInfoFromSolvedAc(bojId);
+
+        // 3. tier 정보 업데이트
+        bojUser.updateTierInfo(userInfo.getTier());
 
         return bojUserRepository.save(bojUser);
     }
@@ -64,9 +79,6 @@ public class BojService {
                 .uri(SOLVED_AC_API_URL + "/user/show?handle={bojId}", bojId)
                 .retrieve() // HTTP 응답 받기
                 .bodyToMono(String.class)  // 응답 -> String으로 반환
-//                .doOnNext(response -> {
-//                    System.out.println("API 응답: " + response);
-//                })
                 .map(response -> {
                     // ObjectMapper를 사용하여 응답을 BojUserDto로 변환
                     // 변환 실패시 RuntimeException 발생
@@ -78,10 +90,6 @@ public class BojService {
                         throw new RuntimeException("JSON 파싱 실패", e);
                     }
                 })
-//                .doOnNext(dto -> {
-//                    System.out.println("변환된 DTO - handle: " + dto.getHandle());
-//                    System.out.println("변환된 DTO - tier: " + dto.getTier());
-//                })
                 .block(); // 비동기 처리가 완료될 때까지 대기
     }
 
@@ -91,21 +99,5 @@ public class BojService {
                 .handle(bojUser.getHandle())
                 .tier(bojUser.getTier())
                 .build();
-    }
-
-    // 임시(화면단 확인용)
-    // 지금은 DB에 String으로 저장중. 추후 변경 필요 시 논의
-    private String convertTierToString(int tier) {
-        String[] tiers = {
-                "Unrated",
-                "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
-                "Silver V", "Silver IV", "Silver III", "Silver II", "Silver I",
-                "Gold V", "Gold IV", "Gold III", "Gold II", "Gold I",
-                "Platinum V", "Platinum IV", "Platinum III", "Platinum II", "Platinum I",
-                "Diamond V", "Diamond IV", "Diamond III", "Diamond II", "Diamond I",
-                "Ruby V", "Ruby IV", "Ruby III", "Ruby II", "Ruby I",
-                "Master"
-        };
-        return tiers[tier];
     }
 }

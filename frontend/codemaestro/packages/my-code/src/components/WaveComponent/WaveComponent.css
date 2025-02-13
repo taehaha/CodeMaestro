@@ -1,58 +1,13 @@
 body {
   margin: 0;
-  overflow-x: hidden;
-}
-.wave-wrapper {
-  position: relative;
-  width: 100%;
-}
-.wave {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 200vw;
-  height: 200vw;
-  margin-left: -100vw;
-  margin-bottom: -186vw;
-  /* border-radius: 40%; */
+  overflow-x: hidden; /* 좌우 스크롤 제거 */
 }
 
-.wave-one, .wave-two, .wave-three {
+canvas {
+  display: block;
   position: absolute;
-  width: 100%;
+  top: 0;
+  left: 0;
+  width: 100%; /* 120%에서 100%로 변경 */
   height: 100%;
-  border-radius: 40%;
-  transform-origin: center;
 }
-
-
-.wave-one {
-  animation: waveAnimation 30s infinite linear;
-  opacity: 0.3;
-  background: #D1D1D1;
-}
-
-.wave-two {
-  animation: waveAnimation 40s infinite linear;
-  opacity: 0.3;
-  background: #D4D4D4;
-}
-
-.wave-three {
-  animation: waveAnimation 50s infinite linear;
-  opacity: 0.3;
-  background: #9b9b9b;
-}
-
-@keyframes waveAnimation {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-/* .page-background {
-  background-color: #D1D1D1;
-  } */
-  

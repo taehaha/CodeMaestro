@@ -93,46 +93,52 @@ const GroupDetail = () => {
   
 
   // 그룹 탈퇴
-  const handleLeaveGroup = () => {
+  const handleLeaveGroup = async () => {
     if (userRole === ROLE.ADMIN) {
-      Swal.fire({
-        title:"그룹 탈퇴",
-        text:"그룹 소유주는 탈퇴할 수 없습니다! 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요."
-      })
-    }
-
-    else {
-      Swal.fire({
+      await Swal.fire({
+        title: "그룹 탈퇴",
+        text: "그룹 소유주는 탈퇴할 수 없습니다! 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+      });
+    } else {
+      const result = await Swal.fire({
         title: "그룹 탈퇴",
         text: `정말로 이 그룹에서 탈퇴하시겠습니까?`,
         showCancelButton: true,
         confirmButtonText: "탈퇴하기",
         cancelButtonText: "취소",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const status = LeaveGroup({groupId,userId:user.userId})
-          console.log(status);
-          if (status===200) {
-                    Swal.fire({
-                      title: "탈퇴 완료",
-                      text: "그룹에서 탈퇴했습니다. 메인 페이지로 이동합니다.",
-                      icon: "success",
-                      confirmButtonText: "확인",
-                    }).then(() => {
-                      window.location.replace("/");
-                    });
-                  } else {
-                    Swal.fire({
-                      title: "탈퇴 실패",
-                      text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
-                      icon: "error",
-                      confirmButtonText: "확인",
-                    });
-                  }
-        }
       });
+  
+      if (result.isConfirmed) {
+        try {
+          const status = await await LeaveGroup({ groupId, userId: user.userId });
+          console.log(status);
+          if (status === 200) {
+            await Swal.fire({
+              title: "탈퇴 완료",
+              text: "그룹에서 탈퇴했습니다. 메인 페이지로 이동합니다.",
+              icon: "success",
+              confirmButtonText: "확인",
+            });
+            window.location.replace("/");
+          } else {
+            await Swal.fire({
+              title: "탈퇴 실패",
+              text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
+              icon: "error",
+              confirmButtonText: "확인",
+            });
+          }
+        } catch (error) {
+          console.error("그룹 탈퇴 중 에러 발생:", error);
+          await Swal.fire({
+            title: "탈퇴 실패",
+            text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
+            icon: "error",
+            confirmButtonText: "확인",
+          });
+        }
+      }
     }
-    
   };
 
   // 관리자 전환 (테스트용)
@@ -245,21 +251,19 @@ const GroupDetail = () => {
         {userRole === ROLE.MEMBER && (
           <>
             <button className="btn btn-success rounded-sm">그룹회의 생성</button>
-            <button
-              onClick={handleChangeToAdmin}
-              className="btn btn-neutral rounded-sm"
-            >
-              관리자 전환
-            </button>
           </>
         )}
 
         {userRole === ROLE.ADMIN && (
-          <button 
+          <div className="flex gap-2">
+          <button className="btn btn-success rounded-sm">그룹회의 생성</button>
+                      <button 
           onClick={() => setIsModalOpen(true)}
           className=" btn btn-neutral rounded-sm">
           그룹 관리
           </button>
+          </div>
+
         )}
 {/* 
         {(userRole === ROLE.MEMBER || userRole === ROLE.ADMIN) && (

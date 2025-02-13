@@ -7,8 +7,8 @@ import { setLoggedOut } from "../reducer/userSlice";
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
 // export const baseURL = "https://api.codemaestro.site"
-// export const baseURL = "http://192.168.31.58:8080"
 export const baseURL = "https://test.api.codemaestro.site"
+ //export const baseURL = "http://192.168.31.58:8080"
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 3000,                      
@@ -17,7 +17,7 @@ const UserAxios = axios.create({
 
 // =======================================
 // ② Refresh 전용 요청을 담당하는 RefreshAxios 인스턴스
-//    - 기존 토큰이 만료된 상태에서 요청할 수도 있으므로
+//    - 기존 토큰이 만료된 상태에서 요청할 수 있으므로
 //    - 불필요한 인터셉터를 배제해 별도로 관리
 // =======================================
 const RefreshAxios = axios.create({
@@ -75,7 +75,7 @@ UserAxios.interceptors.response.use(
         const refreshResponse = await RefreshAxios.post("/auth/reissue", null);
 
         // 새 Access Token 추출
-        const newAccessToken = refreshResponse?.data?.accessToken;
+        const newAccessToken = refreshResponse?.headers?.access;
         if (!newAccessToken) {
           // accessToken이 내려오지 않으면 에러로 처리
           throw new Error("새로운 Access Token이 응답에 없습니다.");
@@ -85,7 +85,7 @@ UserAxios.interceptors.response.use(
         tokenStorage.setAccessToken(newAccessToken);
 
         // 원래 요청에 새 토큰을 실어서 재시도
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Access"] = `${newAccessToken}`;
         return UserAxios(originalRequest);
       } catch (refreshError) {
         console.error("❌ Refresh Token 재발급 실패:", refreshError);
@@ -112,7 +112,16 @@ async function handleLogoutAndRedirect() {
     title: "세션 만료",
     text: "로그인 세션이 만료되었습니다. 다시 로그인해주세요.",
     icon: "warning",
+    width: "500px",
+    background: "#f8f9fa",
+    confirmButtonColor: "#FFCC00",
     confirmButtonText: "확인",
+    customClass: {
+    popup: "swal-custom-popup",       // 전체 팝업 스타일
+    title: "swal-custom-title",       // 제목 스타일
+    htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+    confirmButton: "swal-custom-button" // 버튼 스타일
+    }
   });
 
   // 로그인 페이지로 강제 이동

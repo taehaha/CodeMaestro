@@ -1,96 +1,112 @@
-import React, { useContext, useState } from "react";
-import { CommentsContext } from "../context/CommentsContext";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getCommentsByBoardId, addComment, deleteComment } from "../api/CommentApi"; // API 추가
 import "./Comments.css";
 
-const CURRENT_USER_ID = 101; // ✅ 예제: 현재 로그인한 사용자 ID (실제 로그인 연동 필요)
-
 const Comments = ({ board_id }) => {
-  const { comments, addComment, deleteComment, updateComment } = useContext(CommentsContext);
+  const user = useSelector((state) => state.user.myInfo);
+  const CURRENT_USER_ID = user?.userId || null;
+  const CURRENT_USER_NICKNAME = user?.userNickname || "익명"; // 닉네임 기본값 추가
+
+  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
-  const [editingComment, setEditingComment] = useState(null);
-  const [editedText, setEditedText] = useState("");
 
-  const filteredComments = comments.filter((comment) => comment.board_id === board_id);
+  const formatDate = (isoString) => {
+    if (!isoString) return "";
+  
+    const date = new Date(isoString);
+  
+    // 연, 월, 일 추출
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // 0부터 시작하므로 +1 필요
+    const day = String(date.getDate()).padStart(2, "0");
+  
+    // 시간, 분 추출
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+  
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
 
-  const handleAddComment = () => {
+  // 🔹 게시글의 댓글 목록 불러오기
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!board_id) return;
+      try {
+        const data = await getCommentsByBoardId(board_id);
+        console.log("서버에서 받은 댓글:", data);
+        
+        setComments(data);
+      } catch (error) {
+        console.error("🚨 댓글 불러오기 실패", error);
+      }
+    };
+    fetchComments();
+  }, [board_id]);
+
+  // 🔹 댓글 추가 핸들러
+  const handleAddComment = async () => {
     if (!commentText.trim()) {
       alert("댓글을 입력하세요.");
       return;
     }
-    addComment(board_id, CURRENT_USER_ID, commentText.trim());
-    setCommentText("");
-  };
 
-  const handleDelete = (commentId) => {
-    deleteComment(commentId, CURRENT_USER_ID);
-  };
-
-  const handleEdit = (comment) => {
-    setEditingComment(comment.id);
-    setEditedText(comment.content);
-  };
-
-  const handleSaveEdit = (commentId) => {
-    if (!editedText.trim()) {
-      alert("댓글 내용을 입력하세요.");
-      return;
-    }
-    updateComment(commentId, CURRENT_USER_ID, editedText.trim());
-    setEditingComment(null);
-  };
-
-  const handleKeyPress = (e, commentId) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (editingComment) {
-        handleSaveEdit(commentId);
+    try {
+      const newComment = await addComment(board_id, CURRENT_USER_ID, commentText.trim());
+      console.log("📌 추가된 댓글 데이터:", newComment);
+  
+      if (newComment) {
+        setCommentText(""); // ✅ 입력창 초기화
+  
+        // 🔥 최신 댓글 목록을 서버에서 다시 불러오기
+        const updatedComments = await getCommentsByBoardId(board_id);
+        setComments(updatedComments);
       } else {
-        handleAddComment();
+        alert("댓글 작성에 실패했습니다.");
       }
+    } catch (error) {
+      console.error("🚨 댓글 추가 실패:", error);
+      alert("댓글 추가 중 오류 발생!");
+    }
+  };
+
+  // 🔹 댓글 삭제 핸들러
+  const handleDelete = async (commentId) => {
+    const success = await deleteComment(commentId);
+    if (success) {
+      setComments((prev) => prev.filter((comment) => comment.commentId !== commentId)); // ✅ 삭제된 댓글 제거
+    } else {
+      alert("댓글 삭제 실패!");
     }
   };
 
   return (
     <div className="comment-box">
-      <div className="comment-section-title">💬 댓글 {filteredComments.length}개</div>
+      <div className="comment-section-title">💬 댓글 {comments.length}개</div>
       <ul className="comment-list">
-        {filteredComments.map((comment) => (
-          <li key={comment.id} className="comment-item">
-            <span className="comment-author">User {comment.user_id}</span>
-            <span className="comment-time">· {comment.created_at}</span>
-            {editingComment === comment.id ? (
-              <input
-                className="comment-edit-input"
-                type="text"
-                value={editedText}
-                onChange={(e) => setEditedText(e.target.value)}
-                onKeyDown={(e) => handleKeyPress(e, comment.id)}
-              />
-            ) : (
-              <p className="comment-content">{comment.content}</p>
-            )}
+        {comments.map((comment) => (
+          <li key={comment.commentId} className="comment-item">
+            <span className="comment-author">{comment.writerNickname}</span>
+            <span className="comment-time">| {formatDate(comment.createdAt)}</span>
+            <p className="comment-content">{comment.content}</p>
 
-            {comment.user_id === CURRENT_USER_ID && (
+            {comment.writerId === CURRENT_USER_ID && (
               <div className="comment-actions">
-                {editingComment === comment.id ? (
-                  <button className="comment-save-btn" onClick={() => handleSaveEdit(comment.id)}>저장</button>
-                ) : (
-                  <>
-                    <button className="comment-edit-btn" onClick={() => handleEdit(comment)}>수정</button>
-                    <button className="comment-delete-btn" onClick={() => handleDelete(comment.id)}>삭제</button>
-                  </>
-                )}
+                <button className="comment-delete-btn" onClick={() => handleDelete(comment.commentId)}>
+                  삭제
+                </button>
               </div>
             )}
           </li>
         ))}
       </ul>
 
+      {/* 🔹 댓글 입력창 */}
       <div className="comment-input-container">
         <input
           className="comment-input"
           type="text"
-          placeholder="댓글을 남겨보세요"
+          placeholder="댓글을 남겨보세요."
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddComment()}

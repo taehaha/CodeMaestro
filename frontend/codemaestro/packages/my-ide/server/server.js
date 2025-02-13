@@ -1,6 +1,3 @@
-/**
- * server.js
- */
 
 const express = require("express");
 const http = require("http");
@@ -10,22 +7,23 @@ require("dotenv").config();
 
 const WebSocket = require("ws");
 const url = require("url");
+const path = require("path"); // 추가: path 모듈
 const { setupWSConnection } = require("y-websocket/bin/utils");
 const { LeveldbPersistence } = require("y-leveldb");
+const Y = require("yjs");
 
-const persistence = new LeveldbPersistence("./yjs-docs");
+// 절대경로로 데이터베이스 폴더 지정 (server.js 파일이 위치한 폴더 기준)
+const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
 
 const app = express();
 
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://192.168.31.193:3000",
   })
 );
 app.use(express.json());
-
-// AI 분석 결과 캐싱용
-const analysisCache = new Map();
 
 // OpenAI API 요청 함수
 async function openAIRequest(model, messages) {
@@ -86,6 +84,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 // /api/analyze (AI 코드분석)
+const analysisCache = new Map();
 app.post("/api/analyze", async (req, res) => {
   try {
     const { code, language } = req.body;
@@ -121,8 +120,18 @@ app.post("/api/analyze", async (req, res) => {
   }
 });
 
+// 그림판에서 전역 Clear를 위한 엔드포인트 (모든 클라이언트에 clear 명령 전송)
+app.post("/api/clear", (req, res) => {
+  // 모든 연결된 WebSocket 클라이언트에 clear 메시지 전송
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: "clear" }));
+    }
+  });
+  res.json({ success: true });
+});
 
-// y-websocket 서버 - 공유 그림판만 현재 사용 
+// y-websocket 서버 - 그림판, 코드 동시 사용 
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({
@@ -133,21 +142,22 @@ const wss = new WebSocket.Server({
 wss.on("connection", async (ws, req) => {
   const parsedUrl = url.parse(req.url, true);
   const docName = parsedUrl.pathname.slice(1) || "default";
-  console.log(`새 WebSocket 연결: 문서 이름 - ${docName}`);
+  
+  const safeDocName = docName.replace(/[<>:"/\\|?*]/g, "_");
+  console.log(`새 WebSocket 연결: 문서 이름 - ${safeDocName}`);
 
   try {
-    await persistence.getYDoc(docName);
-    console.log(`문서 로드 완료: ${docName}`);
+    await persistence.getYDoc(safeDocName);
+    console.log(`문서 로드 완료: ${safeDocName}`);
   } catch (error) {
-    console.warn(`문서 로드 실패 (없거나 손상됨): ${docName}`);
+    console.warn(`문서 로드 실패 (없거나 손상됨): ${safeDocName}`);
     const newDoc = new Y.Doc();
-    persistence.storeUpdate(docName, Y.encodeStateAsUpdate(newDoc));
-    console.log(`새 문서 생성: ${docName}`);
+    persistence.storeUpdate(safeDocName, Y.encodeStateAsUpdate(newDoc));
+    console.log(`새 문서 생성: ${safeDocName}`);
   }
 
-  setupWSConnection(ws, req, { docName, persistence });
-
-  console.log(`WebSocket 연결 완료: 문서 - ${docName}`);
+  setupWSConnection(ws, req, { docName: safeDocName, persistence });
+  console.log(`WebSocket 연결 완료: 문서 - ${safeDocName}`);
 });
 
 // 포트 설정 및 서버 실행

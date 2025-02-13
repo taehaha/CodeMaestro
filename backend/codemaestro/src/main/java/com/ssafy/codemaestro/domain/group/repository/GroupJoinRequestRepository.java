@@ -24,4 +24,18 @@ public interface GroupJoinRequestRepository extends JpaRepository<GroupJoinReque
             @Param("status") GroupRequestStatus status);
 
     boolean existsByUserIdAndGroupIdAndStatus(Long userId, Long groupId, GroupRequestStatus status);
+
+    void deleteByGroup(Group group);
+
+    // 대기 중인 그룹 요청 조회
+    @Query("SELECT r FROM GroupJoinRequest r " +
+            "JOIN FETCH r.user u " +
+            "JOIN FETCH r.group g " +
+            "JOIN FETCH g.owner o " +
+            "WHERE g.owner.id = :ownerId " +
+            "AND r.status = :status")
+    List<GroupJoinRequest> findPendingRequestsByOwnerId(
+            @Param("ownerId") Long ownerId,
+            @Param("status") GroupRequestStatus status
+    );
 }

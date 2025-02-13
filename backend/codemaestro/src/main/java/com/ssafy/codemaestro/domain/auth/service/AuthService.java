@@ -59,7 +59,8 @@ public class AuthService {
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setNickname(signUpDto.getNickname());
-        user.setProfileImageUrl(null); // TODO: 기본 이미지 URL로 변환 필요
+        user.setProfileImageUrl("https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_profile.png");
+        user.setProfileBackgroundImageUrl("https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_profile.png");
         user.setLoginProvider(LoginProvider.LOCAL);
         user.setLoginId(null);
         user.setDescription(signUpDto.getDescription());
@@ -99,8 +100,8 @@ public class AuthService {
         String userId = jwtUtil.getId(refreshToken);
 
         // 새로 발급할 AccessToken, RefreshToken
-        String newAccess = jwtUtil.createToken("access", userId, 60 * 60 * 10L);
-        String newRefresh = jwtUtil.createToken("refresh", userId, 60 * 60 * 10L);
+        String newAccess = jwtUtil.createAccessToken(userId);
+        String newRefresh = jwtUtil.createRefreshToken(userId);
 
         refreshRepository.deleteByRefreshToken(refreshToken);
         addRefreshEntity(userId, newRefresh, 60 * 60 * 10L);

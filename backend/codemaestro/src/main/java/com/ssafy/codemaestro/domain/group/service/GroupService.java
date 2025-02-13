@@ -1,23 +1,21 @@
 package com.ssafy.codemaestro.domain.group.service;
 
-import com.ssafy.codemaestro.domain.group.dto.GroupDetailResponseDto;
-import com.ssafy.codemaestro.domain.group.dto.GroupRequestDto;
-import com.ssafy.codemaestro.domain.group.dto.GroupResponseDto;
-import com.ssafy.codemaestro.domain.group.dto.TransferOwnerRequestDto;
+import com.ssafy.codemaestro.domain.group.dto.*;
+import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
+import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
-import com.ssafy.codemaestro.global.entity.Group;
-import com.ssafy.codemaestro.global.entity.GroupMember;
-import com.ssafy.codemaestro.global.entity.User;
-import com.ssafy.codemaestro.global.entity.GroupRole;
+import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,8 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final GroupJoinRequestRepository groupJoinRequestRepository;
+    private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
 
     // 그룹 생성
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
@@ -62,10 +62,15 @@ public class GroupService {
        Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found"));
 
-        groupRepository.delete(group);
+       groupJoinRequestRepository.deleteByGroup(group);
+
+
+
+       groupRepository.delete(group);
     }
 
     // 전체 그룹 조회
+    @Transactional(readOnly = true)
     public List<GroupResponseDto> getAllGroups() {
         List<Group> groups = groupRepository.findAll();
 
@@ -79,6 +84,7 @@ public class GroupService {
     }
 
     // 개별 그룹 조회
+    @Transactional(readOnly = true)
     public List<GroupResponseDto> getUserGroups(Long userId) {
         List<GroupMember> groupMembers = groupMemberRepository.findByUserId(userId);
 
@@ -110,8 +116,11 @@ public class GroupService {
             throw new BadRequestException("Group owner cannot leave the group");
         }
 
+        // 그룹 멤버 수 감소
         group.setCurrentMembers(group.getCurrentMembers() - 1);
         groupRepository.save(group);
+
+        // group_member 컬럼 삭제
         groupMemberRepository.delete(groupMember);
     }
 
@@ -163,5 +172,17 @@ public class GroupService {
         }
 
         return searchGroupsList;
+    }
+
+    // 그룹 랭킹 조회
+    public List<GroupRankingResponseDto> getGroupByTotalScore(int year, int month) {
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime endDate = startDate.plusMonths(1);
+
+        return groupConferenceHistoryRepository.findTopGroupsByTotalScore(
+                startDate,
+                endDate,
+                PageRequest.of(0, 10)
+        );
     }
 }
