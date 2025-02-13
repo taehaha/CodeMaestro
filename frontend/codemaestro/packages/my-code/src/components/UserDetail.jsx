@@ -23,9 +23,20 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
     Swal.fire({
       title: '친구 추가',
       text: `${user.nickname}님에게 친구 추가를 요청하시겠습니까?`,
+      icon: "question",
       showCancelButton: true,
-      confirmButtonText: "확인",
       cancelButtonText: "취소",
+      width: "500px",
+          background: "#f8f9fa", 
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -34,7 +45,18 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             console.error("친구추가 요청 실패", error);
             Swal.fire({title:"에러 발생",
                 icon:"error",
-                text:"친구 추가 요청 중 에러가 발생하였습니다."
+                text:"친구 추가 요청 중 에러가 발생하였습니다.",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+      
             })
             
         }

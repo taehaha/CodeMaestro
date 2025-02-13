@@ -72,7 +72,9 @@ function App() {
                 </Route>
               </Routes>
             </main>
-            <Footer/>
+            <div className="content-wrapper">
+              <Footer/>
+            </div>
           </div> 
         </CommentsProvider>
        </PostsProvider>

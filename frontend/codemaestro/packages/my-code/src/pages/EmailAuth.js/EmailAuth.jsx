@@ -245,7 +245,7 @@ const handleComplete = async (e) => {
             <form className={`signup-form ${step === 2 ? 'step-2' : ''}`} onSubmit={(e) => handleComplete(e)}>
             <div className="form-group">
             <label htmlFor="nickname">닉네임</label>
-              <div className="input-group">
+              <div className="input-group3">
                 <input
                   type="text"
                   id="nickname"
@@ -289,10 +289,10 @@ const handleComplete = async (e) => {
         )}
         {step === 3 && (
           <div className="signup-complete">
-            <h1>회원가입 완료</h1>
+            <h2>회원가입 완료</h2>
             <p>{nickname}님 반가워요</p>
-            <p>Code Master에서 다양한 기능을 사용해보세요!</p>
-            <Link to="/login" className="signup-btn">로그인</Link>
+            <p>Code Maestro에서 다양한 기능을 사용해보세요!</p>
+            <Link to="/login" className="signup-btn3">로그인</Link>
           </div>
         )}
       </div>

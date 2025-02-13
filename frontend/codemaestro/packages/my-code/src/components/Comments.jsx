@@ -11,6 +11,23 @@ const Comments = ({ board_id }) => {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
 
+  const formatDate = (isoString) => {
+    if (!isoString) return "";
+  
+    const date = new Date(isoString);
+  
+    // 연, 월, 일 추출
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // 0부터 시작하므로 +1 필요
+    const day = String(date.getDate()).padStart(2, "0");
+  
+    // 시간, 분 추출
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+  
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   // 🔹 게시글의 댓글 목록 불러오기
   useEffect(() => {
     const fetchComments = async () => {
@@ -70,7 +87,7 @@ const Comments = ({ board_id }) => {
         {comments.map((comment) => (
           <li key={comment.commentId} className="comment-item">
             <span className="comment-author">{comment.writerNickname}</span>
-            <span className="comment-time">| {comment.createdAt}</span>
+            <span className="comment-time">| {formatDate(comment.createdAt)}</span>
             <p className="comment-content">{comment.content}</p>
 
             {comment.writerId === CURRENT_USER_ID && (
@@ -89,7 +106,7 @@ const Comments = ({ board_id }) => {
         <input
           className="comment-input"
           type="text"
-          placeholder="댓글을 남겨보세요"
+          placeholder="댓글을 남겨보세요."
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
