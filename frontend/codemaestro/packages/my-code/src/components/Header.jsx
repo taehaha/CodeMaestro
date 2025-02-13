@@ -20,14 +20,14 @@ function Header() {
   const userId = useSelector((state) => state.user.myInfo?.userId);
  
   useEffect(() => {
-    if (userId) {
+    // userId가 존재하고 로그인 상태일 때만 알림 요청
+    if (isLoggedIn && userId) {
       dispatch(fetchNotifications(userId));
     }
-  }, [userId]);
+  }, [dispatch, isLoggedIn, userId]);
 
   // 로그인 상태 확인
   const notifications = useSelector(state => state.notifications.items);
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   // 로그아웃
   const handelLogout = () => {
     dispatch(logoutUser());

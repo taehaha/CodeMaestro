@@ -21,7 +21,7 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import GroupPage from './pages/Group/GroupPage';
 import EmailAuth from './pages/EmailAuth.js/EmailAuth';
 import PostDetail from './pages/Community/PostDetail';
-
+import OAuth2RedirectHandler from './components/AutoLogin';
 // 프로텍트 라우트
 import ProtectedRoute from './router/ProtectedRoute';
 
@@ -59,6 +59,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />  
                 <Route path="/signup" element={<EmailAuth></EmailAuth>}></Route>
                 <Route path="/forgotpassword" element={<ForgotPassword />}></Route>
+                <Route path="/oauth2/signin" element={<OAuth2RedirectHandler />} />
+
                             {/* 로그인 필요 페이지 */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/meeting" element={<MeetingPage />} />

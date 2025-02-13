@@ -19,9 +19,9 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
   };
 
   // 친구 추가 요청 처리 (addPage 모드)
-  const handleAdd =  () => {
+  const handleAdd = () => {
     Swal.fire({
-      title: '친구 추가',
+      title: "친구 추가",
       text: `${user.nickname}님에게 친구 추가를 요청하시겠습니까?`,
       icon: "question",
       showCancelButton: true,
@@ -40,7 +40,15 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-            await FriendRequest({senderId:myInfo.userId, receiverId:user.userId})
+          await FriendRequest({
+            senderId: myInfo.userId,
+            receiverId: user.userId,
+          });
+          Swal.fire({
+            title: "요청 완료",
+            icon: "success",
+            text: "친구 추가 요청이 전송되었습니다.",
+          });
         } catch (error) {
             console.error("친구추가 요청 실패", error);
             Swal.fire({title:"에러 발생",
@@ -60,10 +68,10 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             })
             
         }
-        // 실제 axios 요청 로직 추가
       }
     });
   };
+  
 
   return (
     <li

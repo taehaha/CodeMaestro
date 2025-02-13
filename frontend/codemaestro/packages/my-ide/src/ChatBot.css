@@ -108,8 +108,8 @@
   font-size: 14px;
   line-height: 1.4;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-x: auto; /* 긴 내용이 있을 경우 가로 스크롤 허용 */
-  overflow-y: hidden; /* 세로 내용이 넘치지 않도록 설정 */
+  overflow-x: auto; /* 긴 내용이 있을 경우 가로 스크롤 */
+  overflow-y: hidden; /* 세로 내용이 넘치지 않도록 */
 }
 
 .user .message-bubble {
@@ -121,7 +121,7 @@
 .bot .message-bubble {
   background: #FFCC00;
 
-  /* 진하고 투명한 파란색 말풍선 */
+
   color: #000000;
   border-top-left-radius: 0;
 }
@@ -129,17 +129,17 @@
 /* 코드 블록 스타일 */
 .message-bubble code,
 .message-bubble pre {
-  display: block; /* 블록 요소로 변환 */
-  font-family: "Courier New", Courier, monospace; /* 모노스페이스 폰트 */
-  font-size: 12px; /* 코드 가독성을 위한 크기 */
-  background: rgba(240, 240, 240, 0.9); /* 코드 전용 회색 배경 */
-  padding: 10px; /* 코드 블록 여백 */
-  border-radius: 5px; /* 둥근 모서리 */
-  white-space: pre; /* 줄 바꿈을 포함한 공백 유지 */
-  overflow-x: auto; /* 코드 블록에서만 가로 스크롤 허용 */
-  max-width: 100%; /* 부모 요소의 너비를 초과하지 않음 */
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* 내부 그림자 효과 */
-  color: #000000; /* 글씨를 검은색으로 설정 */
+  display: block; 
+  font-family: "Courier New", Courier, monospace; 
+  font-size: 12px; 
+  background: rgba(240, 240, 240, 0.9);
+  padding: 10px; 
+  border-radius: 5px;
+  white-space: pre; 
+  overflow-x: auto; 
+  max-width: 100%; 
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); 
+  color: #000000; 
 }
 
 

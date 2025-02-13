@@ -5,6 +5,9 @@ import "./PostCreate.css";
 import { createBoard } from "../../api/BoardApi";
 import { useSelector } from "react-redux";
 
+// react-simplemde-editor 임포트
+import SimpleMDE from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 
 const PostCreate = () => {

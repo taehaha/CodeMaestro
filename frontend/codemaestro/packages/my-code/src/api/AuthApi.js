@@ -159,6 +159,8 @@ export const emailCheck = async (email) => {
 export const nicknameCheck = async (nickname) =>{
   try {
     const result = await UserAxios.get(`/api/validate/nickname/${nickname}`)
+    console.log(result);
+    
     return result.status
   } catch (error) {
     console.error("닉네임 중복 검사 중 오류 발견", error);
@@ -175,3 +177,4 @@ export const getRequest = async () => {
     return [];
   }
 };
+

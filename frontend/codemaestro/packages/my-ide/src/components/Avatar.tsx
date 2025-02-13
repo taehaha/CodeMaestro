@@ -1,4 +1,3 @@
-// /components/Avatar.tsx
 import React from "react";
 import styles from "./Avatar.module.css";
 
@@ -9,14 +8,9 @@ interface AvatarProps {
 
 export function Avatar({ src, name }: AvatarProps) {
   return (
-    <div className={styles.avatar} data-tooltip={name}>
-      <img
-        src={src}
-        alt={name}
-        width={48}
-        height={48}
-        className={styles.avatar_picture}
-      />
+    <div className={`${styles.avatar} group`}>
+      <img src={src} alt={name} className={styles.avatar_picture} />
+      <span className={styles.tooltip}>{name}</span>
     </div>
   );
 }

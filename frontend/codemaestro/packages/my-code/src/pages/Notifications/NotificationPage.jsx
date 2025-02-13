@@ -35,7 +35,7 @@ const NotificationModal = ({ onClose }) => {
           confirmButton: "swal-custom-button" // 버튼 스타일
         }
       }).then(() => {
-        navigate(`/meeting/${notification.roomId}`);
+        navigate(`/meeting/${notification.conferenceId}`);
       });
     } else if (notification.type === "friend") {
       await AcceptFriendsRequest(notification.requestId);

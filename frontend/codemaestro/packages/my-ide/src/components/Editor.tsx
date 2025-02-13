@@ -7,22 +7,18 @@ import { java } from "@codemirror/lang-java";
 import { inlineCopilot } from "codemirror-copilot";
 import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
 import { Copy } from "lucide-react";
-import { createClient } from "@liveblocks/client";
-import { RoomProvider, useRoom } from "@liveblocks/react";
-import { LiveblocksYjsProvider } from "@liveblocks/yjs";
 import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
-import { EditorState } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
-import { useSelf } from "@liveblocks/react";
+import { EditorState, Compartment } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
 import { linter, lintGutter } from "@codemirror/lint";
 import { pythonLinter } from "../lint/pythonLinter";
 import { cppLinter } from "../lint/cppLinter";
 import { javaLinter } from "../lint/javaLinter";
 import { indentWithTab } from "@codemirror/commands";
-import { keymap } from "@codemirror/view";
-import { Compartment } from "@codemirror/state";
-import { AvatarStack } from "../components/AvatarStack";
+import { WebsocketProvider } from "y-websocket";
+import { AvatarStackCollab } from "./AvatarStackCollab";
+
 
 interface EditorProps {
   code: string;
@@ -88,7 +84,6 @@ const pythonCompletions = [
   { label: "None", type: "literal", detail: "Null 값" },
 ];
 
-// C/C++ 자동완성 데이터는 분리하지 않고 같이 사용하는 것으로 해결
 const cppCompletions = [
   { label: "printf", type: "function", detail: "C 출력 함수" },
   { label: "scanf", type: "function", detail: "C 입력 함수" },
@@ -120,7 +115,7 @@ const cppCompletions = [
   { label: "std::stack", type: "type", detail: "LIFO 스택" },
   { label: "std::priority_queue", type: "type", detail: "우선순위 큐" },
   { label: "std::algorithm", type: "header", detail: "알고리즘 라이브러리" },
-  { label: "std::sort", tymepe: "function", detail: "정렬 함수" },
+  { label: "std::sort", type: "function", detail: "정렬 함수" },
   { label: "std::find", type: "function", detail: "요소 찾기" },
   { label: "std::reverse", type: "function", detail: "컨테이너 뒤집기" },
   { label: "std::min", type: "function", detail: "최소값 계산" },
@@ -164,8 +159,6 @@ const cppCompletions = [
   { label: "volatile", type: "keyword", detail: "변수 변경 방지" },
 ];
 
-
-// Java 자동완성 데이터
 const javaCompletions = [
   { label: "extends", type: "keyword", detail: "클래스 상속" },
   { label: "implements", type: "keyword", detail: "인터페이스 구현" },
@@ -207,9 +200,9 @@ const javaCompletions = [
   { label: "strictfp", type: "keyword", detail: "부동소수점 연산의 플랫폼 독립성 보장" },
   { label: "null", type: "literal", detail: "null 참조값" },
   { label: "true", type: "literal", detail: "참 논리값" },
-  { label: "false", type: "literal", detail: "거짓 논리값" }
-  ,
+  { label: "false", type: "literal", detail: "거짓 논리값" },
 ];
+
 
 const getCompletionSource = (languageId: number) => {
   const completions = {
@@ -233,6 +226,7 @@ const getCompletionSource = (languageId: number) => {
     ],
   });
 };
+
 const getLinterExtension = (languageId: number) => {
   switch (languageId) {
     case 71:
@@ -262,18 +256,23 @@ const getLanguageExtension = (languageId: number) => {
   }
 };
 
-const lightTheme = EditorView.theme({
-  ".cm-activeLine": {
-    backgroundColor: "transparent",
-    border: "none",
+
+const lightTheme = EditorView.theme(
+  {
+    ".cm-activeLine": {
+      backgroundColor: "transparent",
+      border: "none",
+    },
   },
-}, { dark: false });
+  { dark: false }
+);
 
-const client = createClient({
-  publicApiKey: "pk_dev_wcRTPkCMtt5RRRNK1dldWR6vcR5_bvE2duMcpioZi5m_-nDl3mf6mZ4fpXI3NnCi",
-});
-
-const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, selectedLanguage }) => {
+const Editor: React.FC<EditorProps> = ({
+  code,
+  handleCodeChange,
+  isDarkMode,
+  selectedLanguage,
+}) => {
   const [enableAI, setEnableAI] = useState(false);
   const [analysisResults, setAnalysisResults] = useState({
     timeComplexity: "결과 없음",
@@ -288,7 +287,7 @@ const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, sel
     console.log("언어 변경됨: ID =", selectedLanguage);
   }, [selectedLanguage]);
 
-  // inlineCopilot 등록 - (ai자동완성 기능.. 리치 에디터 읽기 기능등에 사용)
+  // inlineCopilot 등록 (AI 자동완성)
   inlineCopilot(async (prefix, suffix) => {
     const response = await fetch("http://localhost:3001/api/chat", {
       method: "POST",
@@ -302,6 +301,7 @@ const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, sel
     return choices?.[0]?.message?.content || "";
   });
 
+  // 코드 분석 (REST API 호출)
   const analyzeCode = async () => {
     try {
       setIsAnalyzing(true);
@@ -311,38 +311,36 @@ const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, sel
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, language: selectedLanguage }),
       });
-
-      if (!response.ok) throw new Error(`HTTP 오류! 상태: ${response.status}`);
-
+      if (!response.ok)
+        throw new Error(`HTTP 오류! 상태: ${response.status}`);
       const data = await response.json();
       console.log("분석 결과:", data);
       const resultText: string = data.result;
       console.log("분석 결과 텍스트:", resultText);
-
       const timeComplexityMatch = resultText.match(/시간\s*복잡도:\s*(.+)/);
       const spaceComplexityMatch = resultText.match(/공간\s*복잡도:\s*(.+)/);
       const potentialIssuesMatch = resultText.match(/잠재적인\s*문제:\s*(.+)/);
       const algorithmTypeMatch = resultText.match(/알고리즘\s*유형:\s*(.+)/);
-
-      // 각 항목에서 첫 번째 줄만 추출하도록 split('\n') 이용 - 너무 길면 고봉밥 같아서
       const timeComplexity = timeComplexityMatch
-        ? timeComplexityMatch[1].split('\n')[0].trim()
+        ? timeComplexityMatch[1].split("\n")[0].trim()
         : "N/A";
       const spaceComplexity = spaceComplexityMatch
-        ? spaceComplexityMatch[1].split('\n')[0].trim()
+        ? spaceComplexityMatch[1].split("\n")[0].trim()
         : "N/A";
       const potentialIssues = potentialIssuesMatch
-        ? potentialIssuesMatch[1].split('\n')[0].trim()
+        ? potentialIssuesMatch[1].split("\n")[0].trim()
         : "N/A";
       const algorithmType = algorithmTypeMatch
-        ? algorithmTypeMatch[1].split('\n')[0].trim()
+        ? algorithmTypeMatch[1].split("\n")[0].trim()
         : "Unknown";
-
       const formattedTimeComplexity =
-        timeComplexity !== "N/A" ? timeComplexity.replace(/\\times/g, "×") : timeComplexity;
+        timeComplexity !== "N/A"
+          ? timeComplexity.replace(/\\times/g, "×")
+          : timeComplexity;
       const formattedSpaceComplexity =
-        spaceComplexity !== "N/A" ? spaceComplexity.replace(/\\times/g, "×") : spaceComplexity;
-
+        spaceComplexity !== "N/A"
+          ? spaceComplexity.replace(/\\times/g, "×")
+          : spaceComplexity;
       setAnalysisResults({
         timeComplexity: formattedTimeComplexity,
         spaceComplexity: formattedSpaceComplexity,
@@ -374,189 +372,237 @@ const Editor: React.FC<EditorProps> = ({ code, handleCodeChange, isDarkMode, sel
           outline: none !important;
         }
       `}</style>
-
-      <RoomProvider id="collab-editor" initialPresence={{}}>
-        <CollaborativeEditor
-          code={code}
-          handleCodeChange={handleCodeChange}
-          isDarkMode={isDarkMode}
-          selectedLanguage={selectedLanguage}
-          enableAI={enableAI}
-          analysisResults={analysisResults}
-          isAnalyzing={isAnalyzing}
-          showAnalysisPanel={showAnalysisPanel}
-          setEnableAI={setEnableAI}
-          setAnalysisResults={setAnalysisResults}
-          setIsAnalyzing={setIsAnalyzing}
-          setShowAnalysisPanel={setShowAnalysisPanel}
-          analyzeCode={analyzeCode}
-        />
-      </RoomProvider>
+      <CollaborativeEditor
+        code={code}
+        handleCodeChange={handleCodeChange}
+        isDarkMode={isDarkMode}
+        selectedLanguage={selectedLanguage}
+        enableAI={enableAI}
+        analysisResults={analysisResults}
+        isAnalyzing={isAnalyzing}
+        showAnalysisPanel={showAnalysisPanel}
+        setEnableAI={setEnableAI}
+        setAnalysisResults={setAnalysisResults}
+        setIsAnalyzing={setIsAnalyzing}
+        setShowAnalysisPanel={setShowAnalysisPanel}
+        analyzeCode={analyzeCode}
+      />
     </>
   );
 };
 
+/* CollaborativeEditor 컴포넌트 (동시 편집 및 collab) */
+
 const CollaborativeEditor = React.memo((props: any) => {
-  const userInfo = useSelf((me) => me.info);
-  const room = useRoom();
   const [ydoc] = useState(new Y.Doc());
+  const ytext = useMemo(() => ydoc.getText("codemirror"), [ydoc]);
   const editorViewRef = useRef<EditorView | null>(null);
-  const [ytext] = useState(ydoc.getText("codemirror"));
-  const [provider, setProvider] = useState<LiveblocksYjsProvider | null>(null);
-  const [editorView, setEditorView] = useState<EditorView | null>(null);
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [lintEnabled, setLintEnabled] = useState(false);
 
   const lintGutterCompartment = useMemo(() => new Compartment(), []);
   const lintCompartment = useMemo(() => new Compartment(), []);
-  useEffect(() => {
-    if (!provider || !room) return;
 
-    const handleAwarenessChange = () => {
-      console.log("현재 사용자 목록:", provider.awareness.getStates());
-    };
-
-    // Awareness 변경 감지 -> 사용자 감지
-    provider.awareness.on("change", handleAwarenessChange);
-
-    // 랜덤 색상 생성 
-    function getRandomColor() {
-      const letters = "0123456789ABCDEF";
-      let color = "#";
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-
-    const userDisplayName = userInfo?.name || "Guest"; // userInfo의 name 프로퍼티를 사용
-
-    const userColor = userInfo?.color || getRandomColor();
-    
-    provider.awareness.setLocalStateField("user", {
-      name: userDisplayName,
-      color: userColor,
-      colorLight: userColor + "80", 
-    });
-    
-
-
-    return () => {
-      provider.awareness.off("change", handleAwarenessChange);
-    };
-  }, [provider, room, userInfo]);
-
-
-
-  const editorRef = useCallback((node: HTMLDivElement) => {
-    if (!node) return;
-
-    const provider = new LiveblocksYjsProvider(room, ydoc);
-    setProvider(provider);
-
-    const extensions = [
-      getLanguageExtension(props.selectedLanguage),
-      getCompletionSource(props.selectedLanguage),
-      yCollab(ytext, provider.awareness),
-      props.isDarkMode ? oneDark : lightTheme,
-      props.enableAI ? inlineCopilot(aiCompletion) : [],
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          props.handleCodeChange(update.state.doc.toString());
+  // 로컬 스토리지에서 이중 파싱으로 사용자 정보(닉네임, 색상) 가져오기
+  const { userDisplayName, userColor } = useMemo(() => {
+    let userDisplayName = "Guest";
+    // 랜덤 색상 생성 (기본값)
+    const randomColor =
+      "#" +
+      Math.floor(Math.random() * 0xffffff)
+        .toString(16)
+        .padStart(6, "0");
+    let userColor = randomColor;
+    const persistedUserStr = localStorage.getItem("persist:persistedUser");
+    if (persistedUserStr) {
+      try {
+        const persistedUser = JSON.parse(persistedUserStr);
+        if (persistedUser.myInfo) {
+          const myInfoObj = JSON.parse(persistedUser.myInfo);
+          if (
+            myInfoObj.nickname &&
+            typeof myInfoObj.nickname === "string" &&
+            myInfoObj.nickname.trim()
+          ) {
+            userDisplayName = myInfoObj.nickname.trim();
+          }
+          if (
+            myInfoObj.color &&
+            typeof myInfoObj.color === "string" &&
+            myInfoObj.color.trim()
+          ) {
+            userColor = myInfoObj.color;
+          }
         }
-      }),
-    ];
-    const view = new EditorView({
-      state: EditorState.create({
-        doc: ytext.toString(),
-        extensions: [
-          basicSetup({ highlightActiveLine: false }),
-          keymap.of([indentWithTab]),
-          lintGutter(),
-          getLanguageExtension(props.selectedLanguage),
-          getCompletionSource(props.selectedLanguage),
-          yCollab(ytext, provider.awareness),
-          props.enableAI ? inlineCopilot(aiCompletion) : [],
-          EditorView.lineWrapping,
-          EditorView.updateListener.of((update) => {
-            if (update.docChanged) {
-              props.handleCodeChange(update.state.doc.toString());
-            }
-          }),
-          lintCompartment.of(lintEnabled ? getLinterExtension(props.selectedLanguage) : []),
-          lintGutterCompartment.of(lintEnabled ? lintGutter() : []),
-          props.isDarkMode ? oneDark : lightTheme,
-        ],
-      })
-      ,
-      parent: node,
-    });
-    editorViewRef.current = view;
-
-    return () => {
-
-      view.destroy();
-      provider.destroy();
-      ydoc.destroy();
-    };
-  }, [props.selectedLanguage, props.enableAI, props.isDarkMode]);
-
-  const aiCompletion = useCallback(async (prefix: string, suffix: string) => {
-    try {
-      const response = await fetch("http://localhost:3001/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: `${prefix}<FILL_ME>${suffix}` }],
-          model: "gpt-3.5-turbo",
-        }),
-      });
-      const data = await response.json();
-      return data?.choices?.[0]?.message?.content || "";
-    } catch (error) {
-      console.error("AI 완성 오류:", error);
-      return "";
+      } catch (error) {
+        console.error("persist:persistedUser 파싱 오류:", error);
+      }
     }
+    return { userDisplayName, userColor };
   }, []);
+
+  // 에디터 DOM에 붙일 ref 콜백
+  const editorRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (!node) return;
+
+      // 쿼리에서 roomId 추출
+      function getRoomNameFromURL(): string {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("roomId") || "default";
+      }
+      const roomName = getRoomNameFromURL();
+      console.log("추출된 roomName:", roomName);
+
+      // WebsocketProvider 생성 
+      const wsProvider = new WebsocketProvider(
+        "ws://localhost:3001",
+        roomName,
+        ydoc
+      );
+      setProvider(wsProvider);
+
+      // 로컬 사용자의 정보를 awareness에 등록 (이중 파싱한 값 사용)
+      wsProvider.awareness.setLocalStateField("user", {
+        name: userDisplayName,
+        color: userColor,
+        colorLight: userColor + "80",
+      });
+
+      // AI 자동완성을 위한 함수 (inlineCopilot에 사용)
+      const aiCompletion = async (prefix: string, suffix: string) => {
+        try {
+          const response = await fetch("http://localhost:3001/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: [
+                { role: "user", content: `${prefix}<FILL_ME>${suffix}` },
+              ],
+              model: "gpt-3.5-turbo",
+            }),
+          });
+          const data = await response.json();
+          return data?.choices?.[0]?.message?.content || "";
+        } catch (error) {
+          console.error("AI 완성 오류:", error);
+          return "";
+        }
+      };
+
+      const extensions = [
+        getLanguageExtension(props.selectedLanguage),
+        getCompletionSource(props.selectedLanguage),
+        yCollab(ytext, wsProvider.awareness),
+        props.isDarkMode ? oneDark : lightTheme,
+        props.enableAI ? inlineCopilot(aiCompletion) : [],
+        EditorView.lineWrapping,
+        keymap.of([indentWithTab]),
+        basicSetup({ highlightActiveLine: false }),
+        lintGutter(),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            props.handleCodeChange(update.state.doc.toString());
+          }
+        }),
+        lintCompartment.of(
+          lintEnabled ? getLinterExtension(props.selectedLanguage) : []
+        ),
+        lintGutterCompartment.of(
+          lintEnabled ? lintGutter() : []
+        ),
+        props.isDarkMode ? oneDark : lightTheme,
+      ];
+
+      const view = new EditorView({
+        state: EditorState.create({
+          doc: ytext.toString(),
+          extensions,
+        }),
+        parent: node,
+      });
+      editorViewRef.current = view;
+
+      return () => {
+        console.log("Cleanup: 컴포넌트 언마운트, awareness 상태 제거");
+        wsProvider.awareness.setLocalState(null);
+        view.destroy();
+        wsProvider.destroy();
+        ydoc.destroy();
+      };
+    },
+    [
+      props.selectedLanguage,
+      props.enableAI,
+      props.isDarkMode,
+      lintEnabled,
+      ytext,
+      ydoc,
+      props.handleCodeChange,
+      userDisplayName,
+      userColor,
+    ]
+  );
+
+  // lintEnabled 옵션 변경 시 에디터 업데이트
   useEffect(() => {
     if (editorViewRef.current) {
-      console.log("lintEnabled 변경됨:", lintEnabled, "선택된 언어:", props.selectedLanguage);
+      console.log(
+        "lintEnabled 변경됨:",
+        lintEnabled,
+        "선택된 언어:",
+        props.selectedLanguage
+      );
       editorViewRef.current.dispatch({
         effects: [
-          lintCompartment.reconfigure(lintEnabled ? getLinterExtension(props.selectedLanguage) : []),
-          lintGutterCompartment.reconfigure(lintEnabled ? lintGutter() : [])
-        ]
+          lintCompartment.reconfigure(
+            lintEnabled ? getLinterExtension(props.selectedLanguage) : []
+          ),
+          lintGutterCompartment.reconfigure(
+            lintEnabled ? lintGutter() : []
+          ),
+        ],
       });
-      // lint 갱신하여 경고 메시지 없애기 시도?
       editorViewRef.current.dispatch({
-        changes: { from: 0, to: 0, insert: "" }
+        changes: { from: 0, to: 0, insert: "" },
       });
     }
-  }, [lintEnabled, props.selectedLanguage, editorViewRef.current]);
-
-
+  }, [lintEnabled, props.selectedLanguage]);
+  
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (provider) {
+        provider.awareness.setLocalState(null);
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [provider]);
+  
   return (
-
     <div className="border border-gray-800 rounded overflow-visible transition-colors duration-500">
       <div className="flex items-center mb-2 p-4 bg-gray-100 dark:bg-gray-800 space-x-4">
         <button
           onClick={() => props.setEnableAI(!props.enableAI)}
-          className={`px-4 py-2 bg-gradient-to-r from-purple-400 to-purple-600 text-white font-bold rounded-lg shadow-md 
-    hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300
-    ${props.enableAI ? "rainbow-border" : ""}`}
+          className={`px-4 py-2 bg-gradient-to-r from-red-400 to-yellow-400 via-green-400 to-blue-400 text-white font-bold rounded-lg shadow-md 
+            hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300
+            ${props.enableAI ? "rainbow-border" : ""}`}
         >
-          {props.enableAI ? "🤖 AI 자동완성 켜짐" : "🤖 AI 자동완성 꺼짐"}
+          {props.enableAI
+            ? "🤖 AI 자동완성 켜짐"
+            : "🤖 AI 자동완성 꺼짐"}
         </button>
-
-
         <button
           onClick={props.analyzeCode}
           disabled={props.isAnalyzing}
-          className={`px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg shadow-md ${props.isAnalyzing ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+          className={`px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg shadow-md ${
+            props.isAnalyzing ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           {props.isAnalyzing ? "🔍 분석 중..." : "📊 코드 분석"}
         </button>
-
         <button
           onClick={() => props.setShowAnalysisPanel(!props.showAnalysisPanel)}
           className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-800 text-white rounded-lg shadow-md"
@@ -565,46 +611,53 @@ const CollaborativeEditor = React.memo((props: any) => {
         </button>
         <button
           onClick={() => {
-            setLintEnabled((prev) => {
-              console.log("Lint 토글, 이전 상태:", prev);
-              return !prev;
-            });
+            setLintEnabled((prev) => !prev);
           }}
-          className={`px-4 py-2 text-white rounded-lg shadow-md transition-colors ${lintEnabled ? "bg-red-700" : "bg-gray-400"
-            }`}
+          className={`px-4 py-2 text-white rounded-lg shadow-md transition-colors ${
+            lintEnabled ? "bg-red-700" : "bg-gray-400"
+          }`}
         >
-          {lintEnabled ? "🚨 문법 검사 켜짐" : "🚨 문법 검사 꺼짐"}
+          {lintEnabled
+            ? "🚨 문법 검사 켜짐"
+            : "🚨 문법 검사 꺼짐"}
         </button>
-        
         <button
           onClick={() => navigator.clipboard.writeText(props.code)}
           className="ml-auto p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
         >
           <Copy className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </button>
-
-        <AvatarStack />
+        {provider && <AvatarStackCollab provider={provider} />}
       </div>
-
       {props.showAnalysisPanel && (
         <div className="p-4 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold mb-2 dark:text-white">🧠 AI 분석 결과</h3>
+          <h3 className="text-lg font-semibold mb-2 dark:text-white">
+            🧠 AI 분석 결과
+          </h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="space-y-1">
               <p className="font-medium dark:text-gray-300">⏳ 시간 복잡도:</p>
-              <p className="dark:text-gray-400">{props.analysisResults.timeComplexity}</p>
+              <p className="dark:text-gray-400">
+                {props.analysisResults.timeComplexity}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="font-medium dark:text-gray-300">💾 공간 복잡도:</p>
-              <p className="dark:text-gray-400">{props.analysisResults.spaceComplexity}</p>
+              <p className="dark:text-gray-400">
+                {props.analysisResults.spaceComplexity}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="font-medium dark:text-gray-300">⚠️ 잠재적 문제:</p>
-              <p className="dark:text-gray-400">{props.analysisResults.potentialIssues}</p>
+              <p className="dark:text-gray-400">
+                {props.analysisResults.potentialIssues}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="font-medium dark:text-gray-300">🔧 알고리즘 유형:</p>
-              <p className="dark:text-gray-400">{props.analysisResults.algorithmType}</p>
+              <p className="dark:text-gray-400">
+                {props.analysisResults.algorithmType}
+              </p>
             </div>
           </div>
         </div>
@@ -614,9 +667,8 @@ const CollaborativeEditor = React.memo((props: any) => {
         className="h-[600px] w-full overflow-auto"
         style={{ backgroundColor: props.isDarkMode ? "#282c34" : "#fff" }}
       />
-
     </div>
   );
 });
 
-export default Editor; 
+export default Editor;

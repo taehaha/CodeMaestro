@@ -1,3 +1,4 @@
+// Community.js
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PostsContext } from "../../context/PostsContext";
@@ -62,13 +63,20 @@ const Community = () => {
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 최신 게시글이 위에 오도록 filteredPosts를 날짜 기준 내림차순 정렬 (가정: created_at이 ISO 형식 문자열)
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
   return (
     <div className="community-container">
       <h1 className="community-title">커뮤니티</h1>
       <p className="community-subtitle">다양한 사람을 만나고 생각의 폭을 넓혀보세요.</p>
 
       <div className="community-header">
-        <button className="create-post-btn" onClick={() => navigate("/boards/create")}>✏️ 작성하기</button>
+        <button className="create-post-btn" onClick={() => navigate("/boards/create")}>
+          ✏️ 작성하기
+        </button>
         <div className="search-bar">
           <input
             type="text"

@@ -6,12 +6,17 @@ import { getBoardDetail, updateBoard, deleteBoard } from "../../api/BoardApi";
 import Comments from "../../components/Comments";
 import "./PostDetail.css";
 
+// 게시판 마크다운 문법적용 테스트
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css"; 
+import "github-markdown-css";
+
 
 const PostDetail = () => {
   const user = useSelector((state) => state.user.myInfo);
   const CURRENT_USER_ID = user.userId || null; // 현재 로그인한 사용자 ID
   const { boardId } = useParams(); // ✅ 중복 제거
-  console.log("📌 가져온 boardId:", boardId);
 
   const navigate = useNavigate();
   const { deletePost, updatePost } = useContext(PostsContext);
@@ -43,12 +48,11 @@ const PostDetail = () => {
       return;
     }
 
+
+
     const fetchPost = async () => {
       const validBoardId = Number(boardId);
-      console.log("📌 getBoardDetail 호출 boardId:", validBoardId);
-
       const fetchedPost = await getBoardDetail(validBoardId);
-      console.log("📌 게시글 상세 데이터:", fetchedPost);
 
       if (fetchedPost) {
         setPost(fetchedPost);
@@ -65,6 +69,8 @@ const PostDetail = () => {
     }
   }, [post]);
 
+
+
   if (!post) {
     return (
       <div className="loading-container">
@@ -75,6 +81,9 @@ const PostDetail = () => {
   }  
 
   const isAuthor = post.writerId === CURRENT_USER_ID && CURRENT_USER_ID !== null;
+
+
+
   const handleDelete = async () => {
     if (!isAuthor) {
       alert("본인이 작성한 게시글만 삭제할 수 있습니다.");
@@ -154,7 +163,12 @@ const PostDetail = () => {
               <span className="post-author">{post.writerNickname}</span>
               <span className="post-time2">| {formatDate(post.createdAt)}</span>
             </div>
-            <p className="post-content">{post.content}</p>
+              <ReactMarkdown
+                className="post-content markdown-body"
+                rehypePlugins={[rehypeHighlight]}>
+                {post.content}
+              </ReactMarkdown>
+
           </>
         )}
       {isAuthor && (

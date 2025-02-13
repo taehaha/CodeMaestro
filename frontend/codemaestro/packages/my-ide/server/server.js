@@ -1,6 +1,3 @@
-/**
- * server.js
- */
 
 const express = require("express");
 const http = require("http");
@@ -10,7 +7,7 @@ require("dotenv").config();
 
 const WebSocket = require("ws");
 const url = require("url");
-const path = require("path"); // 추가: path 모듈을 가져옵니다.
+const path = require("path"); // 추가: path 모듈
 const { setupWSConnection } = require("y-websocket/bin/utils");
 const { LeveldbPersistence } = require("y-leveldb");
 const Y = require("yjs");
@@ -27,9 +24,6 @@ app.use(
   })
 );
 app.use(express.json());
-
-// AI 분석 결과 캐싱용
-const analysisCache = new Map();
 
 // OpenAI API 요청 함수
 async function openAIRequest(model, messages) {
@@ -90,6 +84,7 @@ app.post("/api/chat", async (req, res) => {
 });
 
 // /api/analyze (AI 코드분석)
+const analysisCache = new Map();
 app.post("/api/analyze", async (req, res) => {
   try {
     const { code, language } = req.body;
@@ -125,7 +120,18 @@ app.post("/api/analyze", async (req, res) => {
   }
 });
 
-// y-websocket 서버 - 공유 그림판만 현재 사용 
+// 그림판에서 전역 Clear를 위한 엔드포인트 (모든 클라이언트에 clear 명령 전송)
+app.post("/api/clear", (req, res) => {
+  // 모든 연결된 WebSocket 클라이언트에 clear 메시지 전송
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: "clear" }));
+    }
+  });
+  res.json({ success: true });
+});
+
+// y-websocket 서버 - 그림판, 코드 동시 사용 
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({
@@ -137,7 +143,6 @@ wss.on("connection", async (ws, req) => {
   const parsedUrl = url.parse(req.url, true);
   const docName = parsedUrl.pathname.slice(1) || "default";
   
-  // Windows 파일 시스템에서 안전하도록 문서 이름에 포함된 금지 문자를 '_'로 치환
   const safeDocName = docName.replace(/[<>:"/\\|?*]/g, "_");
   console.log(`새 WebSocket 연결: 문서 이름 - ${safeDocName}`);
 

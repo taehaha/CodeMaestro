@@ -64,7 +64,12 @@ export const NotificationsProvider = ({ children }) => {
         message = parsedData.message || "새로운 그룹 가입 요청이 도착했습니다.";
       } else if (parsedData.senderName) {
         message = `친구 요청: ${parsedData.senderName}님으로부터 친구 요청이 있습니다.`;
-      } else {
+
+      } else if (parsedData.title) {
+
+        message = parsedData.title || "새로운 댓글이 달렸습니다.";
+      }
+      else {
         message = parsedData.message || "새로운 초대 알림이 도착했습니다.";
       }
 
@@ -93,6 +98,21 @@ export const NotificationsProvider = ({ children }) => {
       dispatch(fetchNotifications(userId));
     });
 
+    //댓글 이벤트 처리리
+    es.addEventListener("comment", (event) => {
+      let parsedData;
+      try {
+        parsedData = JSON.parse(event.data);
+      } catch {
+        parsedData = event.data;
+      }
+      displayToast(
+        "info",
+        `댓글 알림: ${parsedData.title || "새로운 댓글이 있습니다."}`
+      );
+      dispatch(fetchNotifications(userId));
+    });
+
     // groupRequest 이벤트 처리
     es.addEventListener("groupRequest", (event) => {
       let parsedData;
@@ -104,7 +124,7 @@ export const NotificationsProvider = ({ children }) => {
       console.log("groupRequest 이벤트 데이터:", parsedData);
       displayToast(
         "info",
-        `그룹 요청: ${parsedData.groupName || "새로운 그룹 요청이 있습니다."}`
+        `그룹 요청: ${parsedData.groupName || "새로운 그룹 가입 요청이 있습니다."}`
       );
       dispatch(fetchNotifications(userId));
     });
@@ -143,7 +163,7 @@ export const NotificationsProvider = ({ children }) => {
   // SSE 연결 해제 함수 (unsubscribe API 호출 포함)
   const disconnect = async () => {
     if (!userId || !token) return;
-
+  
     try {
       const response = await fetch(`${baseURL}/unsubscribe/${userId}`, {
         method: "GET", // 서버 요구사항에 맞게 변경
@@ -153,7 +173,15 @@ export const NotificationsProvider = ({ children }) => {
         const errorText = await response.text();
         console.error("unsubscribe 에러:", response.status, errorText);
       } else {
-        const result = await response.json();
+        // 응답 본문이 있는지 확인 후 파싱
+        const text = await response.text();
+        let result;
+        try {
+          result = text ? JSON.parse(text) : {};
+        } catch (e) {
+          console.error("응답 파싱 실패:", e);
+          result = {};
+        }
         console.log("unsubscribe 성공:", result);
       }
     } catch (error) {
@@ -166,6 +194,7 @@ export const NotificationsProvider = ({ children }) => {
       }
     }
   };
+  
 
   /* 
     [연결 관리 로직]
