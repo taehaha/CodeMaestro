@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import { AchievementList } from "../../utils/AchievementList";
 
-// 아이콘 예시
+// 예시 아이콘
 import { FaMedal, FaGem, FaCheckCircle } from "react-icons/fa";
 
-// 등급별 아이콘 (원하는 대로 변경)
+// 등급별 아이콘
 const tierIcons = {
   bronze: <FaMedal style={{ color: "chocolate" }} />,
   silver: <FaMedal style={{ color: "silver" }} />,
@@ -25,52 +25,42 @@ const getProgress = (item, myAttendances, totalDuration, nonAchiveCompletedCount
   let currentStat = 0;
   switch (item.type) {
     case "attend":
-      // 출석형 과제 → 출석 횟수 기반
       currentStat = myAttendances;
       break;
     case "duration":
-      // 누적시간형 과제 → 누적 시간(초) 기반
       currentStat = totalDuration;
       break;
     case "achive":
-      // achive형 과제 → (attend/duration 으로) 이미 달성된 과제 개수 사용
       currentStat = nonAchiveCompletedCount;
       break;
     default:
       currentStat = 0;
   }
 
-  // 진행률(%) 계산
   const rate = Math.floor((currentStat / item.condition) * 100);
   return rate > 100 ? 100 : rate;
 };
 
 const Achievement = ({ myAttendances, totalDuration }) => {
   /**
-   * 1) 먼저 attend/duration만 따로 계산하여
+   * 1) attend/duration만 따로 계산하여
    *    '이미 달성된 과제 개수'를 구합니다.
    */
-  // 1-1) attend/duration만 뽑아오기
   const nonAchiveList = AchievementList.filter((a) => a.type !== "achive");
-
-  // 1-2) 해당 과제들의 진행률 계산, progress >= 10 이면 "달성" 처리
   const nonAchiveCompletedCount = nonAchiveList.reduce((count, achievement) => {
     const progress = getProgress(achievement, myAttendances, totalDuration, 0);
     return progress >= 100 ? count + 1 : count;
   }, 0);
 
   /**
-   * 2) 전체 과제 목록을 화면에 표시.
-   *    - 단, achive형일 때는 (nonAchiveCompletedCount)를 건네서 progress 계산
-   *    - attend/duration형은 그냥 myAttendances, totalDuration만 사용
+   * 2) 전체 과제 목록에 대해,
+   *    - achive형이면 (nonAchiveCompletedCount) 사용
+   *    - 아니면 그대로 (myAttendances, totalDuration) 사용
    */
-  // 최종적으로 몇 개를 달성했는지 집계 (achive 포함)
   let achievementMissions = 0;
 
   const renderList = AchievementList.map((achievement) => {
-    // achive형이면 nonAchiveCompletedCount 활용
     const isAchiveType = achievement.type === "achive";
-
     const progress = getProgress(
       achievement,
       myAttendances,
@@ -81,33 +71,65 @@ const Achievement = ({ myAttendances, totalDuration }) => {
     const isCompleted = progress >= 100;
     if (isCompleted) achievementMissions += 1;
 
+    // 등급(티어)에 따라 아이콘
     const gradeIcon = tierIcons[achievement.value] || null;
+
+    // 미완료(잠금) 상태라면 흐릿하게, 흑백 처리
+    const lockedClass = isCompleted
+      ? "opacity-100 grayscale-0 border-green-400"
+      : "opacity-60 grayscale border-gray-300";
+
+    // 잠금 해제 시 강조 효과(테두리, 그림자 등)
+    const completeGlow = isCompleted
+      ? "shadow-lg shadow-green-300"
+      : "shadow-none";
 
     return (
       <li
         key={achievement.id}
-        className="bg-white shadow-md rounded p-3 flex flex-col gap-2"
+        className={`border rounded p-4 transition-all duration-300 flex flex-col gap-2 ${lockedClass} ${completeGlow}`}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-2xl">
-            {gradeIcon}
-            <span className="font-semibold text-gray-800 text-xl">
+          {/* 좌측 아이콘 & 타이틀 */}
+          <div className="flex items-center gap-3">
+            {/* 트로피/티어 아이콘 */}
+            <div className="text-4xl">{gradeIcon}</div>
+
+            {/* 타이틀 */}
+            <span className="font-semibold text-xl">
               {achievement.title}
             </span>
           </div>
+
+          {/* 잠금 해제 여부 표시 */}
           {isCompleted ? (
-            <FaCheckCircle className="text-green-500 text-4xl my-auto" />
+            <FaCheckCircle className="text-green-500 text-3xl" />
           ) : (
-            <p className="text-xl">{progress}%</p>
+            <p className="text-lg font-medium">{progress}%</p>
           )}
         </div>
-        <p className="text-xl text-gray-500">{achievement.content}</p>
+
+        {/* 도전과제 내용 */}
+        <p className="text-gray-600 ml-1">{achievement.content}</p>
+
+        {/* 진행도 표시(프로그레스바) */}
+        <div className="bg-gray-200 h-3 rounded-full overflow-hidden mt-2">
+          <div
+            className="bg-green-500 h-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </li>
     );
   });
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-3xl mx-auto">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold">
+          도전 과제 ({achievementMissions}/{AchievementList.length})
+        </h2>
+      </div>
       <ul className="space-y-4">{renderList}</ul>
     </div>
   );
