@@ -44,4 +44,23 @@ public class StudyRecordService {
 
         return StudyRecordResponseDto.from(studyRecord);
     }
+
+    // 수정
+    @Transactional
+    public StudyRecordResponseDto updateStudyRecord(Long recordId, StudyRecordRequestDto requestDto) {
+        StudyRecord record = studyRecordRepository.findById(recordId)
+                .orElseThrow(() -> new BadRequestException("Study record not Found"));
+
+        record.setStudyContent(requestDto.getStudyContent());
+
+        return StudyRecordResponseDto.from(studyRecordRepository.save(record));
+    }
+
+    // 삭제
+    @Transactional
+    public void deleteStudyRecord(Long recordId) {
+        StudyRecord record = studyRecordRepository.findById(recordId)
+                .orElseThrow(() -> new BadRequestException("Study Record not found"));
+        studyRecordRepository.delete(record);
+    }
 }

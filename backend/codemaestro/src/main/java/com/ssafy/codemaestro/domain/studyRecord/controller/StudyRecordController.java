@@ -10,13 +10,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/study-records/{historyId}")
+@RequestMapping("/study-records")
 @RequiredArgsConstructor
 public class StudyRecordController {
 
     private final StudyRecordService studyRecordService;
 
-    @PostMapping
+    // 조회
+    @GetMapping("/{historyId}")
+    public ResponseEntity<StudyRecordResponseDto> getStudyRecord(@PathVariable Long historyId) {
+        StudyRecordResponseDto record = studyRecordService.getStudyRecord(historyId);
+        return ResponseEntity.ok(record);
+    }
+
+    // 생성
+    @PostMapping("/{historyId}")
     public ResponseEntity<StudyRecordResponseDto> createStudyRecord(
             @PathVariable Long historyId,
             @RequestBody StudyRecordRequestDto requestDto,
@@ -26,9 +34,15 @@ public class StudyRecordController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping
-    public ResponseEntity<StudyRecordResponseDto> getStudyRecord(@PathVariable Long historyId) {
-        StudyRecordResponseDto record = studyRecordService.getStudyRecord(historyId);
-        return ResponseEntity.ok(record);
+    // 수정
+    @PutMapping("/{recordId}")
+    public ResponseEntity<StudyRecordResponseDto> updateStudyRecord(@PathVariable Long recordId, @RequestBody StudyRecordRequestDto requestDto) {
+        return ResponseEntity.ok(studyRecordService.updateStudyRecord(recordId, requestDto));
+    }
+
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<Void> deleteStudyRecord(@PathVariable Long recordId) {
+        studyRecordService.deleteStudyRecord(recordId);
+        return ResponseEntity.noContent().build();
     }
 }
