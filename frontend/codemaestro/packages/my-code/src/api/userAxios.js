@@ -11,7 +11,7 @@ import { setLoggedOut } from "../reducer/userSlice";
  export const baseURL = "http://192.168.31.58:8080"
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
-  timeout: 3000,                      
+  timeout: 10000,                      
   withCredentials: true,                // 쿠키 전송 허용
 });
 
