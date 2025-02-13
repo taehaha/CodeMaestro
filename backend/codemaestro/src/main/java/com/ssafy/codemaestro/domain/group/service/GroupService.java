@@ -9,12 +9,12 @@ import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -201,5 +201,66 @@ public class GroupService {
         }
 
         return new GroupConferenceStateResponse(totalConferences, participations);
+    }
+
+    // 최근 5개의 회의별 그룹원 참여 여부
+    public GroupConferenceAttendanceResponse getGroupAttendance(Long groupId) {
+        // 최근 5개의 회의 조회
+        Pageable pageable = PageRequest.of(0, 5);
+        List<GroupConferenceHistory> recentConferences = groupConferenceHistoryRepository
+                .findTop5ByGroupIdOrderByStartTimeDesc(groupId, pageable);
+
+        Group group = groupConferenceHistoryRepository.findGroupWithMembers(groupId);
+
+        List<ConferenceInfo> conferenceInfos = new ArrayList<>(); // 저장 필요
+        for(GroupConferenceHistory conference : recentConferences) {
+            conferenceInfos.add(new ConferenceInfo(
+                    conference.getId(),
+                    conference.getTitle(),
+                    conference.getStartTime()
+            ));
+        }
+
+        // 회의별 참석 현황 기록
+        Map<Long, ConferenceAttendanceDto> attendanceMap = new HashMap<>();
+        // 5개의 회의 순회하면서
+        for(GroupConferenceHistory conference : recentConferences) {
+            // 회의에 참석한 사람들의 ID 저장(중복 없음)
+            Set<Long> attendees = new HashSet<>();
+            for(GroupConferenceMemberHistory history : conference.getMemberHistories()) {
+                attendees.add(history.getParticipant().getId());
+            }
+
+            // 그룹의 모든 멤버 돌면서 참석했는지 확인하고 기록
+            for(GroupMember groupMember : group.getMembers()) {
+                User member = groupMember.getUser();
+                Long memberId = member.getId();
+
+                if(!attendanceMap.containsKey(memberId)) {
+                    attendanceMap.put(memberId, new ConferenceAttendanceDto(
+                            memberId,
+                            member.getNickname(),
+                            new ArrayList<>(),
+                            0.0
+                    ));
+                }
+                attendanceMap.get(memberId).getAttendanceStatus()
+                        .add(attendees.contains(memberId));
+            }
+        }
+
+        // 참석률 계산
+        List<ConferenceAttendanceDto> memberAttendance = new ArrayList<>();
+        for(ConferenceAttendanceDto dto : attendanceMap.values()) {
+            int attendCount = 0;
+            for(Boolean attend : dto.getAttendanceStatus()) {
+                if(attend) attendCount++;
+            }
+
+            dto.setAttendanceRate((double) attendCount * 100 / recentConferences.size());
+            memberAttendance.add(dto);
+        }
+
+        return new GroupConferenceAttendanceResponse(conferenceInfos, memberAttendance);
     }
 }

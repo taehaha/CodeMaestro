@@ -5,6 +5,8 @@ import com.ssafy.codemaestro.domain.studyRecord.dto.StudyRecordResponseDto;
 import com.ssafy.codemaestro.domain.studyRecord.service.StudyRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,9 +19,10 @@ public class StudyRecordController {
     @PostMapping
     public ResponseEntity<StudyRecordResponseDto> createStudyRecord(
             @PathVariable Long historyId,
-            @RequestBody StudyRecordRequestDto requestDto) {
+            @RequestBody StudyRecordRequestDto requestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        StudyRecordResponseDto responseDto = studyRecordService.createStudyRecord(historyId, requestDto);
+        StudyRecordResponseDto responseDto = studyRecordService.createStudyRecord(historyId, requestDto, Long.parseLong(userDetails.getUsername()));
         return ResponseEntity.ok(responseDto);
     }
 

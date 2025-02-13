@@ -22,7 +22,7 @@ public class BoardService {
 
     // 게시글 전체 조회
     public List<BoardResponseDto> getAllBoards() {
-        List<Board> boards = boardRepository.findAll();
+        List<Board> boards = boardRepository.findAllWithWriter();
         List<BoardResponseDto> boardDtoList = new ArrayList<>();
 
         for (Board board : boards) {

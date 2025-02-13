@@ -33,7 +33,4 @@ public class GroupConferenceMemberHistory {
     private LocalDateTime leaveTime;
 
     private int duration;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
 }

@@ -131,7 +131,6 @@ public class GroupController {
         return ResponseEntity.ok(rankings);
     }
 
-
     @GetMapping("/{groupId}/conferences/my-stats")
     public ResponseEntity<GroupConferenceStateResponse> getMyConferenceStats(
         @PathVariable Long groupId,
@@ -143,4 +142,10 @@ public class GroupController {
         return ResponseEntity.ok(stats);
     }
 
+    // 최근 5개의 회의별 그룹원 참여 여부
+    @GetMapping("/{groupId}/attendance")
+    public ResponseEntity<GroupConferenceAttendanceResponse> getGroupAttendance(
+            @PathVariable Long groupId) {
+        return ResponseEntity.ok(groupService.getGroupAttendance(groupId));
+    }
 }

@@ -27,7 +27,6 @@ public class ConferenceParticipationDto {
                 .joinTime(history.getJoinTime())
                 .leaveTime(history.getLeaveTime())
                 .duration(history.getDuration())
-                .createdAt(history.getCreatedAt())
                 .build();
     }
 }
