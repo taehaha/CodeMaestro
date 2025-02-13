@@ -163,7 +163,7 @@ export const NotificationsProvider = ({ children }) => {
   // SSE 연결 해제 함수 (unsubscribe API 호출 포함)
   const disconnect = async () => {
     if (!userId || !token) return;
-
+  
     try {
       const response = await fetch(`${baseURL}/unsubscribe/${userId}`, {
         method: "GET", // 서버 요구사항에 맞게 변경
@@ -173,7 +173,15 @@ export const NotificationsProvider = ({ children }) => {
         const errorText = await response.text();
         console.error("unsubscribe 에러:", response.status, errorText);
       } else {
-        const result = await response.json();
+        // 응답 본문이 있는지 확인 후 파싱
+        const text = await response.text();
+        let result;
+        try {
+          result = text ? JSON.parse(text) : {};
+        } catch (e) {
+          console.error("응답 파싱 실패:", e);
+          result = {};
+        }
         console.log("unsubscribe 성공:", result);
       }
     } catch (error) {
@@ -186,6 +194,7 @@ export const NotificationsProvider = ({ children }) => {
       }
     }
   };
+  
 
   /* 
     [연결 관리 로직]

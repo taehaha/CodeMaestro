@@ -21,7 +21,7 @@ const OAuth2RedirectHandler = () => {
       // refresh 토큰을 백엔드로 전달하여 access token 교환
       axios.post(
         `${baseURL}/auth/reissue`,
-        { refreshToken }, // refresh 토큰을 데이터에 포함
+        { refreshToken },
         { withCredentials: true } // 쿠키 관련 처리를 위해 설정
       )
       .then(response => {
@@ -43,10 +43,10 @@ const OAuth2RedirectHandler = () => {
       });
     } else {
       // refresh 토큰이 없는 경우 기본 페이지로 이동
-      navigate('/', { replace: true });
+      navigate('/', { replace: true })
     }
   }, [location, navigate, dispatch]);
-
+  
   return <div>로그인 처리 중...</div>;
 };
 

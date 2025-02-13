@@ -14,6 +14,16 @@ const SolvedacModal = ({ open, onClose }) => {
         title: "입력 오류",
         text: "Solved.ac 아이디를 입력해주세요.",
         icon: "warning",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
       });
       return;
     }
@@ -32,10 +42,21 @@ const SolvedacModal = ({ open, onClose }) => {
         title: "연동 성공",
         icon: "success",
         text: "Solved.ac 정보 연동이 완료되었습니다!",
-      }).then(async (result) => {
+        iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+      }).then((result) => {
         if (result.isConfirmed) {
           onClose();
-          await dispatch(getMyInfo());
+          dispatch(getMyInfo());
           window.location.reload();
         }
       });
@@ -45,6 +66,16 @@ const SolvedacModal = ({ open, onClose }) => {
         title: "아이디 검색 실패",
         text: "연동 중 오류가 발생했습니다. 입력 정보를 다시 확인해주세요.",
         icon: "error",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
       });
     }
   };

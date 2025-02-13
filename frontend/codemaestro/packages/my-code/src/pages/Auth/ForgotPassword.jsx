@@ -13,6 +13,16 @@ const ForgotPassword = () => {
         title: "오류",
         text: "이메일을 입력해주세요.",
         icon: "error",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       });
       return;
     }
@@ -27,12 +37,33 @@ const ForgotPassword = () => {
           title: "성공",
           text: "비밀번호 재설정 링크가 이메일로 전송되었습니다.",
           icon: "success",
+          iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       } else {
         Swal.fire({
           title: "실패",
           text: response.data.message || "이메일을 확인해주세요.",
           icon: "error",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
         });
       }
     } catch (error) {
@@ -40,6 +71,16 @@ const ForgotPassword = () => {
         title: "오류",
         text: "서버와의 통신에 실패했습니다. 다시 시도해주세요.",
         icon: "error",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       });
     }
   };

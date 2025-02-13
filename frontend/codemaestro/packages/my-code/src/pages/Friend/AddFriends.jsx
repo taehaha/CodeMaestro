@@ -31,7 +31,7 @@ const AddFriends = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       {/* 모달 컨테이너 */}
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md mx-auto">
         {/* 검색 폼 */}
         <form className="mb-4" onSubmit={handleSearch}>
           <label
@@ -65,26 +65,24 @@ const AddFriends = ({ onClose }) => {
               id="friend-search"
               value={searchInput}
               onChange={handleInputChange}
-              className="block w-full p-4 pl-10 text-sm text-gray-900 border 
-                         border-gray-300 rounded-sm bg-gray-50 
-                         focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full p-3 pl-10 text-sm text-gray-900 border 
+                         border-gray-300 rounded-sm bg-gray-50"
               placeholder="Search friends..."
             />
             {/* 검색 버튼 (type="submit") */}
             <button
               type="submit"
-              className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 
-                         hover:bg-blue-800 focus:ring-4 focus:outline-none 
-                         focus:ring-blue-300 font-medium rounded-sm text-sm px-4 py-2 
+              className="text-white absolute right-1 bottom-1.5 bg-[#ffcc00] 
+                         hover:bg-[#f0c000] font-medium rounded-sm text-sm px-4 py-2 
                          dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Search
+              검색
             </button>
           </div>
         </form>
 
         {/* 타이틀 */}
-        <h2 className="text-lg font-semibold mb-4">친구추가 페이지</h2>
+        <h2 className="text-lg pt-1">친구 추가</h2>
 
         {/* 검색 결과를 UserList에 전달 */}
         <UserList
@@ -100,7 +98,7 @@ const AddFriends = ({ onClose }) => {
         <div className="flex justify-end gap-2 mt-4">
 
           <button
-            className="text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 
+            className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
                        focus:outline-none focus:ring-gray-300 font-medium 
                        rounded-sm text-sm px-4 py-2"
             onClick={onClose}

@@ -23,9 +23,20 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
     Swal.fire({
       title: "친구 추가",
       text: `${user.nickname}님에게 친구 추가를 요청하시겠습니까?`,
+      icon: "question",
       showCancelButton: true,
-      confirmButtonText: "확인",
       cancelButtonText: "취소",
+      width: "500px",
+          background: "#f8f9fa", 
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -39,21 +50,23 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             text: "친구 추가 요청이 전송되었습니다.",
           });
         } catch (error) {
-          console.error("친구추가 요청 실패", error);
-          if (error.response && error.response.status === 400) {
-            // 400 에러인 경우, 이미 친구 요청을 보냈음을 알림
-            Swal.fire({
-              title: "요청 진행중",
-              icon: "info",
-              text: "이미 친구 추가 요청을 보냈습니다.",
-            });
-          } else {
-            Swal.fire({
-              title: "에러 발생",
-              icon: "error",
-              text: "친구 추가 요청 중 에러가 발생하였습니다.",
-            });
-          }
+            console.error("친구추가 요청 실패", error);
+            Swal.fire({title:"에러 발생",
+                icon:"error",
+                text:"친구 추가 요청 중 에러가 발생하였습니다.",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+      
+            })
+            
         }
       }
     });

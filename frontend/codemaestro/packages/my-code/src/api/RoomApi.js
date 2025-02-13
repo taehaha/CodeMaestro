@@ -3,7 +3,7 @@ import UserAxios from "./userAxios"
 // 방 리스트 찾기
 export const getRoomList = async () => {
     try {
-        const response =await UserAxios.get("/rooms") // 방 id, 썸네일, 제목, 설명, 비밀번호방 여부 가져옴
+        const response =await UserAxios.get("/confernece") // 방 id, 썸네일, 제목, 설명, 비밀번호방 여부 가져옴
         return response.data;
 
     } catch (error) {

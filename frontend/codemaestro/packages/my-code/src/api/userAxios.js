@@ -7,8 +7,8 @@ import { setLoggedOut } from "../reducer/userSlice";
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
 // export const baseURL = "https://api.codemaestro.site"
- export const baseURL = "https://test.api.codemaestro.site"
- // export const baseURL = "http://192.168.31.58:8080"
+export const baseURL = "https://test.api.codemaestro.site"
+ //export const baseURL = "http://192.168.31.58:8080"
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 3000,                      
@@ -112,7 +112,16 @@ async function handleLogoutAndRedirect() {
     title: "세션 만료",
     text: "로그인 세션이 만료되었습니다. 다시 로그인해주세요.",
     icon: "warning",
+    width: "500px",
+    background: "#f8f9fa",
+    confirmButtonColor: "#FFCC00",
     confirmButtonText: "확인",
+    customClass: {
+    popup: "swal-custom-popup",       // 전체 팝업 스타일
+    title: "swal-custom-title",       // 제목 스타일
+    htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+    confirmButton: "swal-custom-button" // 버튼 스타일
+    }
   });
 
   // 로그인 페이지로 강제 이동

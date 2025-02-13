@@ -255,14 +255,14 @@ const GroupDetail = () => {
         )}
 
         {userRole === ROLE.ADMIN && (
-          <>
+          <div className="flex gap-2">
           <button className="btn btn-success rounded-sm">그룹회의 생성</button>
                       <button 
           onClick={() => setIsModalOpen(true)}
           className=" btn btn-neutral rounded-sm">
           그룹 관리
           </button>
-          </>
+          </div>
 
         )}
 {/* 
