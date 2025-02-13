@@ -3,6 +3,8 @@ package com.ssafy.codemaestro.domain.openvidu.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ConferenceInitRequest {
@@ -10,6 +12,7 @@ public class ConferenceInitRequest {
     String description;
     String accessCode;
     Long groupId;
+    List<String> tagNameList;
 
     @Override
     public String toString() {
@@ -18,6 +21,7 @@ public class ConferenceInitRequest {
                 ", description='" + description + '\'' +
                 ", accessCode='" + accessCode + '\'' +
                 ", groupId=" + groupId +
+                ", tagNameList=" + tagNameList +
                 '}';
     }
 }

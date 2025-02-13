@@ -4,18 +4,15 @@ import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepos
 import com.ssafy.codemaestro.domain.group.repository.GroupConferenceMemberHistoryRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
+import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceTagRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.UserConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.vo.ConnectionDataVo;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.NotFoundException;
 import com.ssafy.codemaestro.global.exception.openvidu.CannotFindSessionException;
-import com.ssafy.codemaestro.global.util.JwtUtil;
-import io.openvidu.java.client.OpenVidu;
-import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,36 +23,16 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class OpenviduWebHookService {
     private final UserRepository userRepository;
     private final ConferenceRepository conferenceRepository;
+    private final ConferenceTagRepository conferenceTagRepository;
     private final UserConferenceRepository userConferenceRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
     private final GroupConferenceMemberHistoryRepository groupConferenceMemberHistoryRepository;
     private final GroupMemberRepository groupMemberRepository;
-    @Autowired
-    public OpenviduWebHookService(UserRepository userRepository, ConferenceRepository conferenceRepository, UserConferenceRepository userConferenceRepository, GroupConferenceHistoryRepository groupConferenceHistoryRepository, GroupConferenceMemberHistoryRepository groupConferenceMemberHistoryRepository, GroupMemberRepository groupMemberRepository) {
-        this.userRepository = userRepository;
-        this.conferenceRepository = conferenceRepository;
-        this.userConferenceRepository = userConferenceRepository;
-        this.groupConferenceHistoryRepository = groupConferenceHistoryRepository;
-        this.groupConferenceMemberHistoryRepository = groupConferenceMemberHistoryRepository;
-        this.groupMemberRepository = groupMemberRepository;
-    }
-
-    @Value("${openvidu.url}")
-    private String OPENVIDU_URL;
-
-    @Value("${openvidu.secret}")
-    private String OPENVIDU_SECRET;
-
-    private OpenVidu Openvidu;
-
-    @PostConstruct
-    private void init() {
-        Openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
-    }
 
     @Transactional
     public void onSessionDestroyed(String sessionId, Long timestamp, int duration) {
@@ -99,11 +76,14 @@ public class OpenviduWebHookService {
 
         try {
             userConferenceRepository.deleteByConferenceId(Long.valueOf(sessionId));
+            conferenceTagRepository.deleteByConference(conference);
             conferenceRepository.deleteById(Long.valueOf(sessionId));
         } catch (Exception e) {
             log.warn("Conference 삭제 실패. 이미 삭제되었을 수 있습니다. {}", sessionId);
         }
     }
+
+    @Transactional
     public void onParticipantJoined(String serverDataJson, String sessionId, String connectionId, Long timestamp) {
         log.debug("OpenVidu Webhook : Participant Joined:");
         // screenShare용 connection 구분

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,5 +17,6 @@ public class ConferenceInfoResponse {
     String thumbnailUrl;
     int participantNum;
     String hostNickName;
+    List<String> tagNameList;
     LocalDateTime createdAt;
 }
