@@ -72,6 +72,7 @@ class OpenviduClient {
     this.session.on("streamCreated", ({ stream }) => {
       // 일반 카메라 스트림의 경우 (typeOfVideo가 없거나 "CAMERA")
       if (stream.typeOfVideo === "CAMERA" || !stream.typeOfVideo) {
+        console.log("카메라 스트림 생성됨");
         const subscriber = this.session.subscribe(stream, undefined) as Subscriber;
         // video element 생성 시 React 컴포넌트에서 활용할 수 있도록 처리
         subscriber.on("videoElementCreated", (evt) => {
@@ -88,6 +89,8 @@ class OpenviduClient {
 
     // 스트림 제거 시 처리 (카메라)
     this.session.on("streamDestroyed", ({ stream }) => {
+      console.log("스트림 제거됨");
+      
       const index = this.subscribers.findIndex(
         (sub) => sub === stream.streamManager
       );
