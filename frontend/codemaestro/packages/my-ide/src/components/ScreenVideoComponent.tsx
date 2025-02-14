@@ -1,11 +1,11 @@
 // ScreenShareComponent.tsx
 import React, { useEffect, useRef } from 'react';
 
-interface ScreenShareComponentProps {
+interface ScreenVideoComponentProps {
   streamManager: any; // 화면 공유 스트림 매니저 (Publisher 또는 Subscriber)
 }
 
-const ScreenShareComponent: React.FC<ScreenShareComponentProps> = ({ streamManager }) => {
+const ScreenVideoComponent: React.FC<ScreenVideoComponentProps> = ({ streamManager }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -22,4 +22,4 @@ const ScreenShareComponent: React.FC<ScreenShareComponentProps> = ({ streamManag
   );
 };
 
-export default ScreenShareComponent;
+export default ScreenVideoComponent;

@@ -1,161 +1,178 @@
-// OpenviduClient.ts
-import axios, { AxiosInstance } from "axios";
-import { OpenVidu, Publisher, Session, Subscriber, StreamManager, Connection } from "openvidu-browser";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import {
+  OpenVidu,
+  Publisher,
+  Stream,
+  Subscriber,
+  Session,
+  StreamManager,
+  Connection,
+  ExceptionEvent,
+} from "openvidu-browser";
 
 interface ConnectionData {
-  userId?: number;
-  nickname?: string;
-  profileImageUrl?: string;
-  description?: string;
+  userId: number;
+  nickname: string;
+  profileImageUrl: string;
+  description: string;
 }
 
-type SubscriberCallback = (subscriber: Subscriber) => void;
-type MessageCallback = (userId: number, nickname: string, message: string) => void;
-// 로컬 화면 공유(Publisher)와 원격 화면 공유(Subscriber)를 모두 전달할 수 있도록 union 타입으로 지정
-type ScreenCallback = (screenStream: Publisher | Subscriber) => void;
+interface Message {
+  userId: number
+  nickname: string
+  message: string
+}
 
 class OpenviduClient {
-  // 일반 영상/오디오용 OpenVidu 인스턴스
-  private OV: OpenVidu;
-  // 화면 공유 전용 OpenVidu 인스턴스
-  private OVScreen: OpenVidu;
+  // 라이브러리 인스턴스
+  private OV: OpenVidu = new OpenVidu();
+  private OVScreen: OpenVidu = new OpenVidu();
   private AXIOS: AxiosInstance;
+
+  // 필드
   private session: Session;
   private screenShareSession: Session;
-  private connections: Connection[] = [];
-  private publisher!: Publisher;
-  // 구독자(Subscriber) 배열
+  private connectionDatas: ConnectionData[] = [];
+  private myConnectionData: ConnectionData = {
+    userId: 0,
+    nickname: "not init",
+    profileImageUrl: "not init",
+    description: "not init"
+  };
+
+  // 영상 송수신 stream 객체들
+  private screenStreamManager: StreamManager | null = null;
+  private publisher!: Publisher; // 나중에 할당됨
   private subscribers: Subscriber[] = [];
-  
-  // 로컬 화면 공유 (내가 송출하는 화면 공유) Publisher
-  private localScreenPublisher: Publisher | null = null;
-  // 원격 화면 공유 (다른 사용자가 송출하는 화면 공유) Subscriber
-  private remoteScreenSubscriber: Subscriber | null = null;
-  
-  private connectionData: ConnectionData = {};
 
-  // 콜백 함수들
-  private OnSubscriberAdded: SubscriberCallback = () => {};
-  private OnSubscriberDeleted: SubscriberCallback = () => {};
-  private OnMessageReceived: MessageCallback = () => {};
-  private OnScreenAdded: ScreenCallback = () => {};
-  private OnScreenDeleted: ScreenCallback = () => {};
+  // 클래스 사용자가 설정한 Callback 함수들
+  private OnSubscriberAdded: (subscriber: Subscriber) => void = () => {};
+  private OnSubscriberDeleted: (subscriber: Subscriber) => void = () => {};
+  private OnMessageReceived: (userId: number, nickname: string, message: string) => void = () => {};
+  private OnScreenAdded: (screen: Publisher | Subscriber) => void = () => {};
+  private OnScreenDeleted: (screen: Publisher | Subscriber) => void = () => {};
 
-  // 각 구독자의 video element를 저장하는 Map (필요 시 React 컴포넌트에서 활용할 수 있도록)
-  private subscriberVideoElements: Map<Subscriber, HTMLVideoElement> = new Map();
+  private async waitForStreamReady(stream: Stream): Promise<Stream> {
+    if (stream.hasVideo) {
+      return stream;
+    } else {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return await this.waitForStreamReady(stream);
+    }
+  }
 
   /**
    * Openvidu Custom SDK for Codemaestro!!!
-   * @param HOST_URL URL 객체 (예: new URL("https://your-openvidu-server.com/"))
+   * 보규보규 정보규 형님을 위한 Openvidu SDK wrapper Class
+   * @param HOST_URL URL 객체 
    * @param ACCESS_TOKEN 현재 유저의 ACCESS TOKEN
    * @param conferenceId 회의실 번호
    */
   constructor(HOST_URL: URL, ACCESS_TOKEN: string, conferenceId: number) {
-    this.OV = new OpenVidu();
-    this.OVScreen = new OpenVidu();
-
     this.AXIOS = axios.create({
       baseURL: HOST_URL.href + "conference/" + conferenceId,
       timeout: 1000,
       headers: {
         "Content-Type": "application/json",
-        "access": ACCESS_TOKEN,
+        access: ACCESS_TOKEN,
       },
     });
 
-    // 일반 세션과 화면 공유 세션 초기화
     this.session = this.OV.initSession();
     this.screenShareSession = this.OVScreen.initSession();
 
-    // ── 일반 스트림 이벤트 ───────────────────────────────
-    // 새로운 참가자의 스트림이 생성되면 (카메라)
-    this.session.on("streamCreated", ({ stream }) => {
-      // 일반 카메라 스트림의 경우 (typeOfVideo가 없거나 "CAMERA")
-      if (stream.typeOfVideo === "CAMERA" || !stream.typeOfVideo) {
-        const subscriber = this.session.subscribe(stream, undefined) as Subscriber;
-        // video element 생성 시 React 컴포넌트에서 활용할 수 있도록 처리
-        subscriber.on("videoElementCreated", (evt) => {
-          const videoElem = evt.element as HTMLVideoElement;
-          // DOM 직접 조작 대신 videoElem을 내부 Map에 저장
-          this.subscriberVideoElements.set(subscriber, videoElem);
-          // 필요하다면 여기서 추가 콜백 호출(예: this.OnSubscriberAdded(subscriber))를 할 수 있음
+    // 새로운 참가자가 입장하면 화면과 오디오를 띄우기 위해 새로운 publish를 구독함
+    this.session.on("streamCreated", ({ stream }: { stream: Stream }) => {
+      if (stream.typeOfVideo === "CAMERA" && stream.hasVideo) {
+        console.log("웹캠 스트림 생성됨");
+        this.waitForStreamReady(stream)
+        .then((stream) => {
+          const subscriber = this.session.subscribe(stream, undefined); 
+          this.subscribers.push(subscriber);
+          this.OnSubscriberAdded(subscriber);
         });
-        this.subscribers.push(subscriber);
-        // 콜백을 통해 React 컴포넌트에 subscriber 객체 전달
-        this.OnSubscriberAdded(subscriber);
       }
     });
-
-    // 스트림 제거 시 처리 (카메라)
-    this.session.on("streamDestroyed", ({ stream }) => {
-      const index = this.subscribers.findIndex(
-        (sub) => sub === stream.streamManager
-      );
-      if (index >= 0) {
-        const subscriber = this.subscribers[index];
-        this.subscribers.splice(index, 1);
-        this.OnSubscriberDeleted(subscriber);
-        this.subscriberVideoElements.delete(subscriber);
-      }
-    });
-
-    // 연결 관련 이벤트
-    this.session.on("connectionCreated", ({ connection }) => {
-      console.log("사용자가 연결됨:", connection);
-      this.connections.push(connection);
-    });
-
-    // 내 웹캠, 마이크 강제 종료 명령 처리
-    this.session.on("unpublish-video" as any, () => {
-      console.log("내 웹캠 강제 종료됨");
-      this.publisher.publishVideo(false);
-    });
-    this.session.on("unpublish-audio" as any, () => {
-      console.log("내 마이크 강제 종료됨");
-      this.publisher.publishAudio(false);
-    });
-
-    // 오류 발생 시
-    this.session.on("exception" as any, (event: any) => {
-      console.warn("OpenviduClient 오류 발생:", event.exception);
-    });
-
-    // 채팅 메시지 수신 처리
-    this.session.on("signal:message", (signalEvent) => {
-      try {
-        const data = signalEvent.data ? JSON.parse(signalEvent.data) : {};
-        const userId = data.userId !== undefined ? data.userId : 0;
-        const nickname = data.nickname || "익명";
-        const message = data.message || "";
-        this.OnMessageReceived(userId, nickname, message);
-      } catch (error) {
-        console.error("채팅 메시지 파싱 중 에러 발생:", error);
-      }
-    });
-
-    // ── 화면 공유 관련 이벤트 (screenShareSession) ───────────────────────────────
-    // 원격 화면 공유 스트림이 생성되면
-    this.screenShareSession.on("streamCreated", ({ stream }) => {
-      if (stream.typeOfVideo === "SCREEN") {
-        console.log("원격 스크린 스트림 생성됨");
-        const screenSubscriber = this.screenShareSession.subscribe(stream, undefined) as Subscriber;
-        this.remoteScreenSubscriber = screenSubscriber;
+    this.screenShareSession.on("streamCreated", ({ stream }: { stream: Stream }) => {
+      if (stream.typeOfVideo === "SCREEN" && stream.hasVideo) {
+        console.log("스크린 스트림 생성됨");
+        const screenSubscriber: Subscriber = this.screenShareSession.subscribe(stream, undefined);
+        this.screenStreamManager = screenSubscriber;
         this.OnScreenAdded(screenSubscriber);
       }
     });
 
-    // 원격 화면 공유 스트림 제거 시 처리
-    this.screenShareSession.on("streamDestroyed", ({ stream }) => {
-      if (stream.typeOfVideo === "SCREEN") {
-        console.log("원격 스크린 스트림 제거됨");
-        if (this.remoteScreenSubscriber) {
-          this.screenShareSession.unsubscribe(this.remoteScreenSubscriber);
-          this.OnScreenDeleted(this.remoteScreenSubscriber);
-          this.remoteScreenSubscriber = null;
+    // 참가자가 떠나면 publish 구독을 해제함
+    this.session.on("streamDestroyed", ({ stream }: { stream: Stream }) => {
+      if (stream.typeOfVideo === "CAMERA") {
+        console.log("웹캠 스트림 제거됨");
+        const index = this.subscribers.indexOf(stream.streamManager as Subscriber);
+        if (index >= 0) {
+          const subscriber = this.subscribers[index];
+          this.subscribers.splice(index, 1);
+          this.session.unsubscribe(subscriber);
+          this.OnSubscriberDeleted(subscriber);
         }
       }
     });
+    this.screenShareSession.on("streamDestroyed", ({ stream }: { stream: Stream }) => {
+      if (stream.typeOfVideo === "SCREEN") {
+        console.log("스크린 스트림 제거됨");
+        this.screenShareSession.unsubscribe(stream.streamManager as Subscriber);
+        const screenSubscriber = this.screenStreamManager;
+        this.screenStreamManager = null;
+        if (screenSubscriber && screenSubscriber instanceof Subscriber) {
+          this.OnScreenDeleted(screenSubscriber);
+        }
+      }
+    });
+
+    // 새로운 참가자가 입장하면 참가자 연결 정보를 저장함
+    this.session.on("connectionCreated", ({ connection }: { connection: Connection }) => {
+      if (connection.data) {
+        const newConnectionData: ConnectionData = JSON.parse(connection.data) as ConnectionData;
+        this.connectionDatas.push(newConnectionData);
+      }
+    });
+
+    this.session.on("connectionDestroyed", ({ connection }: { connection: Connection }) => {
+      if (connection.data) {
+        console.log("사용자가 제거됨");
+        
+        const removedConnectionData: ConnectionData = JSON.parse(connection.data) as ConnectionData;
+        const index = this.connectionDatas.findIndex((connectionData) => connectionData.userId === removedConnectionData.userId);
+        if (index >= 0) {
+          this.connectionDatas.splice(index, 1);
+        }
+      }
+    });
+
+    // 내가 송출하는 video를 중지하라는 명령이 들어오는 경우 실행
+    this.session.on("signal:unpublish-video", () => {
+      console.log("내 웹캠 강제 종료됨");
+      this.publisher.publishVideo(false);
+    });
+
+    // 내가 송출하는 audio를 중지하라는 명령이 들어오는 경우 실행
+    this.session.on("signal:unpublish-audio", () => {
+      console.log("내 마이크 강제 종료됨");
+      this.publisher.publishAudio(false);
+    });
+
+    // 채팅이 수신되면 실행. 데이터는 userId, nickname, message가 data로 들어옴
+    this.session.on("signal:message", (signalEvent: any) => {
+      console.log("메세지 수신됨");
+      const data = JSON.parse(signalEvent.data);
+      this.OnMessageReceived(data.userId, data.nickname, data.message);
+    });
+
+    // 오류 발생하면 로그 찍어줌
+    this.session.on("exception", (event: ExceptionEvent) => {
+      console.warn("OpenviduClient 오류 발생 " + event.message);
+    });
   }
+
+  /* public methods */
 
   /**
    * 회의실 연결하기
@@ -163,270 +180,308 @@ class OpenviduClient {
    * @param video 웹캠 초기 상태
    * @param audio 마이크 초기 상태
    */
-  async initConnection(accessCode: number, video: boolean, audio: boolean): Promise<void> {
-    try {
-      // 백엔드에서 일반 토큰과 화면 공유 토큰 함께 받음
-      const response = await this.AXIOS.post("/issue-token", {
-        accessCode: accessCode ? accessCode : null,
-      });
-      const connectionToken: string = response.data.connectionToken;
-      const screenShareConnectionToken: string = response.data.screenShareConnectionToken;
+  async initConnection(
+    accessCode: string | null,
+    video: boolean,
+    audio: boolean
+  ): Promise<void> {
+    // Connection Token 얻기
+    const response: AxiosResponse<any> = await this.AXIOS.post("/issue-token", {
+      accessCode: accessCode ? accessCode : null,
+    });
 
-      // 일반 세션 연결 및 데이터 저장
-      await this.session.connect(connectionToken);
-      this.connectionData = JSON.parse(this.session.connection.data);
+    const connectionToken: string = response.data.connectionToken;
+    const screenShareConnectionToken: string = response.data.screenShareConnectionToken;
 
-      // 화면 공유 세션 연결
-      await this.screenShareSession.connect(screenShareConnectionToken);
+    // Connection 과 데이터 얻기
+    await this.session.connect(connectionToken);
+    this.myConnectionData = JSON.parse(this.session.connection.data) as ConnectionData;
 
-      // 내 웹캠 및 마이크 송출
-      this.publisher = this.OV.initPublisher(undefined, {
-        audioSource: undefined,
-        videoSource: undefined,
-        publishAudio: audio,
-        publishVideo: video,
-        resolution: "640x480",
-        frameRate: 30,
-        insertMode: "APPEND",
-        mirror: false,
-      });
-      this.session.publish(this.publisher);
+    await this.screenShareSession.connect(screenShareConnectionToken);
 
-      // 이미 연결된 원격 스트림 구독
-      const remoteStreamManagers = this.session.streamManagers.filter(manager => manager.remote);
-      remoteStreamManagers.forEach(manager => {
-        if (manager.stream.typeOfVideo === "CAMERA" || !manager.stream.typeOfVideo) {
-          this.connections.push(manager.stream.connection);
-          const subscriber = this.session.subscribe(manager.stream, undefined) as Subscriber;
-          subscriber.on("videoElementCreated", (evt) => {
-            const videoElem = evt.element as HTMLVideoElement;
-            // DOM 조작 없이 내부 Map에 저장 (React 컴포넌트에서 subscriber 정보를 활용)
-            this.subscriberVideoElements.set(subscriber, videoElem);
-          });
-          this.subscribers.push(subscriber);
-        } else if (manager.stream.typeOfVideo === "SCREEN") {
-          console.log("최초 원격 스크린 공유 감지됨");
-          const screenSubscriber = this.screenShareSession.subscribe(manager.stream, undefined) as Subscriber;
-          this.remoteScreenSubscriber = screenSubscriber;
-        }
-      });
-    } catch (err) {
-      console.error("연결에 실패했습니다.", err);
-      throw err;
-    }
+    // 웹캠 및 마이크 송출하기
+    this.publisher = this.OV.initPublisher(undefined, {
+      audioSource: undefined, // 기본 설정 적용
+      videoSource: undefined, // 기본 설정 적용
+      publishAudio: video,
+      publishVideo: audio,
+      resolution: "640x480",
+      frameRate: 15,
+      insertMode: "APPEND",
+      mirror: false,
+    });
+
+    this.session.publish(this.publisher);
+
+    console.log("OPENVIDU 초기화 완료됨");
+    
+    return;
+  }
+
+  async initScreen() {
+
   }
 
   /**
-   * 메시지 전송 메서드 (Signal 사용)
-   * @param message 전송할 메시지
+   * subscriber가 추가될 경우 실행될 callback 함수 등록
+   * @param callback callback(subscriber)
    */
-  sendMessage(message: string): void {
-    const data = {
-      userId: this.connectionData.userId,
-      nickname: this.connectionData.nickname,
-      message,
-    };
-    this.session
-      .signal({
-        data: JSON.stringify(data),
-        type: "message",
-      })
-      .catch((err) => {
-        console.error("메시지 전송 중 에러 발생:", err);
-      });
-  }
-
-  /**
-   * 메시지 수신 콜백 설정
-   */
-  setMessageReceivedCallback(callback: MessageCallback): void {
-    this.OnMessageReceived = callback;
-  }
-
-  /**
-   * subscriber 추가 시 콜백 등록
-   */
-  setSubscriberAddedCallback(callback: SubscriberCallback): void {
+  setSubscriberAddedCallback(callback: (subscriber: Subscriber) => void): void {
     this.OnSubscriberAdded = callback;
   }
 
   /**
-   * subscriber 제거 시 콜백 등록
+   * subscriber가 제거될 경우 실행될 callback 함수 등록
+   * @param callback callback(subscriber)
    */
-  setSubscriberDeletedCallback(callback: SubscriberCallback): void {
+  setSubscriberDeletedCallback(callback: (subscriber: Subscriber) => void): void {
     this.OnSubscriberDeleted = callback;
   }
 
   /**
-   * 화면 공유 시작 시 콜백 등록
+   * 새로운 메세지가 수신될 경우 실행될 callback 함수 등록
+   * @param callback callback(userId, nickname, message)
    */
-  setScreenAddedCallback(callback: ScreenCallback): void {
+  setMessageReceivedCallback(
+    callback: (userId: number, nickname: string, message: string) => void
+  ): void {
+    this.OnMessageReceived = callback;
+  }
+
+  /**
+   * 스크린 공유가 켜지면 실행될 callback 함수 등록
+   * @param callback callback(screenSubscriber)
+   */
+  setScreenAddedCallback(callback: (screenSubscriber: Subscriber | Publisher) => void): void {
     this.OnScreenAdded = callback;
   }
 
   /**
-   * 화면 공유 종료 시 콜백 등록
+   * 스크린 공유가 꺼지면 실행될 callback 함수 등록
+   * @param callback callback(screenSubscriber)
    */
-  setScreenDeletedCallback(callback: ScreenCallback): void {
+  setScreenDeletedCallback(callback: (screenSubscriber: Subscriber | Publisher) => void): void {
     this.OnScreenDeleted = callback;
   }
 
   /**
-   * 모든 참가자의 정보 반환
+   * 모든 참가자의 정보를 가져옵니다.
+   * @returns 참가자의 데이터 배열
    */
-  gerParticipantList(): ConnectionData[] {
-    return this.connections.map((connection) => JSON.parse(connection.data));
+  gerParticipantDatas(): ConnectionData[] {
+    return this.connectionDatas;
   }
 
   /**
-   * 연결 종료 (일반 세션 및 화면 공유 세션 모두)
+   * Openvidu 접속을 종료합니다.
    */
   disconnect(): void {
     this.session.disconnect();
     this.screenShareSession.disconnect();
   }
 
-  // ── 내 영상/오디오 제어 ─────────────────────────────
-  publishMyVideo(): void {
-    this.publisher.publishVideo(true);
-  }
-
-  publishMyAudio(): void {
-    this.publisher.publishAudio(true);
-  }
-
-  unpublishMyVideo(): void {
-    this.publisher.publishVideo(false);
-  }
-
-  unpublishMyAudio(): void {
-    this.publisher.publishAudio(false);
-  }
-
   /**
-   * 현재 구독중인 subscriber 목록 반환
-   */
-  getSubscribers(): StreamManager[] {
-    return [...this.subscribers];
-  }
-
-  /**
-   * 내가 송출중인 Publisher 반환
-   */
-  getMyPublisher(): Publisher {
-    return this.publisher;
-  }
-
-  /**
-   * 현재 화면 공유 스트림 반환 (로컬 화면 공유 또는 원격 화면 공유)
-   */
-  getScreenStream(): Publisher | Subscriber | null {
-    return this.localScreenPublisher || this.remoteScreenSubscriber;
-  }
-
-  /**
-   * 현재 사용자의 ID 반환
-   */
-  getMyUserId(): number {
-    return this.connectionData.userId !== undefined ? this.connectionData.userId : 0;
-  }
-
-  // ── 관리 기능 ─────────────────────────────
-  manageModerator(userId: number): void {
-    this.AXIOS.patch("/moderator/" + userId).catch((err) => {
-      console.error("방장 변경 중 오류 발생:", err);
-    });
-  }
-
-  manageKickParticipant(userId: number): void {
-    this.AXIOS.delete("/user/" + userId)
-      .then(() => {
-        console.log("추방 성공. 대상:", userId);
-      })
-      .catch((err) => {
-        console.error("추방 중 에러 발생:", err);
-      });
-  }
-
-  manageParticipantPublishStatus(userId: number, offVideo: boolean, offAudio: boolean): void {
-    if (!offVideo) {
-      this.AXIOS.delete("/video/" + userId)
-        .then(() => {
-          console.log("웹캠 끄기 성공. 대상:", userId);
-        })
-        .catch((err) => {
-          console.error("웹캠 끄기 중 에러 발생:", err);
-        });
-    }
-    if (!offAudio) {
-      this.AXIOS.delete("/audio/" + userId)
-        .then(() => {
-          console.log("마이크 끄기 성공. 대상:", userId);
-        })
-        .catch((err) => {
-          console.error("마이크 끄기 중 에러 발생:", err);
-        });
-    }
-  }
-
-  /**
-   * 내 화면 공유 시작 (로컬 화면 공유)
+   * 내 스크린을 공유합니다.
    */
   publishMyScreen(): void {
     console.log("내 스크린 공유 시작");
-    if (!this.localScreenPublisher) {
-      // 로컬 화면 공유 publisher 생성 (DOM element를 직접 지정하지 않음)
-      const publisher = this.OVScreen.initPublisher(undefined, {
+
+    if (this.screenStreamManager === null) {
+      const publisher: Publisher = this.OVScreen.initPublisher(undefined, {
         videoSource: "screen",
         publishVideo: true,
         publishAudio: false,
       });
-      this.localScreenPublisher = publisher;
+      this.screenStreamManager = publisher;
 
-      this.screenShareSession
-        .publish(publisher)
-        .then(() => {
-          // 브라우저에서 화면 공유가 중단되면 'ended' 이벤트 발생 → 종료 처리
-          publisher.stream.getMediaStream().getVideoTracks()[0].addEventListener("ended", () => {
+      this.screenShareSession.publish(publisher).then(() => {
+        // 스크린 공유가 종료될 때 처리
+        const mediaStream = this.screenStreamManager!.stream.getMediaStream();
+        const videoTracks = mediaStream.getVideoTracks();
+        if (videoTracks.length > 0) {
+          videoTracks[0].addEventListener("ended", () => {
             console.log("내 스크린 공유 ended 실행됨");
-            this.OnScreenDeleted(publisher);
-            this.unpublishMyScreen();
+
+            if (this.screenStreamManager instanceof Publisher) {
+              this.OnScreenDeleted(this.screenStreamManager);
+              
+              this.screenShareSession.unpublish(this.screenStreamManager);
+              this.screenStreamManager = null;
+            }
           });
-          this.OnScreenAdded(publisher);
-        })
-        .catch((err) => {
-          console.error("화면 공유 시작 중 에러 발생:", err);
-        });
+        }
+
+        this.OnScreenAdded(publisher);
+      });
     } else {
       console.log("이미 누군가 스크린을 공유중입니다.");
     }
   }
 
   /**
-   * 내 화면 공유 종료 (로컬 화면 공유)
+   * 내 웹캠을 킵니다.
+   */
+  publishMyVideo(): void {
+    this.publisher.publishVideo(true);
+  }
+
+  /**
+   * 내 마이크를 킵니다.
+   */
+  publishMyAudio(): void {
+    this.publisher.publishAudio(true);
+  }
+
+  /**
+   * 내 스크린 공유를 끕니다.
    */
   unpublishMyScreen(): void {
     console.log("내 스크린 공유 끄기");
-    if (this.localScreenPublisher) {
-      this.screenShareSession.unpublish(this.localScreenPublisher);
-      this.localScreenPublisher = null;
+
+    if (this.screenStreamManager && this.screenStreamManager instanceof Publisher) {
+      this.screenShareSession.unpublish(this.screenStreamManager);
+      this.OnScreenDeleted(this.screenStreamManager);
+      
+      this.screenStreamManager = null;
     }
   }
 
   /**
-   * 회의실 정보 업데이트
+   * 내 웹캠을 끕니다.
+   */
+  unpublishMyVideo(): void {
+    this.publisher.publishVideo(false);
+  }
+
+  /**
+   * 내 마이크를 끕니다.
+   */
+  unpublishMyAudio(): void {
+    this.publisher.publishAudio(false);
+  }
+
+  /**
+   * 구독중인 구독 객체(Subscriber)를 반환합니다. Deep copy임.
+   * @returns Subscriber 객체 배열
+   */
+  getSubscribers(): Subscriber[] {
+    return this.subscribers;
+  }
+
+  /**
+   * 내가 송출중인 객체(Publisher)를 반환합니다.
+   * @returns Publisher 객체
+   */
+  getMyPublisher(): Publisher {
+    return this.publisher;
+  }
+
+  /**
+   * 현재 송출중인 스크린 스트림을 반환합니다.
+   * @returns StreamManager 객체 또는 null
+   */
+  getScreenStreamManager(): StreamManager | null {
+    return this.screenStreamManager;
+  }
+
+  /**
+   * 채팅 메시지를 보냅니다.
+   * Openvidu의 Signal을 활용하여 접속해있는 모든 클라이언트에
+   * {userId, nickname, message}가 전달됨
+   * @param message 채팅 메시지
+   */
+  sendMessage(message: string): void {
+    const data: Message = {
+      userId: this.myConnectionData.userId,
+      nickname: this.myConnectionData.nickname,
+      message,
+    };
+
+    const connections: Connection[] = this.subscribers.map(
+      (subscriber: Subscriber) => subscriber.stream.connection
+    );
+
+    this.session.signal({
+      data: JSON.stringify(data),
+      to: connections,
+      type: "message",
+    });
+  }
+
+  /**
+   * 방장을 변경합니다.
+   * @param userId 방장이 될 참가자 유저 번호
+   */
+  manageModerator(userId: number): void {
+    this.AXIOS.patch("/moderator/" + userId)
+      .then(() => {
+        // 성공 처리
+      })
+      .catch((err) => {
+        console.error("방장 변경 중 오류 발생 : " + err);
+      });
+  }
+
+  /**
+   * 방장이 참가자를 강제로 내보냅니다.
+   * @param userId 내보낼 참가자 유저 번호
+   */
+  manageKickParticipant(userId: number): void {
+    this.AXIOS.delete("/user/" + userId)
+      .then(() => {
+        console.log("추방 성공. 추방된 유저 정보 :" + userId);
+      })
+      .catch((err) => {
+        console.error("추방 중 에러 발생 : " + err);
+      });
+  }
+
+  /**
+   * 방장이 참가자의 Publish 상태를 조절합니다.
+   * @param userId 조절할 참가자 유저 번호
+   * @param offVideo true이면 웹캠을 끕니다.
+   * @param offAudio true이면 마이크를 끕니다.
+   */
+  manageParticipantPublishStatus(userId: number, offVideo: boolean, offAudio: boolean): void {
+    console.log("입갤");
+
+    if (!offVideo) {
+      this.AXIOS.delete("/video/" + userId)
+        .then(() => {
+          console.log("웹캠 끄기 성공. 대상 : " + userId);
+        })
+        .catch((err) => {
+          console.error("웹캠 끄기 중 에러 발생 : " + err);
+        });
+    }
+
+    if (!offAudio) {
+      this.AXIOS.delete("/audio/" + userId)
+        .then(() => {
+          console.log("마이크 끄기 성공. 대상 : " + userId);
+        })
+        .catch((err) => {
+          console.error("마이크 끄기 중 에러 발생 : " + err);
+        });
+    }
+  }
+
+  /**
+   * 회의실 정보를 업데이트합니다.
    * @param title 제목
    * @param description 설명
    * @param accessCode 비밀번호
-   * @param thumbnailFile 썸네일 파일 (File 객체)
+   * @param thumbnailFile 썸네일 파일
    */
   manageUpdateConferenceInfo(title: string, description: string, accessCode: string, thumbnailFile: File): void {
     console.log("회의실 내용 변경");
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
     formData.append("accessCode", accessCode);
     formData.append("thumbnailFile", thumbnailFile);
+
     this.AXIOS.put("", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -441,4 +496,4 @@ class OpenviduClient {
   }
 }
 
-export default OpenviduClient;
+export { OpenviduClient };  export type { ConnectionData };

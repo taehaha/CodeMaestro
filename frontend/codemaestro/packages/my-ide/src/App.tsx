@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Base64 } from "js-base64";
 import { Sun, Moon, Play, Save } from "lucide-react";
 import PaintBoard from "./components/PaintBoard";
@@ -7,17 +7,17 @@ import Editor from "./components/Editor";
 import InputArea from "./components/InputArea";
 import OutputArea from "./components/OutputArea";
 import LanguageSelector, { Language } from "./components/LanguageSelector";
-import Chat from "./components/Chat";
 import ChatBot from "./components/ChatBot";
 import ChatComponent, { ChatMessage } from "./components/ChatComponent";
 import "./App.css";
 import { languageTemplates } from "./constants/languageTemplates";
-import OpenviduClient from "./OpenviduClient";
+import { OpenviduClient } from "./OpenviduClient";
 import tokenStorage from "my-code/src/utils/tokenstorage";
-import OpenBidooComponent from "./components/OpenBidooComponent";
 import VideoControls from "./components/VideoControls";
 import VideoGrid from "./components/VideoGrid";
-import ScreenShareComponent from "./components/ScreenShareComponent";
+import { Publisher, StreamManager, Subscriber } from "openvidu-browser";
+import ScreenVideoComponent from "./components/ScreenVideoComponent";
+import UserVideoComponent from "./components/UserVideoComponent";
 
 const languages: Language[] = [
   { name: "Python", id: 71 },
@@ -33,8 +33,6 @@ const App: React.FC = () => {
   const [currentRightTab, setCurrentRightTab] = useState<"code" | "paint">("code");
   const [leftWidth, setLeftWidth] = useState<number>(400);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
-  const [screenShareStreamManager, setScreenShareStreamManager] = useState<any>(null);
 
   // 코드 관련 상태
   const [code, setCode] = useState<string>("");
@@ -49,14 +47,19 @@ const App: React.FC = () => {
   const [isSplitDragging, setIsSplitDragging] = useState<boolean>(false);
 
   // Openvidu 관련 상태
-  const [ovClient, setOvClient] = useState<OpenviduClient | null>(null);
-  // 내 퍼블리셔 스트림 관리자 (내 영상)
-  const [publisherStreamManager, setPublisherStreamManager] = useState<any>(null);
-  // 원격 구독자 스트림 관리자 배열 (상대 영상들)
-  const [remoteStreamManagers, setRemoteStreamManagers] = useState<any[]>([]);
-
-  // 채팅 관련 상태 추가
+  const [ovClient, setOvClient] = useState<OpenviduClient>(null!);
+    // 내 Publisher 객체 (내 영상)
+  const [ovPublisher, setOvPublisher] = useState<Publisher>(null!);
+    // 원격 Subscriber 객체 배열 (상대 영상들)
+  const [ovSubscribers, setOvSubscribers ] = useState<Subscriber[]>([]);
+    // 스크린 스트림 관리자 (내 화면 또는 상대 화면)
+  const [ovScreenStreamManager, setOvScreenStreamManager] = useState<StreamManager | null>(null);
+    // 채팅 관련 상태 추가
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    // 스크린 공유 상태
+  const isScreenSharing: boolean = useMemo(() => {
+    return ovScreenStreamManager !== null;
+  }, [ovScreenStreamManager]);
 
   // 언어 템플릿 적용
   const prevTemplateRef = React.useRef<string>("");
@@ -253,14 +256,22 @@ const App: React.FC = () => {
     console.log("쿼리 파라미터에서 가져온 roomId:", roomId);
     if (!roomId || isNaN(Number(roomId))) {
       console.error("유효하지 않은 roomId입니다.");
-      return;
+      return; //TODO: 리다이랙트가 필요할것 같음
     }
     
     const conferenceId = parseInt(roomId, 10);
     const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
-    const client = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
+
+    console.log("OPENVIDU : OPENVIDU 초기화 시작 직전임!!!!");
+    console.log("OPENVIDU : 로드된 conferenceId : " + conferenceId);
+    console.log("OPENVIDU : 로드된 HOST_URL : " + HOST_URL);
+    console.log("OPENVIDU : 로드된 ACCESS_TOKEN : " + ACCESS_TOKEN);
+
+    console.log("OPENVIDU : Openvidu init");
+    const client: OpenviduClient = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
+
     // 채팅 메시지 수신 콜백 설정
     client.setMessageReceivedCallback((userId: number, nickname: string, message: string) => {
       setChatMessages((prev) => [...prev, { userId, nickname, message }]);
@@ -268,34 +279,43 @@ const App: React.FC = () => {
 
     // 유저 접속콜백 설정
     client.setSubscriberAddedCallback((remoteStreamManager) => {
-      setRemoteStreamManagers((prev) => [...prev, remoteStreamManager]);
+      console.log("유저 접속 콜백 실행됨!");
+      setOvSubscribers((prev) => [...prev, remoteStreamManager]);
     });
 
     // 유저 접속해제 콜백 설정
-    client.setSubscriberDeletedCallback((remoteStreamManager) => {
-      setRemoteStreamManagers((prev) =>
-        prev.filter(item => item.remoteStreamManager !== remoteStreamManager));
+    client.setSubscriberDeletedCallback((deletedSubscriber: Subscriber) => {
+      setOvSubscribers((prevSubscribers: Subscriber[]) =>
+        prevSubscribers.filter(subscriber => 
+          subscriber.stream.connection.connectionId !== deletedSubscriber.stream.connection.connectionId)
+      );
     });
 
     // 스크린 접속됨 콜백 설정
     client.setScreenAddedCallback((screenStreamManager) => {
-      setScreenShareStreamManager(screenStreamManager);
+      setOvScreenStreamManager(screenStreamManager);
     });
 
     // 스크린 접속해제 콜백 설정
     client.setScreenDeletedCallback((screenStreamManager) => {
-      setScreenShareStreamManager(null);
+      setOvScreenStreamManager(null);
     });
 
+    console.log("OPENVIDU : 콜백 설정 완료");
+    
+    //TODO: 방 비밀번호 입력 시퀸스, 입장시 캠 설정 필요함
     client
-      .initConnection(1234, true, true)
+      .initConnection("1234", true, true)
       .then(() => {
         // 내 퍼블리셔 스트림 저장
-        const publisher = client.getMyPublisher();
-        setPublisherStreamManager(publisher);
-        // 원격 구독자 스트림 저장
-        setRemoteStreamManagers(client.getSubscribers());
-        console.log("원격 구독자 스트림 관리자 설정됨:", client.getSubscribers());
+        setOvPublisher(client.getMyPublisher());
+        // // 원격 구독자 스트림 저장
+        // setOvSubscribers(client.getSubscribers());
+        // // 스크린 공유 스트림 저장
+        // setOvScreenStreamManager(client.getScreenStreamManager()));
+        
+        console.log("OPENVIDU : 최초 스트림 설정됨.");
+
       })
       .catch((err) => {
         console.error("Openvidu 연결 실패:", err);
@@ -309,24 +329,6 @@ const App: React.FC = () => {
   const handleSendMessage = (message: string) => {
     if (ovClient) {
       ovClient.sendMessage(message);
-    }
-  };
-
-  const handleToggleScreenShare = () => {
-    if (!ovClient) return;
-    if (!isScreenSharing) {
-      try {
-        ovClient.publishMyScreen();
-        // 화면 공유 시작 후, 콜백(OnScreenAdded)이 호출되면
-        // 해당 콜백에서 setScreenShareStreamManager(screenStream)를 실행하게 됩니다.
-        setIsScreenSharing(true);
-      } catch (error) {
-        console.error("화면 공유 시작 실패:", error);
-      }
-    } else {
-      ovClient.unpublishMyScreen();
-      setScreenShareStreamManager(null);
-      setIsScreenSharing(false);
     }
   };
   
@@ -392,20 +394,19 @@ const App: React.FC = () => {
         <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
           {currentLeftTab === "chat" && (
             <>
-              {publisherStreamManager ? (
+              {ovPublisher ? (
                 <div className="mb-4">
                   <h3 className="text-lg font-bold mb-2">내 영상</h3>
-                  <OpenBidooComponent streamManager={publisherStreamManager} />
+                  <UserVideoComponent streamManager={ovPublisher} isDarkMode={isDarkMode} />
                 </div>
               ) : (
                 <div>내 스트림이 설정되지 않았습니다.</div>
               )}
               <div className="h-[40vh] resize-y overflow-auto rounded scrollbar-thin-custom">
-                {remoteStreamManagers && remoteStreamManagers.length > 0 ? (
+                {ovSubscribers && ovSubscribers.length > 0 ? (
                   <VideoGrid
-                    streamManagers={remoteStreamManagers}
-                    currentUser={undefined}
-                    onSelectUser={(streamManager) => {}}
+                    streamManagers={ovSubscribers}
+                    isDarkMode={isDarkMode}
                   />
                 ) : (
                   <div>원격 스트림 관리자가 설정되지 않았습니다.</div>
@@ -431,17 +432,9 @@ const App: React.FC = () => {
           )}
           {currentLeftTab === "screen_share" && (
             <div className="h-full flex flex-col">
-              <div className="flex items-center justify-between mb-2">
-                <button
-                  onClick={handleToggleScreenShare}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  {isScreenSharing ? "화면 공유 종료" : "화면 공유 시작"}
-                </button>
-              </div>
               <div className="flex-grow bg-black rounded overflow-hidden">
-                {isScreenSharing && screenShareStreamManager ? (
-                  <ScreenShareComponent streamManager={screenShareStreamManager} />
+                {isScreenSharing && ovScreenStreamManager ? (
+                  <ScreenVideoComponent streamManager={ovScreenStreamManager} />
                 ) : (
                   <div className="flex items-center justify-center h-full text-white">
                     {isScreenSharing ? "화면 공유 스트림 로딩 중..." : "화면 공유가 활성화되지 않았습니다."}
@@ -596,13 +589,16 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+      {ovClient && ovPublisher &&
       <VideoControls
-        streamManager={publisherStreamManager}
         ovClient={ovClient}
+        ovPublisher={ovPublisher}
+        ovScreenStreamManager={ovScreenStreamManager}
         onLeave={() => {
           console.log("방에서 나갔습니다.");
         }}
       />
+      }
     </div>
   );
 };
