@@ -60,6 +60,7 @@ public class BojService {
             bojUser = BojUser.builder()
                     .user(user)
                     .handle(bojId)
+                    .lastUpdated(LocalDateTime.now())
                     .build();
         }
         bojUser = bojUserRepository.save(bojUser);  // DB에 저장
@@ -84,6 +85,7 @@ public class BojService {
                     // 변환 실패시 RuntimeException 발생
                     ObjectMapper mapper = new ObjectMapper();
                     try {
+                        System.out.println(response);
                         return mapper.readValue(response, BojUserDto.class);
                     } catch (JsonProcessingException e) {
                         System.out.println("JSON 파싱 에러: " + e.getMessage());
