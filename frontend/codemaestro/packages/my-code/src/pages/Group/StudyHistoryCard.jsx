@@ -123,7 +123,7 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
           {/* 메모가 있는 상태 + 수정중이 아닐 때 */}
           {memo && !isEdit && (
             <div className="card-body flex flex-col items-center justify-center gap-4 text-gray-600">
-              <p className="text-gray-600 text-sm whitespace-pre-wrap">
+              <p className="text-gray-600 text-xl whitespace-pre-wrap">
                 {memo.studyContent}
               </p>
               <div className="flex items-center gap-3">
