@@ -41,4 +41,25 @@ public interface GroupConferenceHistoryRepository extends JpaRepository<GroupCon
 
 
     Optional<GroupConferenceHistory> findByGroupAndEndTimeIsNull(Group group);
+
+    @Query("SELECT COUNT(gch) " +
+            "FROM GroupConferenceHistory gch " +
+            "WHERE gch.group.id = :groupId")
+    Integer countByGroupId(@Param("groupId") Long groupId);
+
+    // 회의 정보와 멤버 히스토리만 조회
+    @Query("SELECT DISTINCT gch FROM GroupConferenceHistory gch " +
+            "LEFT JOIN FETCH gch.memberHistories mh " +
+            "WHERE gch.group.id = :groupId " +
+            "ORDER BY gch.startTime DESC")
+    List<GroupConferenceHistory> findTop5ByGroupIdOrderByStartTimeDesc(
+            @Param("groupId") Long groupId,
+            Pageable pageable
+    );
+
+    // 그룹 멤버 정보 별도 조회
+    @Query("SELECT g FROM Group g " +
+            "LEFT JOIN FETCH g.members " +
+            "WHERE g.id = :groupId")
+    Group findGroupWithMembers(@Param("groupId") Long groupId);
 }

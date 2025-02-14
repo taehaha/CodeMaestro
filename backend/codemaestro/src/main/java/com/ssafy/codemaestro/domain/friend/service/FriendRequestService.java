@@ -156,7 +156,6 @@ public class FriendRequestService {
     }
 
     // 친구 삭제
-    @Transactional
     public void deleteFriend(Long requestId) {
         // friendRequestId로 친구 요청을 찾음
         FriendRequest request = friendRequestRepository.findById(requestId)

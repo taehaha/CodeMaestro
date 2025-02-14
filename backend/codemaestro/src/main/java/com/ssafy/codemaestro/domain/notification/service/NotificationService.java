@@ -45,5 +45,15 @@ public class NotificationService {
             log.error("댓글 생성 후 알림 전송 실패 userId: {}", boardWriter, e);
         }
     }
+
+    // 그룹 회의 생성시, 회원들에게 알림
+    public void sendGroupConferenceNotification(Long userId, Long groupId, String groupName) {
+        try {
+            String notificationMessage = groupName + " 의 새로운 그룹 회의가 생성되었습니다.";
+            sseService.sendNotification(userId,"invite" , notificationMessage);
+        } catch (Exception e) {
+            log.error("그룹 회의 생성 후 알림 전송 실패 userId: {}, groupId: {}", userId, groupId, e);
+        }
+    }
 }
 
