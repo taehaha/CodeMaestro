@@ -38,6 +38,8 @@ const GroupDetail = () => {
         setGroup(result.data);
         //더미로
         // 내 역할 설정
+          console.log(result.data);
+          
           const member = result.data.members.find(member => member.userId === user.userId);
           if (member) {
             setUserRole(member.role);
