@@ -78,8 +78,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 //        GrantedAuthority auth = iterator.next();
 
         //토큰 생성
-        String access = jwtUtil.createToken("access", id, 600000L);
-        String refresh = jwtUtil.createToken("refresh", id,  86400000L);
+        String access = jwtUtil.createAccessToken(id);
+        String refresh = jwtUtil.createRefreshToken(id);
 
         addRefreshEntity(id, refresh, 86400000L);
 

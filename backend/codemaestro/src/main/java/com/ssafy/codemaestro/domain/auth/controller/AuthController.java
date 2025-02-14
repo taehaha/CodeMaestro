@@ -1,6 +1,7 @@
 package com.ssafy.codemaestro.domain.auth.controller;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
+import com.ssafy.codemaestro.domain.auth.dto.AccessTokenReissueRequest;
+import com.ssafy.codemaestro.domain.auth.entty.CustomUserDetails;
 import com.ssafy.codemaestro.domain.auth.dto.FindPasswordRequestDto;
 import com.ssafy.codemaestro.domain.auth.dto.LogoutResponseDto;
 import com.ssafy.codemaestro.domain.auth.dto.SignUpDto;
@@ -11,6 +12,7 @@ import com.ssafy.codemaestro.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 public class AuthController {
     private final AuthService authService;
@@ -66,12 +69,18 @@ public class AuthController {
 
     // JWT AccessToken 및 RefreshToken 재발급
     @PostMapping("/auth/reissue")
-    public ResponseEntity<Void> reissue(HttpServletRequest request, HttpServletResponse response) {
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
+    public ResponseEntity<Void> reissue(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        @RequestBody(required = false) AccessTokenReissueRequest dto) {
+        // 토큰 받아오기
+        String refresh = dto.getRefreshToken(); // 본문에서 먼저 받음
+
+        if (refresh == null) { // 본문에 토큰이 없으면 쿠키에서 받음
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    refresh = cookie.getValue();
+                }
             }
         }
 

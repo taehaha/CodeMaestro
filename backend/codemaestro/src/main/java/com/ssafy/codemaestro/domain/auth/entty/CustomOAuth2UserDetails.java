@@ -1,4 +1,4 @@
-package com.ssafy.codemaestro.domain.auth.dto;
+package com.ssafy.codemaestro.domain.auth.entty;
 
 import com.ssafy.codemaestro.global.entity.User;
 import org.springframework.security.core.GrantedAuthority;

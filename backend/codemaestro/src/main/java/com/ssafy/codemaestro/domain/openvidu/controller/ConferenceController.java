@@ -1,16 +1,17 @@
 package com.ssafy.codemaestro.domain.openvidu.controller;
 
-import com.ssafy.codemaestro.domain.auth.dto.CustomUserDetails;
+import com.ssafy.codemaestro.domain.auth.entty.CustomUserDetails;
 import com.ssafy.codemaestro.domain.openvidu.dto.*;
 import com.ssafy.codemaestro.domain.openvidu.service.ConferenceService;
 import com.ssafy.codemaestro.global.entity.Conference;
+import com.ssafy.codemaestro.global.entity.ConferenceTag;
 import com.ssafy.codemaestro.global.entity.User;
-import io.openvidu.java.client.Connection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -44,7 +45,8 @@ public class ConferenceController {
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getAccessCode(),
-                dto.getGroupId()
+                dto.getGroupId(),
+                dto.getTagNameList()
         );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
@@ -73,6 +75,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<List<ConferenceInfoResponse>> getAllConferenceInfo() {
         List<Conference> conferenceList = conferenceService.getAllConferences();
 
@@ -88,6 +91,7 @@ public class ConferenceController {
                     .thumbnailUrl(conference.getThumbnailUrl())
                     .hostNickName(conference.getModerator().getNickname())
                     .participantNum(participantNum)
+                    .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                     .createdAt(conference.getCreatedAt())
                     .build();
 
@@ -103,6 +107,7 @@ public class ConferenceController {
      * @return
      */
     @GetMapping("/{conferenceId}")
+    @Transactional(readOnly = true) // LAZY 로딩 문제 해결
     public ResponseEntity<ConferenceInfoResponse> conferenceInfo(@PathVariable String conferenceId) {
         Conference conference = conferenceService.getConference(conferenceId);
 
@@ -115,6 +120,7 @@ public class ConferenceController {
                 .thumbnailUrl(conference.getThumbnailUrl())
                 .hostNickName(conference.getModerator().getNickname())
                 .participantNum(participantNum)
+                .tagNameList(ConferenceTag.toTagNameList(conference.getTags()))
                 .createdAt(conference.getCreatedAt())
                 .build();
 
