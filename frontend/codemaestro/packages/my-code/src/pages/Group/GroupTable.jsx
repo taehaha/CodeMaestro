@@ -4,7 +4,7 @@ import { getGroupStric } from "../../api/GroupApi";
 import GroupStric from "./GroupStric";
 
 function GroupTable({ members, groupId }) {
-  const [groupStric, setGroupStric] = useState(null);
+  const [groupStric, setGroupStric] = useState([]);
 
   useEffect(() => {
     const fetchStric = async () => {
