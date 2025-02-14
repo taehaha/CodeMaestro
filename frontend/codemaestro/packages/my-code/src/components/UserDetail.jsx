@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import { FriendRequest } from '../api/FriendApi';
-import { assign } from 'lodash';
 import { useSelector } from "react-redux";
 
 const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
@@ -34,7 +33,8 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             popup: "swal-custom-popup",       // 전체 팝업 스타일
             title: "swal-custom-title",       // 제목 스타일
             htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-            confirmButton: "swal-custom-button" // 버튼 스타일
+            confirmButton: "swal-custom-button", // 버튼 스타일
+            cancelButton: "swal-custom-button2" // 버튼 스타일
           }
 
     }).then(async (result) => {
@@ -46,8 +46,19 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
           });
           Swal.fire({
             title: "요청 완료",
-            icon: "success",
             text: "친구 추가 요청이 전송되었습니다.",
+            icon: "success",
+            iconColor:"#5FD87D",
+            width: "500px",
+            background: "#f8f9fa",
+            confirmButtonColor: "#FFCC00",
+            confirmButtonText: "확인",
+            customClass: {
+              popup: "swal-custom-popup",       // 전체 팝업 스타일
+              title: "swal-custom-title",       // 제목 스타일
+              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+              confirmButton: "swal-custom-button" // 버튼 스타일
+            }
           });
         } catch (error) {
             console.error("친구추가 요청 실패", error);

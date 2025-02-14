@@ -59,14 +59,12 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 14px;
-  transition: all 0.3s ease;
 }
 
 .modal-container input:focus,
 .modal-container textarea:focus {
-  border-color: #007bff;
+  border-color: #333;
   outline: none;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.3);
 }
 
 /* 텍스트 에어리어 크기 조정 */
@@ -78,38 +76,38 @@
 /* 버튼 컨테이너 */
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 15px;
+  gap: 15px;
 }
 
 /* 취소 버튼 */
-.cancel-btn {
-  background: #ccc;
+.group-cancel-btn {
+  background: #ddd;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  transition: 0.3s ease;
+  /* transition: 0.3s ease; */
 }
 
-.cancel-btn:hover {
-  background: #bbb;
+.group-cancel-btn:hover {
+  background: #ccc;
 }
 
 /* 완료 버튼 */
 .confirm-btn {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
+  background: #FFCC00;
+  color: black;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  font-weight: bold;
-  transition: 0.3s ease;
+  /* transition: 0.3s ease; */
 }
 
 .confirm-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #003f7f);
+  background: #f0c000;
 }

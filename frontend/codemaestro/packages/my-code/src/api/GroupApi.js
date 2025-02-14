@@ -116,3 +116,14 @@ import UserAxios from "./userAxios";
           return [];
         }
       };
+
+    
+    export const getGroupStric = async (groupId) => {
+        try {
+            const result = await UserAxios.get(`/groups/${groupId}/attendance`)
+            return result.data
+        } catch (error) {
+            console.error("스트릭 가져오는 중 오류 발생", error);
+            return [];
+        }
+    }

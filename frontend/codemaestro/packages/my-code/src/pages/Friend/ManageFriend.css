@@ -1,0 +1,36 @@
+.add-btn {
+  background-color: #86bbf1;
+  color: #fff;
+  /* border: none; */
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80%;
+  margin-bottom: 14px;
+
+}
+
+.del-btn {
+  background-color: #fcb9aa;
+  color: #fff;
+  /* border: none; */
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80%;
+  margin-bottom: 14px;
+}
+
+.connect-btn {
+  background-color: #97c1a9;
+  color: #fff;
+  /* border: none; */
+  padding: 6px 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80%;
+  margin-bottom: 14px;
+}

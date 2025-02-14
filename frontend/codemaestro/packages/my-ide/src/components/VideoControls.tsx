@@ -81,11 +81,10 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     if (onLeave) {
       onLeave();
     }
-    // /meeting 경로로 이동
     window.location.href = "/meeting";
   };
 
-  // 최소화/확대 
+  // 최소화/확대 토글
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };

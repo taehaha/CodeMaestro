@@ -405,15 +405,17 @@ const CollaborativeEditor = React.memo((props: any) => {
   const lintCompartment = useMemo(() => new Compartment(), []);
 
   // 로컬 스토리지에서 이중 파싱으로 사용자 정보(닉네임, 색상) 가져오기
-  const { userDisplayName, userColor } = useMemo(() => {
+  const { userDisplayName, userColor, userProfileImageUrl } = useMemo(() => {
     let userDisplayName = "Guest";
-    // 랜덤 색상 생성 (기본값)
+    // 기본 랜덤 색상 생성
     const randomColor =
       "#" +
       Math.floor(Math.random() * 0xffffff)
         .toString(16)
         .padStart(6, "0");
     let userColor = randomColor;
+    let userProfileImageUrl = ""; // 기본값은 빈 문자열 (없으면 AvatarStack에서 기본 이미지 처리)
+  
     const persistedUserStr = localStorage.getItem("persist:persistedUser");
     if (persistedUserStr) {
       try {
@@ -434,19 +436,26 @@ const CollaborativeEditor = React.memo((props: any) => {
           ) {
             userColor = myInfoObj.color;
           }
+          if (
+            myInfoObj.profileImageUrl &&
+            typeof myInfoObj.profileImageUrl === "string" &&
+            myInfoObj.profileImageUrl.trim()
+          ) {
+            userProfileImageUrl = myInfoObj.profileImageUrl.trim();
+          }
         }
       } catch (error) {
         console.error("persist:persistedUser 파싱 오류:", error);
       }
     }
-    return { userDisplayName, userColor };
+    return { userDisplayName, userColor, userProfileImageUrl };
   }, []);
-
+  
   // 에디터 DOM에 붙일 ref 콜백
   const editorRef = useCallback(
     (node: HTMLDivElement) => {
       if (!node) return;
-
+      
       // 쿼리에서 roomId 추출
       function getRoomNameFromURL(): string {
         const params = new URLSearchParams(window.location.search);
@@ -468,7 +477,9 @@ const CollaborativeEditor = React.memo((props: any) => {
         name: userDisplayName,
         color: userColor,
         colorLight: userColor + "80",
+        profileImageUrl: userProfileImageUrl,
       });
+      
 
       // AI 자동완성을 위한 함수 (inlineCopilot에 사용)
       const aiCompletion = async (prefix: string, suffix: string) => {
@@ -544,7 +555,7 @@ const CollaborativeEditor = React.memo((props: any) => {
       userColor,
     ]
   );
-
+  
   // lintEnabled 옵션 변경 시 에디터 업데이트
   useEffect(() => {
     if (editorViewRef.current) {

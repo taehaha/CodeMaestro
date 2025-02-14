@@ -4,12 +4,13 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import {LeaveGroup } from "../../api/GroupApi";
+import {getGroupStric, LeaveGroup } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
-import DummyGroupMembersDemo from "./Dummy";
 import GroupManagement from "./GroupManagement";
-import GroupStudiesPage from "./GroupStudies";
+import GroupStudies from "./GroupStudies";
+import LoadAnimation from "../../components/LoadAnimation";
+import GroupTable from "./GroupTable"
 
 const ROLE = {
   NONE: "NONE",
@@ -26,7 +27,7 @@ const GroupDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,11 +37,10 @@ const GroupDetail = () => {
         // 그룹 정보 설정        
         setGroup(result.data);
         //더미로
-
-
         // 내 역할 설정
-          const member = result.data.members.find(member => member.userId === user.userId);
+          console.log(result.data);
           
+          const member = result.data.members.find(member => member.userId === user.userId);
           if (member) {
             setUserRole(member.role);
           } else {
@@ -55,7 +55,33 @@ const GroupDetail = () => {
       }
     };
     fetchData();
+  }, [groupId])
+
+
+  useEffect(() => {
+    const fetchGroup = async () => {
+      try {
+        setLoading(true);
+        const { data } = await UserAxios.get(`/groups/${groupId}/detail`);
+        setGroup(data);
+      } catch (err) {
+        console.error("그룹 상세 조회 에러:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroup();
   }, [groupId]);
+
+  // 로딩 중이면 아직 group.members를 접근할 수 없음
+  if (loading) {
+    return <LoadAnimation />;
+  }
+
+  // group이 없거나 group.members가 없으면 UI 표시 X
+  if (!group || !group.members) {
+    return <div>그룹 정보가 없습니다.</div>;
+  }
 
 
   // 가입 신청
@@ -97,7 +123,19 @@ const GroupDetail = () => {
     if (userRole === ROLE.ADMIN) {
       await Swal.fire({
         title: "그룹 탈퇴",
-        text: "그룹 소유주는 탈퇴할 수 없습니다! 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+        text: "그룹 소유주는 탈퇴할 수 없습니다! \n 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+        icon:"error",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
     } else {
       const result = await Swal.fire({
@@ -141,18 +179,6 @@ const GroupDetail = () => {
     }
   };
 
-  // 관리자 전환 (테스트용)
-  const handleChangeToAdmin = () => {
-    setUserRole(ROLE.ADMIN);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-60">
-        <div className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
 
   // 날짜 포맷 (moment 사용 예시)
   const formattedDate = group?.createdAt
@@ -162,8 +188,8 @@ const GroupDetail = () => {
   return (
     <div className="container mx-auto p-4">
       {/* --------- 헤더 영역 (배경 없이 간단한 카드 형태) --------- */}
-      <div className="card bg-base-100 shadow-md p-4 py-6 mb-4">
-        <div className="flex items-center gap-4">
+      <div className="card bg-base-100 shadow-md p-6 py-6 px-8 mb-6">
+        <div className="flex items-center gap-10">
           {/* 그룹 아바타 */}
           <div className="avatar">
             <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
@@ -178,8 +204,8 @@ const GroupDetail = () => {
           </div>
 
           {/* 그룹 정보 텍스트 */}
-          <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-bold">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-xl font-bold">
               {group?.name || `그룹 아이디: ${group.name}`}
             </h2>
             {group?.description && (
@@ -208,32 +234,38 @@ const GroupDetail = () => {
       </div>
 
       {/* --------- 탭 영역 --------- */}
-      <div className="tabs w-full mb-4 border-b border-gray-200">
+      <div className="sidebar-menu w-full max-w-[1000px] mx-auto flex justify-center border-b border-gray-200 bg-[#F9FAFB]">
         <button
           onClick={() => setActiveTab("members")}
-          className={`tab tab-bordered transition-colors ${
-            activeTab === "members" ? "tab-active border-blue-500 text-blue-500" : ""
-          }`}
+          className={`sidebar-item transition-colors relative ${
+            activeTab === "members" ? "text-black font-semibold active" : "text-gray-500"
+          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
-          Members
+          그룹 멤버
         </button>
         <button
           onClick={() => setActiveTab("studies")}
-          className={`tab tab-bordered transition-colors ${
-            activeTab === "studies" ? "tab-active border-blue-500 text-blue-500" : ""
-          }`}
+          className={`sidebar-item transition-colors relative ${
+            activeTab === "studies" ? "text-black font-semibold active" : "text-gray-500"
+          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
-          Studies
+          스터디 기록
         </button>
+        
       </div>
+
+
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       {activeTab === "members" && (
-        <DummyGroupMembersDemo userRole={userRole} members={group.members} />
+        <GroupTable members={group.members} userRole={userRole} groupId={groupId}/>
       )}
       {activeTab === "studies" && (
         <div className="text-center text-gray-700">
-          <GroupStudiesPage></GroupStudiesPage>
+          <GroupStudies
+          groupId={groupId}
+          userRole={userRole}
+          ></GroupStudies>
         </div>
       )}
 
@@ -256,10 +288,10 @@ const GroupDetail = () => {
 
         {userRole === ROLE.ADMIN && (
           <div className="flex gap-2">
-          <button className="btn btn-success rounded-sm">그룹회의 생성</button>
+          <button className="btn btn-success rounded-m">그룹회의 생성</button>
                       <button 
           onClick={() => setIsModalOpen(true)}
-          className=" btn btn-neutral rounded-sm">
+          className=" btn btn-[#5FD87D] rounded-m">
           그룹 관리
           </button>
           </div>
