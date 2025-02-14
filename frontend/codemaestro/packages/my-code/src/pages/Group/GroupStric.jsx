@@ -10,7 +10,8 @@ import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 function GroupStric({ userId, groupStric }) {
   // 아직 groupStric이 안 불려왔다면 null 처리
   if (!groupStric) return null;
-
+  console.log(groupStric);
+  
   const { memberAttendance, recentConferences } = groupStric;
 
   // 현재 userId와 매칭되는 attendance 데이터 찾기

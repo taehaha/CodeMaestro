@@ -27,6 +27,8 @@ export const NotificationsProvider = ({ children }) => {
       position: "bottom-right",
       autoClose: 5000,
     });
+    showSystemNotification("새 알림", message);
+
   };
 
   // SSE 연결 생성 함수
@@ -228,6 +230,43 @@ export const NotificationsProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+
+
+  // 윈도우알림 테스트
+  
+  // 1.권한관리.
+  const requestNotificationPermission = async () => {
+    // 이미 'granted'라면 바로 true를 반환
+    if (Notification.permission === "granted") {
+      return true;
+    }
+    // 'denied'가 아닌 경우에만 권한 요청
+    else if (Notification.permission !== "denied") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        return true;
+      }
+    }
+    return false;
+  };
+
+
+  // 2. 푸시알림 
+  const showSystemNotification = (title, body) => {
+    // Web Notifications API 권한이 허용된 경우
+    if (Notification.permission === "granted") {
+      new Notification(title, { body });
+    } else {
+      // 아직 권한이 없으면 요청 시도
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          new Notification(title, { body });
+        }
+      });
+    }
+  };
+
+  
   return (
     <NotificationsContext.Provider value={{}}>
       {children}
