@@ -4,6 +4,7 @@ import UserAxios from "../../api/userAxios"; // 백엔드 solved.ac 연동 API �
 import { putUserInfo } from "../../api/AuthApi";
 import { useDispatch } from "react-redux";
 import { getMyInfo } from "../../reducer/userSlice";
+import { baseURL } from "../../api/userAxios";
 const SolvedacModal = ({ open, onClose }) => {
   const dispatch = useDispatch()
   const [solvedacId, setSolvedacId] = useState("");
@@ -30,7 +31,7 @@ const SolvedacModal = ({ open, onClose }) => {
 
     try {
       // 백엔드에 solved.ac id를 전송하고, 숫자(티어 값)를 반환받음
-      const response = await UserAxios.get(`/boj/tier?bojId=${solvedacId}`);
+      const response = await UserAxios.get(`${baseURL}/boj/tier?bojId=${solvedacId}`);
       // 예시: response.data가 숫자형 티어 값이라고 가정 (필요에 따라 구조를 확인)
       const solvedacTier = response.data;
 
