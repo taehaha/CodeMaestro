@@ -13,35 +13,23 @@ const CreateMeetingForm = () => {
   const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
-  // (예시) 6자리 랜덤 링크 생성
-  const generateRandomLink = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return Array.from({ length: 6 }, () =>
-      chars.charAt(Math.floor(Math.random() * chars.length))
-    ).join("");
-  };
-
   // 폼 제출
   const handleSubmit = async (values, { setSubmitting }) => {
     setSubmitting(true);
     try {
-      // 1) url(랜덤링크) 생성
-      const roomUrl = generateRandomLink();
-      const inviteLink = `http://localhost:5174/meeting/${roomUrl}`;
 
       // 2) JSON payload 구성
       const payload = {
         title: values.title,
         description: values.description || "",
-        tags:values.tags, 
+        tagNameList:values.tags, 
         accessCode: values.isPrivate ? values.entry_password : null,
         thumbnail:values.thumbnail,
-        // visible: values.isVisible,
       };
 
       // 3) 방 생성 API
       const response = await createRoom(payload);
-      console.log(response);
+      const inviteLink = `http://localhost:5174/meeting/${response.data}`;
 
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
@@ -94,7 +82,7 @@ const CreateMeetingForm = () => {
       }).then((result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
-          navigate(`/meeting/${roomUrl}`, { state: { status: 200 } });
+          navigate(`${inviteLink}`);
         }
       });
     } catch (error) {
@@ -193,7 +181,7 @@ const CreateMeetingForm = () => {
             <Form className="flex flex-col gap-4">
               {/* 회의 제목 */}
               <div className="form-control">
-                <label className="label font-semibold">회의 제목 (최대 20자)</label>
+                <label className="label font-semibold">회의 제목</label>
                 <Field
                   type="text"
                   name="title"
@@ -205,7 +193,7 @@ const CreateMeetingForm = () => {
 
               {/* 설명 */}
               <div className="form-control">
-                <label className="label font-semibold">회의 설명 (최대 20자)</label>
+                <label className="label font-semibold">회의 설명</label>
                 <Field
                   type="text"
                   name="description"
@@ -293,12 +281,12 @@ const CreateMeetingForm = () => {
               </div>
 
               {/* 공개 여부 */}
-              <div className="form-control">
+              {/* <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label-text font-semibold">공개 여부</span>
                   <Field type="checkbox" name="isVisible" className="toggle toggle-primary" />
                 </label>
-              </div>
+              </div> */}
 
               {/* 비밀방 체크 */}
               <div className="form-control">

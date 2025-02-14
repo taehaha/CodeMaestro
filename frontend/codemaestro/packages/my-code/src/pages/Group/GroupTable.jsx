@@ -1,21 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
-import Swal from "sweetalert2"; 
 import { getGroupStric } from "../../api/GroupApi";
-import GroupStric from "./GroupStric"; // GroupStric 컴포넌트 import
+import GroupStric from "./GroupStric";
 
-function GroupTable({ members, userRole, groupId }) {
+function GroupTable({ members, groupId }) {
+  const [groupStric, setGroupStric] = useState(null);
+
   useEffect(() => {
     const fetchStric = async () => {
       const result = await getGroupStric(groupId);
-      console.log(result);
+      setGroupStric(result);
     };
 
     fetchStric();
   }, [groupId]);
 
+  // 테이블에 들어갈 데이터
   const data = React.useMemo(() => members, [members]);
 
+  // 테이블에 표시할 컬럼들
   const columns = React.useMemo(() => {
     return [
       {
@@ -43,23 +46,23 @@ function GroupTable({ members, userRole, groupId }) {
         Header: "역할",
         accessor: "role",
       },
-      // ▼ 새로 추가한 컬럼 예시
       {
-        Header: "그룹 스트릭",
-        // accessor를 사용하지 않고, Cell을 직접 정의해도 무방합니다.
+        Header: "회의 출석현황",
         Cell: ({ row }) => {
-          // 필요한 데이터가 있다면 row.original에서 꺼낼 수 있습니다.
           const { userId } = row.original;
+
+          // **중요**: 자식 컴포넌트로 groupStric 전체와 userId를 넘겨줍니다.
+          // 자식 내부에서 userId에 맞는 attendanceStatus를 찾아 아이콘을 표시하게 됩니다.
           return (
             <GroupStric
               userId={userId}
-              groupId={groupId}
+              groupStric={groupStric} // 부모에서 가져온 결과를 그대로 전달
             />
           );
         },
       },
     ];
-  }, [groupId]);
+  }, [groupStric]);
 
   const {
     getTableProps,

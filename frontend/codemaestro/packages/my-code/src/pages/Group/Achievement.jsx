@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 import PropTypes from "prop-types";
 import { AchievementList } from "../../utils/AchievementList";
@@ -7,7 +8,7 @@ import { FaMedal, FaGem, FaCheckCircle } from "react-icons/fa";
 
 // 등급별 아이콘
 const tierIcons = {
-  bronze: <FaMedal style={{ color: "chocolate" }} />,
+  bronze: <FaMedal className="text-amber-600" />,
   silver: <FaMedal style={{ color: "silver" }} />,
   gold: <FaMedal style={{ color: "gold" }} />,
   platinum: <FaMedal style={{ color: "royalblue" }} />,
@@ -75,9 +76,9 @@ const Achievement = ({ myAttendances, totalDuration }) => {
     const gradeIcon = tierIcons[achievement.value] || null;
 
     // 미완료(잠금) 상태라면 흐릿하게, 흑백 처리
-    const lockedClass = isCompleted
-      ? "opacity-100 grayscale-0 border-green-400"
-      : "opacity-60 grayscale border-gray-300";
+    // const lockedClass = isCompleted
+    //   ? "opacity-100 grayscale-0 border-green-400"
+    //   : "opacity-60 grayscale border-gray-300";
 
     // 잠금 해제 시 강조 효과(테두리, 그림자 등)
     const completeGlow = isCompleted
@@ -87,7 +88,7 @@ const Achievement = ({ myAttendances, totalDuration }) => {
     return (
       <li
         key={achievement.id}
-        className={`border rounded p-4 transition-all duration-300 flex flex-col gap-2 ${lockedClass} ${completeGlow}`}
+        className={`border rounded p-4 transition-all duration-300 flex flex-col gap-2${completeGlow}`}
       >
         <div className="flex items-center justify-between">
           {/* 좌측 아이콘 & 타이틀 */}
