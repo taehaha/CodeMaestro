@@ -10,8 +10,16 @@ import Achievement from "./Achievement"; // 도전 과제 컴포넌트 예시
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-const GroupStudies = ({ groupId }) => {
-  // --- [기존 로직들] ---
+const GroupStudies = ({ groupId,userRole }) => {    
+    if (userRole === "None") {
+      return (
+        <div className="flex justify-center items-center h-40 text-gray-500">
+          <p>그룹 가입을 통해 나의 다양한 스터디 기록을 확인하세요!</p>
+        </div>
+      );
+    }
+
+
   const [conferenceHistory, setConferenceHistory] = useState({
     totalConfrences: 0,
     participations: [],

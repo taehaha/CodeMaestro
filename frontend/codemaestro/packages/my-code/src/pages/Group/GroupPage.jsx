@@ -250,6 +250,7 @@ const GroupDetail = () => {
         <div className="text-center text-gray-700">
           <GroupStudies
           groupId={groupId}
+          userRole={userRole}
           ></GroupStudies>
         </div>
       )}

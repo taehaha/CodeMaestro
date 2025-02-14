@@ -266,7 +266,10 @@ export const NotificationsProvider = ({ children }) => {
     }
   };
 
-  
+  useEffect(() => {
+    requestNotificationPermission();
+  }, [])
+
   return (
     <NotificationsContext.Provider value={{}}>
       {children}
