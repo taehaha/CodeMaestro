@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
 import { FriendRequest } from '../api/FriendApi';
-import { assign } from 'lodash';
 import { useSelector } from "react-redux";
 
 const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {

@@ -64,7 +64,7 @@ const PaintBoard: React.FC = () => {
 
   // Yjs 문서, WebSocket Provider, 공유 배열, UndoManager 생성
   const [wsProvider] = useState(
-    () => new WebsocketProvider('ws://localhost:3001', roomId, ydoc)
+    () => new WebsocketProvider(process.env.REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL as string, roomId, ydoc)
   );
   const [yShapes] = useState(() => ydoc.getArray<Shape>('shapes'));
   const awareness = wsProvider.awareness;
@@ -196,6 +196,18 @@ const PaintBoard: React.FC = () => {
     yShapes.delete(shapeIndex, 1);
     yShapes.insert(shapeIndex, [updatedShape]);
   };
+  useEffect(() => {
+    const localState = awareness.getLocalState() || {};
+    if (!localState.cursorColor) {
+      // 원하는 색상 배열 또는 Math.random()을 사용해 생성할 수 있습니다.
+      const colors = ['#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
+      // 클라이언트 ID 기반으로 일관된 색상을 주려면 아래처럼 해도 좋습니다.
+      const randomColor = colors[awareness.clientID % colors.length];
+      // 혹은 완전히 랜덤하게 하려면:
+      // const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      awareness.setLocalStateField('cursorColor', randomColor);
+    }
+  }, [awareness]);
 
   // 최신 상태값을 참조하기 위한 ref 생성 (stale closure 문제 해결)
   const drawingRef = useRef(drawing);
@@ -476,9 +488,8 @@ const PaintBoard: React.FC = () => {
           {presetColors.map((presetColor) => (
             <div
               key={presetColor}
-              className={`color-swatch w-6 h-6 rounded cursor-pointer border-2 border-white hover:scale-110 transition-transform ${
-                presetColor === color ? 'selected' : ''
-              }`}
+              className={`color-swatch w-6 h-6 rounded cursor-pointer border-2 border-white hover:scale-110 transition-transform ${presetColor === color ? 'selected' : ''
+                }`}
               style={{ backgroundColor: presetColor }}
               onClick={() => handlePresetColorClick(presetColor)}
               title={presetColor}
@@ -525,6 +536,7 @@ const PaintBoard: React.FC = () => {
                       y={shape.y}
                       width={shape.width}
                       height={shape.height}
+                      rotation={shape.rotation || 0}
                       fill={shape.fill}
                       stroke={selectedId === shape.id ? 'blue' : shape.stroke}
                       strokeWidth={selectedId === shape.id ? 2 : 0}
@@ -637,8 +649,6 @@ const PaintBoard: React.FC = () => {
               }}
             />
           </Layer>
-
-          {/* 각 사용자의 커서를 표시하는 레이어 */}
           <Layer>
             {Array.from(awarenessStates.entries()).map(([clientId, state]) => {
               if (clientId === awareness.clientID) return null;
@@ -649,7 +659,8 @@ const PaintBoard: React.FC = () => {
                   x={state.cursor.x}
                   y={state.cursor.y}
                   radius={5}
-                  fill="red"
+                  fill={state.cursorColor || 'red'}
+                  listening={false} // 이벤트를 무시하여 도형에 영향이 없도록 함
                 />
               );
             })}
@@ -736,7 +747,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
       y={shape.y}
       rotation={shape.rotation || 0}
       fill={shape.fill}
-      fontSize={shape.fontSize || 16}  
+      fontSize={shape.fontSize || 16}
       wrap="word"
       width={shape.width || 200}
       draggable={tool === 'select' && shape.selectable !== false}

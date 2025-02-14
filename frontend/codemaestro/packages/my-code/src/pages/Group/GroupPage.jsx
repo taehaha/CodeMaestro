@@ -4,12 +4,13 @@ import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import {LeaveGroup } from "../../api/GroupApi";
+import {getGroupStric, LeaveGroup } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
-import DummyGroupMembersDemo from "./Dummy";
 import GroupManagement from "./GroupManagement";
-import GroupStudiesPage from "./GroupStudies";
+import GroupStudies from "./GroupStudies";
+import LoadAnimation from "../../components/LoadAnimation";
+import GroupTable from "./GroupTable"
 
 const ROLE = {
   NONE: "NONE",
@@ -26,7 +27,7 @@ const GroupDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,11 +37,10 @@ const GroupDetail = () => {
         // 그룹 정보 설정        
         setGroup(result.data);
         //더미로
-
-
         // 내 역할 설정
-          const member = result.data.members.find(member => member.userId === user.userId);
+          console.log(result.data);
           
+          const member = result.data.members.find(member => member.userId === user.userId);
           if (member) {
             setUserRole(member.role);
           } else {
@@ -55,7 +55,33 @@ const GroupDetail = () => {
       }
     };
     fetchData();
+  }, [groupId])
+
+
+  useEffect(() => {
+    const fetchGroup = async () => {
+      try {
+        setLoading(true);
+        const { data } = await UserAxios.get(`/groups/${groupId}/detail`);
+        setGroup(data);
+      } catch (err) {
+        console.error("그룹 상세 조회 에러:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGroup();
   }, [groupId]);
+
+  // 로딩 중이면 아직 group.members를 접근할 수 없음
+  if (loading) {
+    return <LoadAnimation />;
+  }
+
+  // group이 없거나 group.members가 없으면 UI 표시 X
+  if (!group || !group.members) {
+    return <div>그룹 정보가 없습니다.</div>;
+  }
 
 
   // 가입 신청
@@ -153,18 +179,6 @@ const GroupDetail = () => {
     }
   };
 
-  // 관리자 전환 (테스트용)
-  const handleChangeToAdmin = () => {
-    setUserRole(ROLE.ADMIN);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-60">
-        <div className="loading loading-spinner loading-lg" />
-      </div>
-    );
-  }
 
   // 날짜 포맷 (moment 사용 예시)
   const formattedDate = group?.createdAt
@@ -227,7 +241,7 @@ const GroupDetail = () => {
             activeTab === "members" ? "text-black font-semibold active" : "text-gray-500"
           } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
-          Members
+          그룹 멤버
         </button>
         <button
           onClick={() => setActiveTab("studies")}
@@ -235,19 +249,23 @@ const GroupDetail = () => {
             activeTab === "studies" ? "text-black font-semibold active" : "text-gray-500"
           } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
-          Studies
+          스터디 기록
         </button>
+        
       </div>
 
 
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       {activeTab === "members" && (
-        <DummyGroupMembersDemo userRole={userRole} members={group.members} />
+        <GroupTable members={group.members} userRole={userRole} groupId={groupId}/>
       )}
       {activeTab === "studies" && (
         <div className="text-center text-gray-700">
-          <GroupStudiesPage></GroupStudiesPage>
+          <GroupStudies
+          groupId={groupId}
+          userRole={userRole}
+          ></GroupStudies>
         </div>
       )}
 

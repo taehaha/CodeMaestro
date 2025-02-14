@@ -17,6 +17,31 @@ import tokenStorage from "my-code/src/utils/tokenstorage";
 import OpenBidooComponent from "./components/OpenBidooComponent";
 import VideoControls from "./components/VideoControls";
 import VideoGrid from "./components/VideoGrid";
+import ScreenShareComponent from "./components/ScreenShareComponent";
+
+const getAuthStatus = () => {
+  // 토큰을 가져옴.
+  const accessToken = localStorage.getItem("access_token");
+  // persist:persistedUser 키에서 사용자 정보 문자열
+  const persistedUserStr = localStorage.getItem("persist:persistedUser");
+  let myInfo = null;
+  if (persistedUserStr) {
+    try {
+      // 먼저 Redux Persist에서 저장한 객체를 파싱
+      const persistedUserObj = JSON.parse(persistedUserStr);
+      // 그 안에 myInfo 키 파싱합니다.
+      if (persistedUserObj.myInfo) {
+        myInfo = JSON.parse(persistedUserObj.myInfo);
+      }
+    } catch (error) {
+      console.error("persistedUser 파싱 실패", error);
+    }
+  }
+  const isAuthenticated = !!accessToken && !!myInfo;
+  console.log("Auth status:", { accessToken, myInfo, isAuthenticated });
+  return { token: accessToken, persistedUser: myInfo, isAuthenticated };
+};
+
 
 const languages: Language[] = [
   { name: "Python", id: 71 },
@@ -26,12 +51,24 @@ const languages: Language[] = [
 ];
 
 const App: React.FC = () => {
-  console.log("my-ide app loaded");
+  // 인증 상태 계산 (항상 최상단에서 실행)
+  const { token, persistedUser, isAuthenticated } = getAuthStatus();
+
+  // 인증 여부에 따라 리다이렉트 (모든 Hook 호출 이후에 조건부 렌더링 처리)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      window.location.href = "/login";
+    }
+  }, [isAuthenticated]);
+
+  // 아래 모든 Hook은 조건에 상관없이 항상 호출되어야 함
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [currentLeftTab, setCurrentLeftTab] = useState<"chat" | "chatbot" | "screen_share">("chat");
   const [currentRightTab, setCurrentRightTab] = useState<"code" | "paint">("code");
   const [leftWidth, setLeftWidth] = useState<number>(400);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+  const [screenShareStreamManager, setScreenShareStreamManager] = useState<any>(null);
 
   // 코드 관련 상태
   const [code, setCode] = useState<string>("");
@@ -47,12 +84,10 @@ const App: React.FC = () => {
 
   // Openvidu 관련 상태
   const [ovClient, setOvClient] = useState<OpenviduClient | null>(null);
-  // 내 퍼블리셔 스트림 관리자 (내 영상)
   const [publisherStreamManager, setPublisherStreamManager] = useState<any>(null);
-  // 원격 구독자 스트림 관리자 배열 (상대 영상들)
   const [remoteStreamManagers, setRemoteStreamManagers] = useState<any[]>([]);
 
-  // 채팅 관련 상태 추가
+  // 채팅 관련 상태
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // 언어 템플릿 적용
@@ -121,17 +156,17 @@ const App: React.FC = () => {
     setOutput("");
     setExecTime(null);
     setExecMemory(null);
+
     try {
       const encodedCode = Base64.encode(code);
       const encodedInput = Base64.encode(input);
+
       const response = await fetch(
-        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true",
+        "https://judge0.codemaestro.site/submissions?base64_encoded=true",
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": process.env.REACT_APP_RAPIDAPI_KEY || "",
-            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             source_code: encodedCode,
@@ -140,21 +175,18 @@ const App: React.FC = () => {
           }),
         }
       );
+
       const { token } = await response.json();
       if (!token) throw new Error("Execution token not received.");
+
       let retries = 6;
       while (retries > 0) {
         const statusResponse = await fetch(
-          `https://judge0-ce.p.rapidapi.com/submissions/${token}?base64_encoded=true&fields=stdout,stderr,time,memory,status,compile_output`,
-          {
-            headers: {
-              "X-RapidAPI-Key": process.env.REACT_APP_RAPIDAPI_KEY || "",
-              "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-            },
-          }
+          `https://judge0.codemaestro.site/submissions/${token}?base64_encoded=true&fields=stdout,stderr,time,memory,status,compile_output`
         );
         const result = await statusResponse.json();
         console.log("Judge0 result:", result);
+
         if (result.status.id === 3) {
           const decodedStdout = result.stdout ? Base64.decode(result.stdout) : "";
           const decodedStderr = result.stderr ? Base64.decode(result.stderr) : "";
@@ -181,6 +213,7 @@ const App: React.FC = () => {
           setOutput(`Error:\n${errorOutput}`);
           break;
         }
+
         retries--;
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
@@ -207,7 +240,7 @@ const App: React.FC = () => {
     }
   };
 
-  // 코드 저장: 현재 코드를 선택한 언어의 확장자로 로컬에 저장
+  // 코드 저장: 현재 코드를 로컬에 저장
   const handleSaveCode = () => {
     const ext = getFileExtension(selectedLanguage);
     const filename = `code.${ext}`;
@@ -220,7 +253,7 @@ const App: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // F9 키 컴파일 동작 (생략)
+  // F9 키 컴파일 동작
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "F9") {
@@ -235,30 +268,44 @@ const App: React.FC = () => {
     };
   }, [handleRunCode]);
 
-  // Openvidu 연결: 쿼리 파라미터 roomId를 사용하여 연결
+  // Openvidu 연결: 쿼리 파라미터 roomId 사용
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const roomId = searchParams.get('roomId');
+    const roomId = searchParams.get("roomId");
     console.log("쿼리 파라미터에서 가져온 roomId:", roomId);
     if (!roomId || isNaN(Number(roomId))) {
       console.error("유효하지 않은 roomId입니다.");
       return;
     }
+
     const conferenceId = parseInt(roomId, 10);
-    const HOST_URL = new URL("http://192.168.31.194:8080");
+    const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
     const client = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
-    // 채팅 메시지 수신 콜백 설정
     client.setMessageReceivedCallback((userId: number, nickname: string, message: string) => {
-      setChatMessages(prev => [...prev, { userId, nickname, message }]);
+      setChatMessages((prev) => [...prev, { userId, nickname, message }]);
     });
-    client.initConnection(1234, true, true)
+    client.setSubscriberAddedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) => [...prev, remoteStreamManager]);
+    });
+    client.setSubscriberDeletedCallback((remoteStreamManager) => {
+      setRemoteStreamManagers((prev) =>
+        prev.filter(item => item.remoteStreamManager !== remoteStreamManager)
+      );
+    });
+    client.setScreenAddedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(screenStreamManager);
+    });
+    client.setScreenDeletedCallback((screenStreamManager) => {
+      setScreenShareStreamManager(null);
+    });
+
+    client
+      .initConnection(1234, true, true)
       .then(() => {
-        // 내 퍼블리셔 스트림 저장
         const publisher = client.getMyPublisher();
         setPublisherStreamManager(publisher);
-        // 원격 구독자 스트림 저장
         setRemoteStreamManagers(client.getSubscribers());
         console.log("원격 구독자 스트림 관리자 설정됨:", client.getSubscribers());
       })
@@ -270,12 +317,34 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // ChatComponent로부터 전달받은 메시지 송신 요청 처리
+  // ChatComponent 메시지 송신 처리
   const handleSendMessage = (message: string) => {
     if (ovClient) {
       ovClient.sendMessage(message);
     }
   };
+
+  const handleToggleScreenShare = () => {
+    if (!ovClient) return;
+    if (!isScreenSharing) {
+      try {
+        ovClient.publishMyScreen();
+        setIsScreenSharing(true);
+      } catch (error) {
+        console.error("화면 공유 시작 실패:", error);
+      }
+    } else {
+      ovClient.unpublishMyScreen();
+      setScreenShareStreamManager(null);
+      setIsScreenSharing(false);
+    }
+  };
+
+  // 인증된 경우에만 UI 렌더링 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 flex">
       {/* 왼쪽 영역 (채팅, 챗봇, 화면공유) */}
@@ -288,18 +357,15 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chat")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "chat"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chat"
+                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                  }`}
               >
                 <img
                   src="/ide/img/talking.png"
                   alt="Chat"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "chat" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
                 />
                 채팅
               </button>
@@ -307,37 +373,32 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chatbot")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "chatbot"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chatbot"
+                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                  }`}
               >
                 <img
                   src="/ide/img/robot.png"
                   alt="Chatbot"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
                 />
                 챗봇
               </button>
             </li>
+            {/* 화면공유 탭 버튼 – 필요하다면 유지, 아니면 제거할 수 있음 */}
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("screen_share")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentLeftTab === "screen_share"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "screen_share"
+                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                  }`}
               >
                 <img
                   src="/ide/img/video.png"
                   alt="Screen Share"
-                  className={`w-6 h-6 me-2 ${
-                    currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
                 />
                 화면공유
               </button>
@@ -347,7 +408,6 @@ const App: React.FC = () => {
         <div className="flex-grow overflow-auto p-2 bg-gray-200 dark:bg-gray-800 transition-colors duration-300 scrollbar-thin-custom">
           {currentLeftTab === "chat" && (
             <>
-              {/* 내 영상 영역 */}
               {publisherStreamManager ? (
                 <div className="mb-4">
                   <h3 className="text-lg font-bold mb-2">내 영상</h3>
@@ -356,25 +416,26 @@ const App: React.FC = () => {
               ) : (
                 <div>내 스트림이 설정되지 않았습니다.</div>
               )}
-              {/* 상대방들 영상 영역 */}
               <div className="h-[40vh] resize-y overflow-auto rounded scrollbar-thin-custom">
                 {remoteStreamManagers && remoteStreamManagers.length > 0 ? (
                   <VideoGrid
                     streamManagers={remoteStreamManagers}
                     currentUser={undefined}
-                    onSelectUser={(streamManager) => {
-                      // 사용자 선택 처리
-                    }}
+                    onSelectUser={(streamManager) => { }}
                   />
                 ) : (
                   <div>원격 스트림 관리자가 설정되지 않았습니다.</div>
                 )}
               </div>
-              {/* 채팅 영역 */}
-              <div className="h-[40vh] mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2">
+              <div
+                className="mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2"
+                style={{ height: "100%", resize: "vertical", minHeight: "40vh", maxHeight: "60vh" }}
+              >
                 <ChatComponent
                   onSendMessage={handleSendMessage}
-                  messages={chatMessages} currentUserId={1}        
+                  messages={chatMessages}
+                  currentUserId={1}
+                  isDarkMode={isDarkMode}
                 />
               </div>
             </>
@@ -384,26 +445,35 @@ const App: React.FC = () => {
               <ChatBot currentCode={code} updateCode={setCode} />
             </div>
           )}
-          {currentLeftTab === "screen_share" && <div>제작중</div>}
+          {currentLeftTab === "screen_share" && (
+            // 화면 공유 탭에서는 더 이상 토글 버튼 없이 스트림 상태만 표시
+            <div className="flex flex-col items-center justify-center" style={{ height: "50vh" }}>
+              {isScreenSharing && screenShareStreamManager ? (
+                <div className="w-full bg-black rounded overflow-hidden">
+                  <ScreenShareComponent streamManager={screenShareStreamManager} />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full h-full text-white">
+                  화면 공유가 활성화되지 않았습니다.
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div
-        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${
-          isDragging
-            ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
-            : "bg-gradient-to-b from-gray-300 to-gray-400"
-        }`}
+        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${isDragging
+          ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
+          : "bg-gradient-to-b from-gray-300 to-gray-400"
+          }`}
         style={{ height: "100vh" }}
         onMouseDown={() => setIsDragging(true)}
       >
         <div
-          className={`w-6 h-20 rounded-full shadow-md border-2 ${
-            isDragging
-              ? "bg-yellow-500 border-yellow-700"
-              : "bg-white border-gray-300 group-hover:border-blue-500"
-          } transition-all transform ${
-            isDragging ? "scale-125" : "group-hover:scale-110"
-          }`}
+          className={`w-6 h-20 rounded-full shadow-md border-2 ${isDragging
+            ? "bg-yellow-500 border-yellow-700"
+            : "bg-white border-gray-300 group-hover:border-blue-500"
+            } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"}`}
         ></div>
       </div>
       {/* 오른쪽 영역 (코드, 그림판) */}
@@ -413,18 +483,15 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("code")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentRightTab === "code"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "code"
+                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                  }`}
               >
                 <img
                   src="/ide/img/programming.png"
                   alt="Code"
-                  className={`w-6 h-6 me-2 ${
-                    currentRightTab === "code" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentRightTab === "code" ? "opacity-100" : "opacity-50"}`}
                 />
                 코드
               </button>
@@ -439,18 +506,15 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("paint")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
-                  currentRightTab === "paint"
-                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "paint"
+                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                  }`}
               >
                 <img
                   src="/ide/img/palette.png"
                   alt="Paint"
-                  className={`w-6 h-6 me-2 ${
-                    currentRightTab === "paint" ? "opacity-100" : "opacity-50"
-                  }`}
+                  className={`w-6 h-6 me-2 ${currentRightTab === "paint" ? "opacity-100" : "opacity-50"}`}
                 />
                 그림판
               </button>
@@ -459,11 +523,7 @@ const App: React.FC = () => {
                   onClick={() => setIsDarkMode(!isDarkMode)}
                   className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
                 >
-                  {isDarkMode ? (
-                    <Sun className="w-6 h-6" />
-                  ) : (
-                    <Moon className="w-6 h-6" />
-                  )}
+                  {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
                 </button>
               </div>
             </li>
@@ -480,25 +540,25 @@ const App: React.FC = () => {
             <div className="flex mt-4">
               <button
                 onClick={handleRunCode}
-                className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black rounded flex items-center transition duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="flex items-center px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-amber-400 transition duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   "실행 중..."
                 ) : (
                   <>
-                    <Play className="w-4 h-4 inline mr-2" />
-                    컴파일/F9
+                    <Play className="w-5 h-5 mr-2" />
+                    컴파일 / F9
                   </>
                 )}
               </button>
               <button
                 onClick={handleSaveCode}
-                className="px-4 py-2 bg-gradient-to-r from-green-400 to-green-600 text-black rounded ml-4 flex items-center transition duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="ml-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-md transition-colors hover:bg-green-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <Save className="w-4 h-4 inline mr-2" />
-                코드 저장
+                <Save className="w-5 h-5" />
               </button>
+
             </div>
             <div
               id="input-output-container"
@@ -533,9 +593,12 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* VideoControls에 화면공유 관련 props 전달 */}
       <VideoControls
         streamManager={publisherStreamManager}
         ovClient={ovClient}
+        isScreenSharing={isScreenSharing}
+        handleToggleScreenShare={handleToggleScreenShare}
         onLeave={() => {
           console.log("방에서 나갔습니다.");
         }}

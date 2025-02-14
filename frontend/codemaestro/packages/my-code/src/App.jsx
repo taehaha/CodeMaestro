@@ -36,6 +36,8 @@ import PostsProvider from './context/PostsContext';
 import CommentsProvider from './context/CommentsContext';
 import PostCreate from './pages/Community/PostCreate';
 
+import ProtectedIDE from './router/ProtectedIDE';
+
 function App() {
   return (
     // <NotificationsProvider>
@@ -71,6 +73,7 @@ function App() {
                   <Route path="/boards/create" element={<PostCreate />} />
                   <Route path="/boards/:boardId" element={<PostDetail/>}></Route>
                   <Route path="/group/:groupId" element={<GroupPage />} />
+                  <Route path="/ide" element={<ProtectedIDE />} />
                 </Route>
               </Routes>
             </main>

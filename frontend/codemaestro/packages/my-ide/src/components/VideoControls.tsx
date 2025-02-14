@@ -1,29 +1,34 @@
 import React, { useState } from "react";
-import { 
-  Mic, 
-  MicOff, 
-  Video, 
-  VideoOff, 
-  PhoneOff, 
-  Monitor, 
-  ChevronUp, 
-  ChevronDown 
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  PhoneOff,
+  Monitor,
+  ChevronUp,
+  ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 interface VideoControlsProps {
   streamManager: any;
   ovClient: any;
+  isScreenSharing: boolean;
+  handleToggleScreenShare: () => void;
   onLeave?: () => void;
 }
 
 const VideoControls: React.FC<VideoControlsProps> = ({
   streamManager,
   ovClient,
+  isScreenSharing,
+  handleToggleScreenShare,
   onLeave,
 }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // 마이크 토글
@@ -42,22 +47,6 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     }
   };
 
-  // 화면공유 토글 
-  const handleToggleScreenShare = async () => {
-    if (streamManager) {
-      if (!isScreenSharing) {
-        // 예시: 화면 공유 시작
-        // const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-        // streamManager.replaceTrack(screenStream.getVideoTracks()[0]);
-      } else {
-        // 예시: 화면 공유 종료 후 카메라 복원
-        // const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        // streamManager.replaceTrack(cameraStream.getVideoTracks()[0]);
-      }
-      setIsScreenSharing(!isScreenSharing);
-    }
-  };
-
   // 세션 나가기
   const handleLeaveSession = () => {
     if (ovClient) {
@@ -66,11 +55,10 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     if (onLeave) {
       onLeave();
     }
-    // window.location.href를 사용하여 /meeting 경로로 이동
     window.location.href = "/meeting";
   };
 
-  // 최소화/확대 
+  // 최소화/확대 토글
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
@@ -137,9 +125,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
         <button
           onClick={toggleMinimize}
-          className={`flex flex-col items-center justify-center ${
-            isMinimized ? "p-2" : "py-4 px-2"
-          } bg-gray-800 hover:bg-gray-700 rounded transition-transform duration-300`}
+          className={`flex flex-col items-center justify-center ${isMinimized ? "p-2" : "py-4 px-2"} bg-gray-800 hover:bg-gray-700 rounded transition-transform duration-300`}
           title={isMinimized ? "확대" : "최소화"}
         >
           {isMinimized ? (

@@ -9,25 +9,32 @@ export interface ChatMessage {
 interface ChatComponentProps {
   onSendMessage: (message: string) => void;
   messages: ChatMessage[];
-  currentUserId: number; // 현재 사용자의 id (내 id)
+  currentUserId: number;
+  isDarkMode?: boolean; // 다크모드 여부 (기본값은 false)
 }
 
 const ChatComponent: React.FC<ChatComponentProps> = ({
   onSendMessage,
   messages,
   currentUserId,
+  isDarkMode = false,
 }) => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && newMessage.trim()) {
+  // 엔터키를 누르면 메시지 전송 (Shift+Enter는 줄바꿈)
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey && newMessage.trim()) {
+      e.preventDefault();
       sendMessage();
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  // 입력값 변경 시, 자동 높이 조절 기능 추가
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setNewMessage(e.target.value);
+    e.target.style.height = "auto"; // 높이 초기화
+    e.target.style.height = `${e.target.scrollHeight}px`; // 내용에 맞춰 높이 재설정
   };
 
   const sendMessage = () => {
@@ -50,64 +57,33 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
   return (
     <div
-      className="chatbot-body"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        position: "relative",
-      }}
+      className={`chatbot-body flex flex-col h-full relative transition-colors duration-300 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
     >
       {/* 메시지 영역 */}
-      <div className="messages" style={{ flex: 1, overflowY: "auto", padding: "10px" }}>
+      <div
+        className={`messages flex-1 overflow-y-auto p-2 transition-colors duration-300 ${
+          isDarkMode ? "bg-gray-800" : "bg-gray-100"
+        }`}
+      >
         {messages.map((msg, index) => {
-          // 현재 사용자의 id와 비교하여 내 메시지인지 판단
           const isMine = msg.userId === currentUserId;
-          // 내 메시지는 오른쪽, 상대 메시지는 왼쪽 정렬
-          const justify = isMine ? "flex-end" : "flex-start";
-          // 내 메시지: 회색 계열, 상대 메시지: 노란색 (#FFCC00)
-          const bubbleStyle = isMine
-            ? {
-                background: "#e0e0e0",
-                color: "#333333",
-                borderBottomRightRadius: 0,
-              }
-            : {
-                background: "#FFCC00",
-                color: "#000000",
-                borderTopLeftRadius: 0,
-              };
-
+          const justify = isMine ? "justify-end" : "justify-start";
+          const bubbleClasses = isMine
+            ? isDarkMode
+              ? "bg-gray-700 text-white"
+              : "bg-gray-200 text-gray-800"
+            : isDarkMode
+            ? "bg-gray-600 text-white"
+            : "bg-yellow-400 text-black";
           return (
-            <div
-              key={index}
-              className={isMine ? "user" : "bot"}
-              style={{ margin: "10px 0", display: "flex", justifyContent: justify }}
-            >
+            <div key={index} className={`flex ${justify} my-2`}>
               <div
-                className="message-bubble"
-                style={{
-                  maxWidth: "100%",
-                  padding: "10px 15px",
-                  borderRadius: "20px",
-                  fontSize: "14px",
-                  lineHeight: 1.4,
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  ...bubbleStyle,
-                }}
+                className={`message-bubble max-w-full px-4 py-2 rounded-2xl shadow ${bubbleClasses}`}
               >
-                <span
-                  className="sender-label"
-                  style={{ fontWeight: "bold", marginRight: "5px" }}
-                >
-                  {msg.nickname}:
-                </span>
-                <span
-                  className="message-text"
-                  style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-                >
+                <span className="font-bold mr-2">{msg.nickname}:</span>
+                <span className="whitespace-pre-wrap break-words">
                   {msg.message}
                 </span>
               </div>
@@ -118,89 +94,50 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
       {/* 입력 영역 */}
       <div
-        className="input-container"
-        style={{ display: "flex", alignItems: "center", padding: "10px" }}
+        className={`input-container flex items-center p-2 border-t transition-colors duration-300 ${
+          isDarkMode ? "border-gray-700" : "border-gray-300"
+        }`}
       >
         <button
-          className="emoji-button"
+          className="emoji-button text-2xl mr-2"
           onClick={toggleEmojiPicker}
-          style={{
-            background: "transparent",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer",
-            marginRight: "10px",
-          }}
         >
           😊
         </button>
-
-        <input
-          type="text"
+        <textarea
           value={newMessage}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
           placeholder="메시지를 입력하세요.."
-          style={{
-            flex: 1,
-            padding: "10px 15px",
-            border: "1px solid #cccccc",
-            borderRadius: "20px",
-            fontSize: "14px",
-            outline: "none",
-            background: "rgba(247,247,247,0.9)",
-          }}
+          className={`flex-1 px-4 py-2 rounded-full outline-none transition-colors duration-300 focus:ring focus:ring-blue-300 resize-y ${
+            isDarkMode
+              ? "bg-gray-900 text-white border border-gray-700"
+              : "bg-gray-100 text-black border border-gray-300"
+          }`}
+          style={{ minHeight: "25px" }} // 최소 높이를 50px로 지정
         />
-
         <button
-          className="send-button"
+          className="send-button ml-2 bg-yellow-500 rounded-full p-2 text-white transition-colors duration-300 hover:bg-yellow-600"
           onClick={sendMessage}
-          style={{
-            background: "#FFCC00",
-            border: "none",
-            borderRadius: "50%",
-            padding: "10px",
-            width: "40px",
-            height: "40px",
-            cursor: "pointer",
-            marginLeft: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "background-color 0.3s ease, transform 0.2s ease",
-          }}
         >
-          <span
-            className="arrow-icon"
-            style={{ fontSize: "16px", color: "#ffffff" }}
-          >
-            ➤
-          </span>
+          ➤
         </button>
       </div>
 
       {/* 이모지 선택기 */}
       {showEmojiPicker && (
         <div
-          className="emoji-picker"
-          style={{
-            position: "absolute",
-            bottom: "60px",
-            left: "10px",
-            background: "#ffffff",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            padding: "10px",
-            display: "flex",
-            flexWrap: "wrap",
-            width: "220px",
-            zIndex: 1001,
-          }}
+          className={`emoji-picker absolute bottom-16 left-2 p-2 flex flex-wrap rounded-lg shadow-lg transition-colors duration-300 ${
+            isDarkMode
+              ? "bg-gray-800 border border-gray-600"
+              : "bg-white border border-gray-300"
+          }`}
+          style={{ width: "220px" }}
         >
           {emojiList.map((emoji, index) => (
             <span
               key={index}
-              style={{ fontSize: "20px", margin: "5px", cursor: "pointer" }}
+              className="text-2xl m-1 cursor-pointer"
               onClick={() => handleEmojiClick(emoji)}
             >
               {emoji}
