@@ -1,9 +1,9 @@
-.content-wrapper {
+/* .content-wrapper {
   flex: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
+} */
 
 .footer {
     background-color: #182235; /* 배경 색 */
@@ -13,6 +13,7 @@
     font-size: 14px;
     width: 100%;
     margin-top: auto;
+    position: relative;
   }
   
   .footer-content {

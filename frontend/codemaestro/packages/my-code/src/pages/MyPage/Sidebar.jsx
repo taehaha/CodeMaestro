@@ -61,7 +61,7 @@ const Sidebar = ({ onSelect, user }) => {
                 onClick={() => setActiveTab("password")} 
                 className={`tab-button ${activeTab === "password" ? "active" : ""}`}
               >
-                비밀번호 수정
+                비밀번호 변경
               </button>
             </div>
 

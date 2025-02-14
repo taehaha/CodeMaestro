@@ -123,7 +123,19 @@ const GroupDetail = () => {
     if (userRole === ROLE.ADMIN) {
       await Swal.fire({
         title: "그룹 탈퇴",
-        text: "그룹 소유주는 탈퇴할 수 없습니다! 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+        text: "그룹 소유주는 탈퇴할 수 없습니다! \n 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+        icon:"error",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
     } else {
       const result = await Swal.fire({
@@ -176,8 +188,8 @@ const GroupDetail = () => {
   return (
     <div className="container mx-auto p-4">
       {/* --------- 헤더 영역 (배경 없이 간단한 카드 형태) --------- */}
-      <div className="card bg-base-100 shadow-md p-4 py-6 mb-4">
-        <div className="flex items-center gap-4">
+      <div className="card bg-base-100 shadow-md p-6 py-6 px-8 mb-6">
+        <div className="flex items-center gap-10">
           {/* 그룹 아바타 */}
           <div className="avatar">
             <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
@@ -192,8 +204,8 @@ const GroupDetail = () => {
           </div>
 
           {/* 그룹 정보 텍스트 */}
-          <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-bold">
+          <div className="flex flex-col gap-3">
+            <h2 className="text-xl font-bold">
               {group?.name || `그룹 아이디: ${group.name}`}
             </h2>
             {group?.description && (
@@ -222,25 +234,27 @@ const GroupDetail = () => {
       </div>
 
       {/* --------- 탭 영역 --------- */}
-      <div className="tabs w-full mb-4 border-b border-gray-200">
+      <div className="sidebar-menu w-full max-w-[1000px] mx-auto flex justify-center border-b border-gray-200 bg-[#F9FAFB]">
         <button
           onClick={() => setActiveTab("members")}
-          className={`tab tab-bordered transition-colors ${
-            activeTab === "members" ? "tab-active border-blue-500 text-blue-500" : ""
-          }`}
+          className={`sidebar-item transition-colors relative ${
+            activeTab === "members" ? "text-black font-semibold active" : "text-gray-500"
+          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
           그룹 멤버
         </button>
         <button
           onClick={() => setActiveTab("studies")}
-          className={`tab tab-bordered transition-colors ${
-            activeTab === "studies" ? "tab-active border-blue-500 text-blue-500" : ""
-          }`}
+          className={`sidebar-item transition-colors relative ${
+            activeTab === "studies" ? "text-black font-semibold active" : "text-gray-500"
+          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
         >
           스터디 기록
         </button>
         
       </div>
+
+
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       {activeTab === "members" && (
@@ -274,10 +288,10 @@ const GroupDetail = () => {
 
         {userRole === ROLE.ADMIN && (
           <div className="flex gap-2">
-          <button className="btn btn-success rounded-sm">그룹회의 생성</button>
+          <button className="btn btn-success rounded-m">그룹회의 생성</button>
                       <button 
           onClick={() => setIsModalOpen(true)}
-          className=" btn btn-neutral rounded-sm">
+          className=" btn btn-[#5FD87D] rounded-m">
           그룹 관리
           </button>
           </div>

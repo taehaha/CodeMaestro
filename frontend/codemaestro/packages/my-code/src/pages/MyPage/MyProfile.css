@@ -63,6 +63,7 @@
 
 /* 유저 정보 */
 .user-info {
+  flex-grow: 1;
   text-align: left;
   margin-top: 80px;
   /* margin-right: 120px; */
@@ -127,7 +128,7 @@
   bottom: -2px;
   width: 100%;
   height: 3px;
-  background-color: #007bff; /* 선택된 탭 밑줄 색상 */
+  background-color: #182235; /* 선택된 탭 밑줄 색상 */
   transition: width 0.3s ease-in-out;
 }
 .tab-content {

@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import UserAxios from "../../api/userAxios"; // 백엔드 solved.ac 연동 API 호출용 Axios 인스턴스
 import { putUserInfo } from "../../api/AuthApi";
@@ -68,15 +68,15 @@ const SolvedacModal = ({ open, onClose }) => {
         text: "연동 중 오류가 발생했습니다. 입력 정보를 다시 확인해주세요.",
         icon: "error",
         width: "500px",
-          background: "#f8f9fa",
-          confirmButtonColor: "#FFCC00",
-          confirmButtonText: "확인",
-          customClass: {
-            popup: "swal-custom-popup",       // 전체 팝업 스타일
-            title: "swal-custom-title",       // 제목 스타일
-            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-            confirmButton: "swal-custom-button" // 버튼 스타일
-          }
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button" // 버튼 스타일
+        }
       });
     }
   };
@@ -92,18 +92,19 @@ const SolvedacModal = ({ open, onClose }) => {
         readOnly
       />
       <div className="modal">
-        <div className="modal-box relative">
+        <div className="modal-box relative w-full max-w-lg rounded-xl">
           {/* 모달 닫기 버튼 */}
-          <button
+          {/* <button
             onClick={onClose}
             className="btn btn-sm btn-circle absolute right-2 top-2"
           >
             ✕
-          </button>
+          </button> */}
 
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">Solved.ac 연동</h3>
-            <p className="mb-4">Solved.ac 아이디를 입력해주세요.</p>
+            <h3 className="text-xl mb-3">Solved.ac 연동</h3>
+            <p className="mb-5 p-4">Solved.ac 아이디를 입력해주세요.</p>
+
             <input
               type="text"
               value={solvedacId}
@@ -111,9 +112,14 @@ const SolvedacModal = ({ open, onClose }) => {
               placeholder="Solved.ac 아이디"
               className="input input-bordered w-full mb-4"
             />
-            <button onClick={handleUpdate} className="btn btn-primary">
+            <div className="flex justify-center gap-2 mt-4">
+            <button onClick={handleUpdate} className="bg-yellow-400 text-black px-4 py-2 rounded-md hover:bg-yellow-500">
               연동
             </button>
+            <button onClick={onClose} className="bg-[#ddd] text-black px-4 py-2 rounded-md hover:bg-[#ccc]">
+              닫기
+            </button>
+            </div>
           </div>
         </div>
       </div>

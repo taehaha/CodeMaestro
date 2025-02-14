@@ -110,7 +110,7 @@ const EditPassword = () => {
   return (
     <div className="edit-password-container">
       <h2 className="title">비밀번호 변경</h2>
-      <p className="subti tle">새로 사용할 비밀번호를 입력해 주세요.</p>
+      <p className="subtitle">새로 사용할 비밀번호를 입력해 주세요.</p>
       <form onSubmit={handleSubmit}>
         <div className="input-group">
           <label className="input-label">현재 비밀번호</label>
