@@ -76,7 +76,6 @@ const PaintBoard: React.FC = () => {
   const [color, setColor] = useState<string>('#000000');
   const [brushWidth, setBrushWidth] = useState<number>(5);
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [setUserCount] = useState<number>(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // 로컬 드로잉 상태 (아직 공유되지 않은 선 - 내 그리는 포인트와 상대방 포인트가 연결되어 튐 방지지)
   const [localLine, setLocalLine] = useState<Shape | null>(null);
