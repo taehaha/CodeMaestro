@@ -10,31 +10,25 @@ import "./Community.css";
 const Community = () => {
   const navigate = useNavigate();
   const { posts, setPosts } = useContext(PostsContext);
-  // const { comments } = useContext(CommentsContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [commentCounts, setCommentCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // 날짜 형식
   const formatDate = (isoString) => {
     if (!isoString) return "";
-  
     const date = new Date(isoString);
-  
-    // 연, 월, 일 추출
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // 0부터 시작하므로 +1 필요
     const day = String(date.getDate()).padStart(2, "0");
-  
-    // 시간, 분 추출
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-  
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };  
 
   useEffect(() => {
     const fetchPosts = async () => {
-      setLoading(true); // 로딩 시작
+      setLoading(true);
       try {
         const data = await getBoardList();
         const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -67,6 +61,8 @@ const Community = () => {
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
+
+  
 
   return (
     <div className="community-container">

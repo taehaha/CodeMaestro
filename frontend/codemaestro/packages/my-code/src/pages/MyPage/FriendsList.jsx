@@ -49,7 +49,7 @@ const FriendsList = () => {
 
   return (
     <div>
-      <p className="header-style-border">My Friends</p>
+      <p className="header-style-border">친구</p>
       <div className="flex flex-col md:flex-row">
         {/* UserList 영역 */}
         <div className="w-full md:w-4/5">

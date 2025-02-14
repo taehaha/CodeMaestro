@@ -39,9 +39,9 @@ import PostCreate from './pages/Community/PostCreate';
 function App() {
   return (
     // <NotificationsProvider>
-          <PostsProvider>
+      <PostsProvider>
         <CommentsProvider>
-          <div className="w-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
+          <div className="w-screen min-h-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
             {/* Header 영역 */}
             <Header />
             {/* Body 영역 */}
@@ -74,9 +74,7 @@ function App() {
                 </Route>
               </Routes>
             </main>
-            <div className="content-wrapper">
-              <Footer/>
-            </div>
+            <Footer className="mt-auto"/>
           </div> 
         </CommentsProvider>
        </PostsProvider>
