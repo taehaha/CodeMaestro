@@ -1,29 +1,34 @@
 import React, { useState } from "react";
-import { 
-  Mic, 
-  MicOff, 
-  Video, 
-  VideoOff, 
-  PhoneOff, 
-  Monitor, 
-  ChevronUp, 
-  ChevronDown 
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  PhoneOff,
+  Monitor,
+  ChevronUp,
+  ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 interface VideoControlsProps {
   streamManager: any;
   ovClient: any;
+  isScreenSharing: boolean;
+  handleToggleScreenShare: () => void;
   onLeave?: () => void;
 }
 
 const VideoControls: React.FC<VideoControlsProps> = ({
   streamManager,
   ovClient,
+  isScreenSharing,
+  handleToggleScreenShare,
   onLeave,
 }) => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // 마이크 토글
@@ -42,20 +47,6 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     }
   };
 
-  // 화면 공유 토글: ovClient를 이용해 화면 공유를 제어
-  const handleToggleScreenShare = () => {
-    if (!ovClient) return;
-    if (!isScreenSharing) {
-      // 화면 공유 시작
-      ovClient.publishMyScreen();
-      setIsScreenSharing(true);
-    } else {
-      // 화면 공유 종료
-      ovClient.unpublishMyScreen();
-      setIsScreenSharing(false);
-    }
-  };
-
   // 세션 나가기
   const handleLeaveSession = () => {
     if (ovClient) {
@@ -64,11 +55,10 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     if (onLeave) {
       onLeave();
     }
-    // /meeting 경로로 이동
     window.location.href = "/meeting";
   };
 
-  // 최소화/확대 
+  // 최소화/확대 토글
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
