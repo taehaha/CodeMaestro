@@ -76,7 +76,7 @@ const PaintBoard: React.FC = () => {
   const [color, setColor] = useState<string>('#000000');
   const [brushWidth, setBrushWidth] = useState<number>(5);
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [userCount, setUserCount] = useState<number>(0);
+  const [setUserCount] = useState<number>(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // 로컬 드로잉 상태 (아직 공유되지 않은 선 - 내 그리는 포인트와 상대방 포인트가 연결되어 튐 방지지)
   const [localLine, setLocalLine] = useState<Shape | null>(null);
@@ -118,11 +118,6 @@ const PaintBoard: React.FC = () => {
     };
     yShapes.observe(updateShapes);
 
-    const updateUserCount = () => {
-      setUserCount(awareness.getStates().size);
-    };
-    awareness.on('change', updateUserCount);
-    updateUserCount();
 
     const updateAwareness = () => {
       setAwarenessStates(new Map(awareness.getStates()));
@@ -130,11 +125,6 @@ const PaintBoard: React.FC = () => {
     awareness.on('change', updateAwareness);
     updateAwareness();
 
-    return () => {
-      yShapes.unobserve(updateShapes);
-      awareness.off('change', updateUserCount);
-      awareness.off('change', updateAwareness);
-    };
   }, [yShapes, awareness, drawing, localLine]);
 
   // 전역 clear 명령 수신: clear 명령이 들어오면 로컬 드로잉 상태도 초기화
@@ -756,6 +746,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
         if (!node) return;
         const scaleX = node.scaleX();
         const newFontSize = node.fontSize() * scaleX;
+        const newWidth = node.width() * scaleX;
         node.scaleX(1);
         node.scaleY(1);
         onChange({
@@ -764,6 +755,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
           y: node.y(),
           rotation: node.rotation(),
           fontSize: newFontSize,
+          width: newWidth,
         });
       }}
       onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => {

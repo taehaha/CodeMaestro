@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import CodeMirror, { basicSetup } from "@uiw/react-codemirror";
+import { basicSetup } from "@uiw/react-codemirror";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { python } from "@codemirror/lang-python";
 import { cpp } from "@codemirror/lang-cpp";
@@ -450,7 +450,7 @@ const CollaborativeEditor = React.memo((props: any) => {
     }
     return { userDisplayName, userColor, userProfileImageUrl };
   }, []);
-  
+
   // 에디터 DOM에 붙일 ref 콜백
   const editorRef = useCallback(
     (node: HTMLDivElement) => {
