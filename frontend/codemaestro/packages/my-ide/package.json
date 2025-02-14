@@ -62,7 +62,7 @@
     "dev": "react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start:socket": "node server/server.js"
+    "start:socket": "node server/serve.js"
   },
   "eslintConfig": {
     "extends": [
