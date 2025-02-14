@@ -1,31 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
-import Swal from "sweetalert2";
+import { getGroupStric } from "../../api/GroupApi";
+import GroupStric from "./GroupStric";
 
-/**
- * @param {Array} members    - 그룹 멤버 배열 (예: [{ userId, name, profileUrl, role }, ...])
- * @param {string} userRole  - 현재 로그인 유저의 그룹 내 역할 (ADMIN, MEMBER 등)
- */
-function GroupTable({ members, userRole }) {
-  const isAdmin = userRole === "OWNER";
+function GroupTable({ members, groupId }) {
+  const [groupStric, setGroupStric] = useState(null);
 
-  // 유저 탈퇴 버튼 클릭 시 (실제 프로젝트에서는 API 호출)
-  const handleRemoveMember = (userId) => {
-    Swal.fire({
-      title: "유저 탈퇴",
-      icon: "warning",
-      text: `정말로 ${userId}님에 대한 그룹 탈퇴 처리를 진행하시겠습니까?`,
-      showCancelButton: true,
-    });
-  };
+  useEffect(() => {
+    const fetchStric = async () => {
+      const result = await getGroupStric(groupId);
+      setGroupStric(result);
+    };
 
-  // react-table에 전달할 데이터
+    fetchStric();
+  }, [groupId]);
+
+  // 테이블에 들어갈 데이터
   const data = React.useMemo(() => members, [members]);
-  console.log(members);
-  
-  // react-table 컬럼 정의
+
+  // 테이블에 표시할 컬럼들
   const columns = React.useMemo(() => {
-    const baseColumns = [
+    return [
       {
         Header: "프로필",
         accessor: "profileImageUrl",
@@ -51,12 +46,24 @@ function GroupTable({ members, userRole }) {
         Header: "역할",
         accessor: "role",
       },
-    ];         
-    
-    return baseColumns;
-  }, []);
+      {
+        Header: "회의 출석현황",
+        Cell: ({ row }) => {
+          const { userId } = row.original;
 
-  // react-table 훅
+          // **중요**: 자식 컴포넌트로 groupStric 전체와 userId를 넘겨줍니다.
+          // 자식 내부에서 userId에 맞는 attendanceStatus를 찾아 아이콘을 표시하게 됩니다.
+          return (
+            <GroupStric
+              userId={userId}
+              groupStric={groupStric} // 부모에서 가져온 결과를 그대로 전달
+            />
+          );
+        },
+      },
+    ];
+  }, [groupStric]);
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -67,23 +74,16 @@ function GroupTable({ members, userRole }) {
 
   return (
     <div className="overflow-x-auto">
-      {/* 테이블에 key를 따로 분리: */}
-      {/** getTableProps()도 마찬가지로 key를 포함할 수 있으면 분리 필요 (대부분은 안 포함됨) */}
       <table className="table w-full border" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => {
             const headerGroupProps = headerGroup.getHeaderGroupProps();
-
-            // (1) key만 추출
             const { key: headerGroupKey, ...restHeaderGroupProps } = headerGroupProps;
 
             return (
-              // (2) key와 나머지 props를 분리하여 전달
               <tr key={headerGroupKey} {...restHeaderGroupProps}>
                 {headerGroup.headers.map((column) => {
                   const headerProps = column.getHeaderProps();
-
-                  // (3) 마찬가지로 key 분리
                   const { key: headerKey, ...restHeaderProps } = headerProps;
 
                   return (
@@ -100,18 +100,13 @@ function GroupTable({ members, userRole }) {
             );
           })}
         </thead>
-        <tbody
-          {...getTableBodyProps()}
-        >
+        <tbody {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
-
-            // (4) row props에서 key 추출
             const rowProps = row.getRowProps();
             const { key: rowKey, ...restRowProps } = rowProps;
 
             return (
-              // (5) key와 나머지를 분리하여 전달
               <tr key={rowKey} {...restRowProps} className="hover">
                 {row.cells.map((cell) => {
                   const cellProps = cell.getCellProps();

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Swal from "sweetalert2";
 import { deleteFriend } from "../../api/FriendApi";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +20,6 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
       return;
     }
 
-    // 삭제 확인 다이얼로그 표시
     const result = await Swal.fire({
       title: "친구 삭제를 진행하시겠습니까?",
       text: "이 작업은 되돌릴 수 없습니다.",
@@ -58,7 +58,7 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
   };
 
   // user.solvedacTire 값에 따라 버튼 문구 결정 (값이 있으면 연동 완료, 없으면 연동 진행)
-  const solvedacButtonText = user?.bojTier!==100 
+  const solvedacButtonText = user?.bojTier !== 100 
     ? "Solved.ac 연동됨"
     : "Solved.ac 연동하기";
 
@@ -90,6 +90,20 @@ const ManageFriend = ({ openAddFriendPage, checkedUsers }) => {
       />
     </div>
   );
+};
+
+/**
+ * PropTypes 정의
+ * - openAddFriendPage: 함수 (필수)
+ * - checkedUsers: 배열 (필수), 각 요소는 requestId를 가진 객체
+ */
+ManageFriend.propTypes = {
+  openAddFriendPage: PropTypes.func.isRequired,
+  checkedUsers: PropTypes.arrayOf(
+    PropTypes.shape({
+      requestId: PropTypes.number.isRequired,
+    })
+  ).isRequired,
 };
 
 export default ManageFriend;
