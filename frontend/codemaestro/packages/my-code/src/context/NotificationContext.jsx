@@ -42,7 +42,7 @@ export const NotificationsProvider = ({ children }) => {
 
     const es = new EventSourcePolyfill(url, {
       headers: { Access: token },
-      heartbeatTimeout: 120000,
+      heartbeatTimeout: 1200000,
     });
 
     // 연결 성공 이벤트 처리
