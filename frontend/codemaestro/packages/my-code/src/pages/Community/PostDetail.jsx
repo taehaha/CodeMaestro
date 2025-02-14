@@ -43,6 +43,8 @@ const PostDetail = () => {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (!boardId) {
       console.error("🚨 boardId가 없습니다! 요청 중단");
       return;
@@ -68,8 +70,6 @@ const PostDetail = () => {
       setNewContent(post.content);
     }
   }, [post]);
-
-
 
   if (!post) {
     return (

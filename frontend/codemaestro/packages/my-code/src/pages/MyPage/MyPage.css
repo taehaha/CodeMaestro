@@ -1,7 +1,23 @@
-/* .mypage-container {
-  display: flex;
+.mypage-container {
+  width: 100%; /* 부모 요소의 전체 너비 사용 */
+  height: 130vh; /* 화면 전체 높이 사용 */
   min-height: 100vh;
-} */
+  display: flex; /* 사이드바와 콘텐츠를 가로로 배치하려면 flex 적용 */
+  flex-direction: row; /* 가로 정렬 */
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  align-items: stretch; /* 높이를 동일하게 맞춤 */
+  padding: 0; /* 패딩 제거 */
+  margin: 0; /* 마진 제거 */
+}
+
+.content-area {
+  flex-grow: 1;
+  width: 100%;
+  min-height: calc(100vh - 60px);
+  max-width: 100%; /* 최대 너비 100% */
+  padding: 0px; /* 여백 조정 */
+  box-sizing: border-box; /* 패딩 포함한 크기 유지 */
+}
 
 .profile-content {
   display: flex;

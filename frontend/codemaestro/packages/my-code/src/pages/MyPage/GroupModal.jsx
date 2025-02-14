@@ -17,9 +17,9 @@ const GroupModal = ({ onClose, onCreate }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-container">
-        <button className="close-btn" onClick={onClose}>
+        {/* <button className="close-btn" onClick={onClose}>
           &times;
-        </button>
+        </button> */}
         <h2>그룹 생성하기</h2>
 
         <label>그룹명 (최대 10자)</label>
@@ -43,8 +43,8 @@ const GroupModal = ({ onClose, onCreate }) => {
         </div>
 
         <div className="modal-buttons">
-          <button className="cancel-btn" onClick={onClose}>취소</button>
           <button className="confirm-btn" onClick={handleCreate}>완료</button>
+          <button className="group-cancel-btn" onClick={onClose}>취소</button>
         </div>
       </div>
     </div>

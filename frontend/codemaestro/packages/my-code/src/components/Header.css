@@ -135,8 +135,8 @@ body {
 @media (max-width: 768px) {
   .hamburger-btn {
     display: block;
-    position: fixed;
-    right: 5px;
+    position: absolute;
+    right: 20px;
     top: 12px;
   }
 
