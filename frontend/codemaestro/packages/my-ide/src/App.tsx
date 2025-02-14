@@ -596,14 +596,16 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
-      <VideoControls
-        ovClient={ovClient}
-        ovPublisher={ovPublisher}
-        ovScreenStreamManager={ovScreenStreamManager}
-        onLeave={() => {
-          console.log("방에서 나갔습니다.");
-        }}
-      />
+      { ovClient && ovPublisher &&
+        <VideoControls
+          ovClient={ovClient}
+          ovPublisher={ovPublisher}
+          ovScreenStreamManager={ovScreenStreamManager}
+          onLeave={() => {
+            console.log("방에서 나갔습니다.");
+          }}
+        />
+      }
     </div>
   );
 };
