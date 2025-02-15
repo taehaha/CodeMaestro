@@ -58,15 +58,39 @@ export const createRoom = async (payload) => {
   };
 
 
-export const putRoom = async (roomId, data) => {
+  export const putRoom = async (roomId, payload) => {
     try {
-        const response = await UserAxios.put(`/rooms/${roomId}`, data)
-        return response.data
+      // 1) FormData 객체 생성
+      const formData = new FormData();
+  
+      // 2) FormData에 필드 추가
+      formData.append("title", payload.title);
+      formData.append("description", payload.description ?? "");
+      formData.append("accessCode", payload.accessCode ?? null);
+      
+      // 배열, 객체 형태 데이터는 JSON.stringify
+      formData.append("tagNameList", JSON.stringify(payload.tagNameList ?? []));
+  
+      // 3) 이미지(파일) 데이터가 있다면 추가
+      if (payload.thumbnail) {
+        formData.append("thumbnail", payload.thumbnail);
+      }
+  
+      // 4) Axios로 multipart/form-data 형식으로 PUT 요청 전송
+      const response = await UserAxios.put(`/rooms/${roomId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      // 5) 응답
+      return response.data;
     } catch (error) {
-        console.log(error);
-        
+      console.error(error);
+      throw error;
     }
-}
+  };
+  
 
 export const deleteRoom = async (roomId) => {
     try {
