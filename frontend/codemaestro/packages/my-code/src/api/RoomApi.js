@@ -3,7 +3,7 @@ import UserAxios from "./userAxios"
 // 방 리스트 찾기
 export const getRoomList = async () => {
     try {
-        const response =await UserAxios.get("/confernece") // 방 id, 썸네일, 제목, 설명, 비밀번호방 여부 가져옴
+        const response =await UserAxios.get("/conference") // 방 id, 썸네일, 제목, 설명, 비밀번호방 여부 가져옴
         return response.data;
 
     } catch (error) {
@@ -34,7 +34,7 @@ export const createRoom = async (payload) => {
       formData.append("accessCode", payload.accessCode ?? null);
       
       // 배열, 객체 형태로 보내야 한다면 JSON.stringify를 사용하는 방법이 일반적임
-      formData.append("tagNameList", JSON.stringify(payload.tagNameList ?? []));
+      formData.append("tagNameList", JSON.stringify(payload.tagNameList ?? null));
   
       // 3) 이미지(파일) 데이터 추가
       //    payload.thumbnail이 File이나 Blob 형태인지 확인 필요
@@ -94,7 +94,7 @@ export const createRoom = async (payload) => {
 
 export const deleteRoom = async (roomId) => {
     try {
-        const response = await UserAxios.delete(`/rooms/${roomId}`)
+        const response = await UserAxios.delete(`/conference/${roomId}`)
         return (await response).data
     } catch (error) {
         console.log(error);
