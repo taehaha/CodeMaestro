@@ -267,7 +267,7 @@ public class ConferenceService {
 
     public int getParticipantNum(String conferenceId) {
         Session session = openVidu.getActiveSession(conferenceId);
-        return session.getActiveConnections().size();
+        return session == null ? 0 : session.getActiveConnections().size();
     }
 
     public List<User> getParticipants(String conferenceId) {

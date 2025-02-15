@@ -14,6 +14,7 @@ public class ConferenceInfoResponse {
     String conferenceId;
     String title;
     String description;
+    boolean isPrivate;
     String thumbnailUrl;
     int participantNum;
     String hostNickName;
