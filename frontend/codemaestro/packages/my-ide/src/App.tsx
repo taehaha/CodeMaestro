@@ -42,6 +42,16 @@ const getAuthStatus = () => {
   return { token: accessToken, persistedUser: myInfo, isAuthenticated };
 };
 
+const getOvInitInfo = () => {
+  const OvInitInfo = {
+    audio: Boolean(localStorage.getItem('audio')),
+    video: Boolean(localStorage.getItem('video')),
+    accessCode: String(localStorage.getItem('accessCode'))
+  };
+
+  return OvInitInfo;
+}
+
 
 const languages: Language[] = [
   { name: "Python", id: 71 },
@@ -277,7 +287,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const roomId = searchParams.get("roomId");
+    const initInfo = getOvInitInfo();
+
     console.log("쿼리 파라미터에서 가져온 roomId:", roomId);
+
     if (!roomId || isNaN(Number(roomId))) {
       console.error("유효하지 않은 roomId입니다.");
       return; //TODO: 리다이랙트가 필요할것 같음
@@ -323,7 +336,7 @@ const App: React.FC = () => {
     
     //TODO: 방 비밀번호 입력 시퀸스, 입장시 캠 설정 필요함
     client
-      .initConnection("1234", true, true)
+      .initConnection(initInfo.accessCode, initInfo.video, initInfo.audio)
       .then(() => {
         // 내 퍼블리셔 스트림 저장
         setOvPublisher(client.getMyPublisher());
