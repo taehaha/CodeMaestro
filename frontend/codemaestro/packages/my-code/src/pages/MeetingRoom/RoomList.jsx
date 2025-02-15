@@ -9,7 +9,7 @@ const RoomList = ({ rooms }) => {
           key={room.conferenceId}
           conferenceId={room.conferenceId}
           title={room.title}
-          isPassword={room.isPassword}
+          isPrivate={room.isPrivate}
           thumbnailUrl={room.thumbnailUrl}
           participantNum={room.participantNum}
           tagNameList={room.tagNameList}
@@ -26,15 +26,12 @@ RoomList.propTypes = {
     PropTypes.shape({
       /* 실제 DB 구조 */
       id: PropTypes.number.isRequired,
-      owner_id: PropTypes.number.isRequired,
-      thumbnail_url: PropTypes.string,
+      hostNickName: PropTypes.number.isRequired,
+      thumbnailUrl: PropTypes.string,
       title: PropTypes.string.isRequired,
       description: PropTypes.string,
-      is_active: PropTypes.oneOf([0, 1]), // 0: 종료된 방, 1: 진행 중인 방
-      url: PropTypes.string,
-      entry_password: PropTypes.string,
-      language: PropTypes.string,  // DB에 ENUM 형태로 저장 가정
-      participants: PropTypes.number,
+      isPrivate: PropTypes.string,
+      participantNum: PropTypes.number,
       tags: PropTypes.arrayOf(PropTypes.string),
     })
   ).isRequired,
