@@ -8,7 +8,6 @@ const RoomCard = ({
   entry_password,  // null이면 오픈방, 값이 있으면 비밀방
   thumbnail_url,
   participants,
-  language,         // 단일 언어 (ENUM) 가정
   tags,
   id,              // PK
   is_active,       // 0: 종료된 방, 1: 활성화된 방
@@ -19,8 +18,18 @@ const RoomCard = ({
     // 종료된 방(참여자 0 혹은 is_active가 0) 처리
     if (!is_active || !participants) {
       Swal.fire({
-        title: "존재하지 않는(종료된) 회의실",
-        text: "이미 종료되어 더 이상 입장할 수 없는 회의실입니다.",
+        title: "종료된 스터디",
+        text: "이미 종료되어 더 이상 입장할 수 없는 스터디입니다.",
+        icon: "warning",
+        confirmButtonText: "확인",
+      });
+      return;
+    }
+
+    else if (participants>10) {
+      Swal.fire({
+        title: "최대 인원",
+        text: "최대 인원이 입장하여 더이상 입장할 수 없는 스터디입니다.",
         icon: "warning",
         confirmButtonText: "확인",
       });
@@ -29,8 +38,7 @@ const RoomCard = ({
 
     // 비밀방/오픈방 상관없이 navigate
     Swal.fire({
-      title: "회의실 입장",
-      text: "회의실에 입장하는 기능이 추후 구현될 예정입니다.",
+      title: "스터디 입장",
       icon: "success",
       confirmButtonText: "확인",
     }).then(() => {
@@ -65,14 +73,8 @@ const RoomCard = ({
 
         {/* 인원 수 */}
         {participants !== undefined && participants > 0 && (
-          <p className="text-sm text-gray-600">{participants}명 참여 중</p>
+          <p className="text-sm text-gray-600">{participants}/10 명 참여 중</p>
         )}
-
-        {/* 언어 정보 */}
-        {language && (
-          <p className="text-xs text-gray-500">언어: {language}</p>
-        )}
-
         {/* 태그 정보 */}
         {tags && tags.length > 0 && (
           <p className="text-xs text-gray-500">태그: {tags.join(", ")}</p>

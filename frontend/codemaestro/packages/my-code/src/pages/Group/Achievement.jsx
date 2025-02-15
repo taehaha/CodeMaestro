@@ -88,7 +88,7 @@ const Achievement = ({ myAttendances, totalDuration }) => {
     return (
       <li
         key={achievement.id}
-        className={`border rounded p-4 transition-all duration-300 flex flex-col gap-2${completeGlow}`}
+        className={`border rounded p-4 transition-all duration-300 flex flex-col gap-2${completeGlow} shadow-md`}
       >
         <div className="flex items-center justify-between">
           {/* 좌측 아이콘 & 타이틀 */}
@@ -125,14 +125,16 @@ const Achievement = ({ myAttendances, totalDuration }) => {
   });
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">
-          도전 과제 ({achievementMissions}/{AchievementList.length})
-        </h2>
-      </div>
-      <ul className="space-y-4">{renderList}</ul>
-    </div>
+        <div className="p-4 max-w-3xl mx-auto">
+        <div className="mb-6">
+            <h2 className="text-2xl font-bold">
+            도전 과제 ({achievementMissions}/{AchievementList.length})
+            </h2>
+        </div>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-8 ">
+            {renderList}
+        </ul>
+</div>
   );
 };
 

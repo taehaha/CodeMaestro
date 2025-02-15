@@ -116,7 +116,7 @@ const CreateMeetingForm = () => {
         validationSchema={CreateMeetingSchema}
         onSubmit={handleSubmit}
       >
-        
+
         {({ setFieldValue, values, isSubmitting }) => {
           // 로컬 상태: 사용자 입력(tagInput), 추천 목록(suggestions)
           const [tagInput, setTagInput] = useState("");
@@ -246,7 +246,7 @@ const CreateMeetingForm = () => {
                 )}
 
                 {/* 실제로 추가된 태그들 표시 */}
-                <div className="flex flex-row flex-wrap gap-2 mt-2 max-w-lg">
+                <div className="flex flex-row flex-wrap gap-2 mt-2 max-w-xs">
                   {values.tags.map((tag, index) => (
                     <span
                       key={index}
