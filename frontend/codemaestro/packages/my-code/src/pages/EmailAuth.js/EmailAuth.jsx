@@ -248,14 +248,15 @@ const EmailAuth = () => {
                       placeholder="자기소개 입력 (최대 255자)"
                     />
                     <ErrorMessage name="description" component="div" className="error-message" />
-
+                    
                     <div className="signup-agreement">
                       <Field type="checkbox" id="agreement" name="agreement" />
                       <label htmlFor="agreement">
                         회원 가입 시, 서비스 이용약관 및 개인정보처리 방침에 동의하는 것으로 간주합니다.
                       </label>
-                      <ErrorMessage name="agreement" component="div" className="error-message" />
                     </div>
+                    <ErrorMessage name="agreement" component="div" className="error-message mt-0" />
+
 
                     {status && <div className="status-message">{status}</div>}
 

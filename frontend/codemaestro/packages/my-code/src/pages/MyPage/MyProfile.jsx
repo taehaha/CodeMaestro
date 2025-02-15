@@ -13,7 +13,6 @@ const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
   const user = useSelector((state) => state.user.myInfo);
   
-  
   // 모달 상태
   const [isBackgroundEditModalOpen, setisBackgroundEditModalOpen] = useState(false);
 
@@ -69,7 +68,7 @@ const MyProfile = () => {
           {/* 탭 내용 렌더링 */}
           <div className="tab-content">
             {activeTab === 'profile' && <EditProfile user={user} onClose={() => {}} onDelete={() => console.log("사용자가 탈퇴했습니다.")}/>}
-            {activeTab === 'password' && <EditPassword />}
+            {(activeTab === 'password' && user.loginProvider === "LOCAL") && <EditPassword />}
           </div>
 
         {/* Sidebar를 개별적으로 관리하는 컨테이너 */}
