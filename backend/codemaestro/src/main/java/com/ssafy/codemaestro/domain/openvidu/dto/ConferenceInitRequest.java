@@ -24,7 +24,6 @@ public class ConferenceInitRequest {
                 ", accessCode='" + accessCode + '\'' +
                 ", groupId=" + groupId +
                 ", tagNameList=" + tagNameList +
-                ", thumbnaiil=" + thumbnail.getOriginalFilename() +
                 '}';
     }
 }
