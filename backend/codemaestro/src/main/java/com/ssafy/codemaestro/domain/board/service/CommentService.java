@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CommentService {
 
@@ -26,7 +27,6 @@ public class CommentService {
     private final NotificationService notificationService;
 
     // 게시글 별 댓글 조회
-    @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByBoardId(long boardId) {
         List<Comment> comments = commentRepository.findByBoardId(boardId);
         List<CommentResponseDto> commentDtoList = new ArrayList<>();
@@ -40,6 +40,7 @@ public class CommentService {
     }
 
     // 댓글 생성
+    @Transactional
     public void createComment(CommentRequestDto commentRequestDto) {
         Board board = boardRepository.findById(commentRequestDto.getBoardId())
                 .orElseThrow(() -> new BadRequestException("Board not Found"));
@@ -62,6 +63,7 @@ public class CommentService {
     }
 
     // 댓글 삭제
+    @Transactional
     public void deleteComment(long id) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Comment not Found"));

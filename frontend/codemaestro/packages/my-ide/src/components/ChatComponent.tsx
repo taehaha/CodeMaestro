@@ -22,15 +22,19 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   const [newMessage, setNewMessage] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
+  // 엔터키를 누르면 메시지 전송 (Shift+Enter는 줄바꿈)
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && newMessage.trim()) {
-      // 엔터 키를 누르면 메시지 전송 (Shift+Enter 등으로 줄바꿈 고려 가능)
+    if (e.key === "Enter" && !e.shiftKey && newMessage.trim()) {
+      e.preventDefault();
       sendMessage();
     }
   };
 
+  // 입력값 변경 시, 자동 높이 조절 기능 추가
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setNewMessage(e.target.value);
+    e.target.style.height = "auto"; // 높이 초기화
+    e.target.style.height = `${e.target.scrollHeight}px`; // 내용에 맞춰 높이 재설정
   };
 
   const sendMessage = () => {
@@ -53,13 +57,15 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
   return (
     <div
-      className={`chatbot-body flex flex-col h-full relative transition-colors duration-300 ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
-        }`}
+      className={`chatbot-body flex flex-col h-full relative transition-colors duration-300 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
     >
       {/* 메시지 영역 */}
       <div
-        className={`messages flex-1 overflow-y-auto p-2 transition-colors duration-300 ${isDarkMode ? "bg-gray-800" : "bg-gray-100"
-          }`}
+        className={`messages flex-1 overflow-y-auto p-2 transition-colors duration-300 ${
+          isDarkMode ? "bg-gray-800" : "bg-gray-100"
+        }`}
       >
         {messages.map((msg, index) => {
           const isMine = msg.userId === currentUserId;
@@ -69,8 +75,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
               ? "bg-gray-700 text-white"
               : "bg-gray-200 text-gray-800"
             : isDarkMode
-              ? "bg-gray-600 text-white"
-              : "bg-yellow-400 text-black";
+            ? "bg-gray-600 text-white"
+            : "bg-yellow-400 text-black";
           return (
             <div key={index} className={`flex ${justify} my-2`}>
               <div
@@ -88,8 +94,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
       {/* 입력 영역 */}
       <div
-        className={`input-container flex items-center p-2 border-t transition-colors duration-300 ${isDarkMode ? "border-gray-700" : "border-gray-300"
-          }`}
+        className={`input-container flex items-center p-2 border-t transition-colors duration-300 ${
+          isDarkMode ? "border-gray-700" : "border-gray-300"
+        }`}
       >
         <button
           className="emoji-button text-2xl mr-2"
@@ -97,20 +104,18 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
         >
           😊
         </button>
-        {/* <textarea>를 사용하여 세로 크기 조절 가능 (resize-y 클래스 추가) */}
         <textarea
-          rows={1} // 기본 한 줄만 보여줍니다.
           value={newMessage}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
           placeholder="메시지를 입력하세요.."
-          className={`flex-1 px-4 py-1 rounded-full outline-none transition-colors duration-300 focus:ring focus:ring-blue-300 ${isDarkMode
+          className={`flex-1 px-4 py-2 rounded-full outline-none transition-colors duration-300 focus:ring focus:ring-blue-300 resize-y ${
+            isDarkMode
               ? "bg-gray-900 text-white border border-gray-700"
               : "bg-gray-100 text-black border border-gray-300"
-            }`}
-          style={{ minHeight: "20px" }} // 최소 높이를 20px로 설정
+          }`}
+          style={{ minHeight: "25px" }} // 최소 높이를 50px로 지정
         />
-
         <button
           className="send-button ml-2 bg-yellow-500 rounded-full p-2 text-white transition-colors duration-300 hover:bg-yellow-600"
           onClick={sendMessage}
@@ -122,10 +127,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
       {/* 이모지 선택기 */}
       {showEmojiPicker && (
         <div
-          className={`emoji-picker absolute bottom-16 left-2 p-2 flex flex-wrap rounded-lg shadow-lg transition-colors duration-300 ${isDarkMode
+          className={`emoji-picker absolute bottom-16 left-2 p-2 flex flex-wrap rounded-lg shadow-lg transition-colors duration-300 ${
+            isDarkMode
               ? "bg-gray-800 border border-gray-600"
               : "bg-white border border-gray-300"
-            }`}
+          }`}
           style={{ width: "220px" }}
         >
           {emojiList.map((emoji, index) => (

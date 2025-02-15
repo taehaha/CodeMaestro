@@ -2,6 +2,7 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
+import com.ssafy.codemaestro.domain.notification.service.NotificationService;
 import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceTagRepository;
@@ -44,6 +45,7 @@ public class ConferenceService {
     private final ConferenceTagRepository conferenceTagRepository;
     private final UserConferenceRepository userConferenceRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
+    private final NotificationService notificationService;
     private final GroupRepository groupRepository;
 
     private final OpenViduUtil openViduUtil;
@@ -102,7 +104,7 @@ public class ConferenceService {
 
             // 회의 기본정보 설정
             LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E)", Locale.KOREAN);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E) HH시", Locale.KOREAN);
             String date = now.format(formatter);
             String groupTitle = date + " " + group.getName() + " 회의";
             String groupDescription = date + " " + group.getName() + "의 회의입니다.";
@@ -129,6 +131,14 @@ public class ConferenceService {
                     .build();
 
             groupConferenceHistoryRepository.save(history);
+
+            // 그룹 회원들에게 알림 전송
+            List<GroupMember> groupMembers = group.getMembers();
+            for(GroupMember member : groupMembers) {
+                if(!member.getUser().getId().equals(requestUser.getId())) { // 회의 생성자 제외하고 알림
+                    notificationService.sendGroupConferenceNotification(member.getUser().getId(), groupId, group.getName());
+                }
+            }
         }
         // 일반 회의인 경우
         else {

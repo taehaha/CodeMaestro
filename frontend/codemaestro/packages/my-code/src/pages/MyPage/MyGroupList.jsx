@@ -50,9 +50,21 @@ const MyGroupList = () => {
     Swal.fire({
       title: "그룹 이동",
       text: `${group.name} 그룹으로 이동하시겠습니까?`,
+      icon: "question",
       showCancelButton: true,
       confirmButtonText: "이동",
       cancelButtonText: "취소",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
+      cancelButtonColor: "#ddd",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button", // 버튼 스타일
+        cancelButton: "swal-custom-button2" // 버튼 스타일
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         navigate(`/group/${group.id}`);

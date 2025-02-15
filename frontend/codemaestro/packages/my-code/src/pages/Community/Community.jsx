@@ -1,72 +1,90 @@
 // Community.js
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ReactPaginate from "react-paginate";
 import { PostsContext } from "../../context/PostsContext";
-import { CommentsContext } from "../../context/CommentsContext";
 import { getBoardList } from "../../api/BoardApi";
 import { getCommentsByBoardId } from "../../api/CommentApi";
+import LoadAnimation from "../../components/LoadAnimation";
 import "./Community.css";
 
 const Community = () => {
   const navigate = useNavigate();
   const { posts, setPosts } = useContext(PostsContext);
-  // const { comments } = useContext(CommentsContext);
+  
+  // 검색어
   const [searchTerm, setSearchTerm] = useState("");
+  // 댓글 개수
   const [commentCounts, setCommentCounts] = useState({});
+  // 로딩 상태
   const [loading, setLoading] = useState(true);
 
+  // 날짜 형식
   const formatDate = (isoString) => {
     if (!isoString) return "";
-  
     const date = new Date(isoString);
-  
-    // 연, 월, 일 추출
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // 0부터 시작하므로 +1 필요
     const day = String(date.getDate()).padStart(2, "0");
-  
-    // 시간, 분 추출
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-  
     return `${year}-${month}-${day} ${hours}:${minutes}`;
-  };  
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
-      setLoading(true); // 로딩 시작
+      setLoading(true);
       try {
         const data = await getBoardList();
-        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // 최신순 정렬
+        const sortedPosts = data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
         setPosts(sortedPosts || []);
 
+        // 댓글 수 불러오기
         const commentCountMap = {};
         await Promise.all(
           data.map(async (post) => {
             const comments = await getCommentsByBoardId(post.boardId);
-            commentCountMap[post.boardId] = comments.length; // 댓글 개수 저장
+            commentCountMap[post.boardId] = comments.length;
           })
         );
         setCommentCounts(commentCountMap);
       } catch (error) {
         console.error("게시글 목록 불러오기 실패:", error);
       } finally {
-        setLoading(false); // 로딩 종료
+        setLoading(false);
       }
     };
 
     fetchPosts();
   }, [setPosts]);
 
-  // 검색어가 포함된 게시글 필터링
+  // 검색 필터
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 최신 게시글이 위에 오도록 filteredPosts를 날짜 기준 내림차순 정렬 (가정: created_at이 ISO 형식 문자열)
-  const sortedPosts = [...filteredPosts].sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
+  // 페이지네이션 관련
+  const [currentPage, setCurrentPage] = useState(0);
+  const articles = 4; // 한 페이지 당 게시글 수
+
+  // 검색어가 바뀌면 페이지를 0으로 초기화 (첫 페이지로)
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [searchTerm]);
+
+  // 페이지네이션 계산
+  const start = currentPage * articles;
+  // N페이지에 있어야 할 데이터들
+  const currentPageData = filteredPosts.slice(start, start + articles);
+  // 몇페이지 있냐 계산
+  const pageCount = Math.ceil(filteredPosts.length / articles);
+
+  const handlePageChange = (selectedItem) => {
+    setCurrentPage(selectedItem.selected);
+  };
 
   return (
     <div className="community-container">
@@ -88,27 +106,43 @@ const Community = () => {
       </div>
 
       {loading ? (
-        <p className="loading-message">게시글을 불러오는 중...</p>
+        <>
+          <LoadAnimation />
+          <p className="loading-message">게시글을 불러오는 중...</p>
+        </>
       ) : (
-      <ul className="post-list">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => {
-            // const commentCount = comments.filter((c) => c.board_id === post.boardId).length;
-            return (
-              <li key={post.boardId} className="post-item">
-                <Link to={`/boards/${post.boardId}`} className="post-title">{post.title}</Link>
-                <div className="post-meta">
-                  <span className="post-author">{post.writerNickname}</span> | 
-                  <span className="post-time">{formatDate(post.createdAt)}</span>
-                </div>
-                <div className="post-comments">💬 {commentCounts[post.boardId] !== undefined ? commentCounts[post.boardId] : 0}개</div>
-              </li>
-            );
-          })
-        ) : (
-          <p className="no-results">검색 결과가 없습니다.</p>
-        )}
-      </ul>
+        <>
+          <ul className="post-list">
+            {filteredPosts.length > 0 ? (
+              currentPageData.map((post) => (
+                <li key={post.boardId} className="post-item">
+                  <Link to={`/boards/${post.boardId}`} className="post-title">
+                    {post.title}
+                  </Link>
+                  <div className="post-meta">
+                    <span className="post-author">{post.writerNickname}</span> |{" "}
+                    <span className="post-time">{formatDate(post.createdAt)}</span>
+                  </div>
+                  <div className="post-comments">
+                    💬 {commentCounts[post.boardId] ?? 0}개
+                  </div>
+                </li>
+              ))
+            ) : (
+              <p className="no-results">검색 결과가 없습니다.</p>
+            )}
+          </ul>
+
+          {/* 페이지네이션 */}
+          <ReactPaginate
+            previousLabel={"이전"}
+            nextLabel={"다음"}
+            pageCount={pageCount}
+            onPageChange={handlePageChange}
+            containerClassName={"pagination"} // CSS 클래스
+            activeClassName={"active"}        // 활성화된 페이지 CSS 클래스
+          />
+        </>
       )}
     </div>
   );

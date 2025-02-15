@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://192.168.31.193:3000",
+    origin: process.env.REACT_APP_FRONTEND_URL,
   })
 );
 app.use(express.json());

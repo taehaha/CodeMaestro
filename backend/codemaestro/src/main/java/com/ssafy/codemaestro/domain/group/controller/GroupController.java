@@ -3,9 +3,12 @@ package com.ssafy.codemaestro.domain.group.controller;
 import com.ssafy.codemaestro.domain.group.dto.*;
 import com.ssafy.codemaestro.domain.group.service.GroupRequestService;
 import com.ssafy.codemaestro.domain.group.service.GroupService;
+import com.ssafy.codemaestro.global.entity.User;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
 import lombok.*;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -126,5 +129,23 @@ public class GroupController {
         }
 
         return ResponseEntity.ok(rankings);
+    }
+
+    @GetMapping("/{groupId}/conferences/my-stats")
+    public ResponseEntity<GroupConferenceStateResponse> getMyConferenceStats(
+        @PathVariable Long groupId,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+        GroupConferenceStateResponse stats = groupService.getUserConferenceStats(groupId, userId);
+        System.out.println(stats);
+        return ResponseEntity.ok(stats);
+    }
+
+    // 최근 5개의 회의별 그룹원 참여 여부
+    @GetMapping("/{groupId}/attendance")
+    public ResponseEntity<GroupConferenceAttendanceResponse> getGroupAttendance(
+            @PathVariable Long groupId) {
+        return ResponseEntity.ok(groupService.getGroupAttendance(groupId));
     }
 }

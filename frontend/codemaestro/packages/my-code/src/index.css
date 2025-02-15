@@ -105,3 +105,20 @@
     margin-top: 5px; /* 텍스트와 이미지 간격 */
   }
   
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  
+  .rotate-180 {
+    transform: rotateY(180deg);
+  }
+  
+  .perspective-1000 {
+    perspective-origin: center;
+    perspective: 1000px;
+  }

@@ -29,9 +29,17 @@ const AddFriends = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 flex items-center justify-center">
       {/* 모달 컨테이너 */}
-      <div className="bg-white p-6 rounded-lg w-full max-w-md mx-auto">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md mx-auto"
+       style={{
+        width: "450px", // 🔥 가로 크기 고정
+        minHeight: "400px", // 🔥 최소 높이 설정
+        maxHeight: "500px", // 🔥 최대 높이 설정
+        overflowY: "auto", // 🔥 검색 결과가 많아지면 스크롤
+        display: "flex",
+        flexDirection: "column",
+      }}>
         {/* 검색 폼 */}
         <form className="mb-4" onSubmit={handleSearch}>
           <label
@@ -72,8 +80,8 @@ const AddFriends = ({ onClose }) => {
             {/* 검색 버튼 (type="submit") */}
             <button
               type="submit"
-              className="text-white absolute right-1 bottom-1.5 bg-[#ffcc00] 
-                         hover:bg-[#f0c000] font-medium rounded-sm text-sm px-4 py-2 
+              className="text-black absolute right-1 bottom-1 bg-[#ffcc00] 
+                         hover:bg-[#f0c000] font-medium rounded-md text-sm px-4 py-2 
                          dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               검색
@@ -85,22 +93,27 @@ const AddFriends = ({ onClose }) => {
         <h2 className="text-lg pt-1">친구 추가</h2>
 
         {/* 검색 결과를 UserList에 전달 */}
-        <UserList
-          users={searchResult}
-          userData={searchResult}       // 검색 결과
-          checkedUsers={checkedUsers}
-          setCheckedUsers={setCheckedUsers}
-          addPage={true}
-          searchTerm={searchInput}
-        />
+        <div style={{ flexGrow: 1, minHeight: "250px" }}>
+        {searchResult.length > 0 ? (
+          <UserList
+            users={searchResult}
+            userData={searchResult}
+            checkedUsers={checkedUsers}
+            setCheckedUsers={setCheckedUsers}
+            addPage={true}
+            searchTerm={searchInput}
+          />
+        ) : (
+          <p className="text-center text-gray-500">검색 결과가 없습니다.</p>
+        )}
+      </div>
 
         {/* 버튼 영역 */}
-        <div className="flex justify-end gap-2 mt-4">
-
+        <div className="flex justify-end gap-2 mt-12">
           <button
             className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
                        focus:outline-none focus:ring-gray-300 font-medium 
-                       rounded-sm text-sm px-4 py-2"
+                       rounded-md text-sm px-4 py-2"
             onClick={onClose}
           >
             닫기

@@ -135,7 +135,7 @@
   margin: -10px auto;
   padding: 6px 14px;
   background-color: #FFCC00;
-  color: white;
+  color: #182235;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -182,7 +182,7 @@
 /* 저장 버튼 */
 .post-save-btn {
   background-color: #FFCC00;
-  color: white;
+  color: #182235;
   border: none;
   padding: 6px 12px;
   font-size: 14px;

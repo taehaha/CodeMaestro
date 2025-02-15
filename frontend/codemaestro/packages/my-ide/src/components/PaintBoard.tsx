@@ -64,7 +64,7 @@ const PaintBoard: React.FC = () => {
 
   // Yjs 문서, WebSocket Provider, 공유 배열, UndoManager 생성
   const [wsProvider] = useState(
-    () => new WebsocketProvider('ws://192.168.31.193:3001', roomId, ydoc)
+    () => new WebsocketProvider(process.env.REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL as string, roomId, ydoc)
   );
   const [yShapes] = useState(() => ydoc.getArray<Shape>('shapes'));
   const awareness = wsProvider.awareness;
@@ -76,7 +76,6 @@ const PaintBoard: React.FC = () => {
   const [color, setColor] = useState<string>('#000000');
   const [brushWidth, setBrushWidth] = useState<number>(5);
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [userCount, setUserCount] = useState<number>(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // 로컬 드로잉 상태 (아직 공유되지 않은 선 - 내 그리는 포인트와 상대방 포인트가 연결되어 튐 방지지)
   const [localLine, setLocalLine] = useState<Shape | null>(null);
@@ -118,11 +117,6 @@ const PaintBoard: React.FC = () => {
     };
     yShapes.observe(updateShapes);
 
-    const updateUserCount = () => {
-      setUserCount(awareness.getStates().size);
-    };
-    awareness.on('change', updateUserCount);
-    updateUserCount();
 
     const updateAwareness = () => {
       setAwarenessStates(new Map(awareness.getStates()));
@@ -130,11 +124,6 @@ const PaintBoard: React.FC = () => {
     awareness.on('change', updateAwareness);
     updateAwareness();
 
-    return () => {
-      yShapes.unobserve(updateShapes);
-      awareness.off('change', updateUserCount);
-      awareness.off('change', updateAwareness);
-    };
   }, [yShapes, awareness, drawing, localLine]);
 
   // 전역 clear 명령 수신: clear 명령이 들어오면 로컬 드로잉 상태도 초기화
@@ -196,6 +185,18 @@ const PaintBoard: React.FC = () => {
     yShapes.delete(shapeIndex, 1);
     yShapes.insert(shapeIndex, [updatedShape]);
   };
+  useEffect(() => {
+    const localState = awareness.getLocalState() || {};
+    if (!localState.cursorColor) {
+      // 원하는 색상 배열 또는 Math.random()을 사용해 생성할 수 있습니다.
+      const colors = ['#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
+      // 클라이언트 ID 기반으로 일관된 색상을 주려면 아래처럼 해도 좋습니다.
+      const randomColor = colors[awareness.clientID % colors.length];
+      // 혹은 완전히 랜덤하게 하려면:
+      // const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+      awareness.setLocalStateField('cursorColor', randomColor);
+    }
+  }, [awareness]);
 
   // 최신 상태값을 참조하기 위한 ref 생성 (stale closure 문제 해결)
   const drawingRef = useRef(drawing);
@@ -476,9 +477,8 @@ const PaintBoard: React.FC = () => {
           {presetColors.map((presetColor) => (
             <div
               key={presetColor}
-              className={`color-swatch w-6 h-6 rounded cursor-pointer border-2 border-white hover:scale-110 transition-transform ${
-                presetColor === color ? 'selected' : ''
-              }`}
+              className={`color-swatch w-6 h-6 rounded cursor-pointer border-2 border-white hover:scale-110 transition-transform ${presetColor === color ? 'selected' : ''
+                }`}
               style={{ backgroundColor: presetColor }}
               onClick={() => handlePresetColorClick(presetColor)}
               title={presetColor}
@@ -638,8 +638,6 @@ const PaintBoard: React.FC = () => {
               }}
             />
           </Layer>
-
-          {/* 각 사용자의 커서를 표시하는 레이어 */}
           <Layer>
             {Array.from(awarenessStates.entries()).map(([clientId, state]) => {
               if (clientId === awareness.clientID) return null;
@@ -650,7 +648,8 @@ const PaintBoard: React.FC = () => {
                   x={state.cursor.x}
                   y={state.cursor.y}
                   radius={5}
-                  fill="red"
+                  fill={state.cursorColor || 'red'}
+                  listening={false} // 이벤트를 무시하여 도형에 영향이 없도록 함
                 />
               );
             })}
@@ -737,7 +736,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
       y={shape.y}
       rotation={shape.rotation || 0}
       fill={shape.fill}
-      fontSize={shape.fontSize || 16}  
+      fontSize={shape.fontSize || 16}
       wrap="word"
       width={shape.width || 200}
       draggable={tool === 'select' && shape.selectable !== false}
@@ -746,6 +745,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
         if (!node) return;
         const scaleX = node.scaleX();
         const newFontSize = node.fontSize() * scaleX;
+        const newWidth = node.width() * scaleX;
         node.scaleX(1);
         node.scaleY(1);
         onChange({
@@ -754,6 +754,7 @@ const EditableText: React.FC<EditableTextProps> = ({ shape, isSelected, onChange
           y: node.y(),
           rotation: node.rotation(),
           fontSize: newFontSize,
+          width: newWidth,
         });
       }}
       onDragEnd={(e: Konva.KonvaEventObject<DragEvent>) => {

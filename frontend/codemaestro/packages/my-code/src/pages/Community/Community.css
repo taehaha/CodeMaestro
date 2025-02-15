@@ -26,7 +26,7 @@
 
 .create-post-btn {
   background-color: #ffcc00;
-  color: white;
+  color: #182235;
   padding: 8px 15px;
   border: none;
   border-radius: 5px;
@@ -117,4 +117,40 @@
   margin-left: 10px;
   font-size: 12px;
   color: #666;
+}
+
+
+
+
+/* Community.css (또는 별도 CSS 파일) */
+
+.pagination {
+  display: flex;            /* 가로 방향으로 배치 */
+  justify-content: center;  /* 가로 중앙 정렬 */
+  list-style: none;         /* 불필요한 기본 리스트 스타일 제거 */
+  gap: 8px;                 /* 각 페이지 버튼 간 간격 */
+  margin-top: 16px;         /* 상단 여백 */
+  padding: 0;
+}
+
+.pagination li {
+  display: inline-block;    /* 각 li를 인라인 블록으로 */
+}
+
+.pagination a {
+  color: #333;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.pagination a:hover {
+  background-color: #f0f0f0;
+}
+
+.active a {
+  background-color: #007bff; 
+  border-color: #007bff;
+  color: #fff;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import LoadAnimation from "../../components/LoadAnimation";
+import SearchGroup from "./SearchGroup";
 import GroupList from "./GroupList";
 import { FaPlus } from "react-icons/fa";
 import { getMyGroupList, GroupRankingList } from "../../api/GroupApi";
@@ -11,6 +12,9 @@ const GroupRankingPage = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("ranking");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // 모달 표시 여부 상태
+  const [showModal, setShowModal] = useState(false);
 
   // 현재 날짜를 기준으로 연도와 월을 기본값으로 설정
   const currentDate = new Date();
@@ -75,7 +79,12 @@ const GroupRankingPage = () => {
       {/* 상단 헤더 */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Groups</h1>
-        <button className="tooltip tooltip-left" data-tip="Search Groups">
+        {/* FaPlus 아이콘 클릭 시 모달 열기 */}
+        <button
+          className="tooltip tooltip-left"
+          data-tip="Search Groups"
+          onClick={() => setShowModal(true)}
+        >
           <FaPlus size={20} />
         </button>
       </div>
@@ -103,21 +112,6 @@ const GroupRankingPage = () => {
       </div>
 
       {/* 랭킹 탭일 경우 연도/월 선택 UI */}
-
-      
-
-      {/* 에러 메시지 */}
-      {errorMessage && (
-        <p className="text-center text-gray-500 my-4">{errorMessage}</p>
-      )}
-
-      {/* 그룹 리스트 표시 */}
-      {activeTab === "ranking" ? (
-        <GroupList groups={groups} type="ranking" />
-        
-      ) : (
-        <GroupList groups={myGroups} type="myGroups" />
-      )}
       {activeTab === "ranking" && (
         <div className="mb-4 flex justify-center items-center gap-2">
           <select
@@ -148,9 +142,42 @@ const GroupRankingPage = () => {
               );
             })}
           </select>
-          <button className="btn btn-primary rounded-sm" onClick={() => fetchRankingGroups()}>
+          <button
+            className="btn btn-primary rounded-sm"
+            onClick={() => fetchRankingGroups()}
+          >
             조회
           </button>
+        </div>
+      )}
+
+      {/* 에러 메시지 */}
+      {errorMessage && (
+        <p className="text-center text-gray-500 my-4">{errorMessage}</p>
+      )}
+
+      {/* 그룹 리스트 표시 */}
+      {activeTab === "ranking" ? (
+        <GroupList groups={groups} type="ranking" />
+      ) : (
+        <GroupList groups={myGroups} type="myGroups" />
+      )}
+
+      {/* SearchGroup 모달 - DaisyUI 모달 사용 */}
+      {showModal && (
+        <div className="modal modal-open">
+          <div className="modal-box relative">
+            <h2 className="font-bold text-lg mb-4">Search Groups</h2>
+            <SearchGroup />
+            <div className="modal-action">
+              <button
+                className="btn btn-sm rounded-sm"
+                onClick={() => setShowModal(false)}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
