@@ -6,18 +6,15 @@ const RoomList = ({ rooms }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 overflow-y-auto max-h-[520px]">
       {rooms.map((room) => (
         <RoomCard
-          key={room.id}
-          id={room.id}
+          key={room.conferenceId}
+          conferenceId={room.conferenceId}
           title={room.title}
-          entry_password={room.entry_password}
-          thumbnail_url={room.thumbnail_url}
-          participants={room.participants}
-          language={room.language}
-          tags={room.tags}
-          is_active={room.is_active}
-          owner_id={room.owner_id}
+          isPassword={room.isPassword}
+          thumbnailUrl={room.thumbnailUrl}
+          participantNum={room.participantNum}
+          tagNameList={room.tagNameList}
+          hostNickName={room.hostNickName}
           description={room.description}
-          url={room.url}
         />
       ))}
     </div>

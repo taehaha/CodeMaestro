@@ -4,47 +4,39 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const RoomCard = ({
+  conferenceId,   // PK
   title,
-  entry_password,  // null이면 오픈방, 값이 있으면 비밀방
-  thumbnail_url,
-  participants,
-  tags,
-  id,              // PK
-  is_active,       // 0: 종료된 방, 1: 활성화된 방
+  description,
+  isPassword,     // null이면 오픈방, 값이 있으면 비밀방
+  thumbnailUrl,
+  participantNum, // 현재 참여 인원 수
+  tagNameList,    // 태그 목록
+  hostNickName,   // 호스트(방장) 닉네임
 }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    // 종료된 방(참여자 0 혹은 is_active가 0) 처리
-    if (!is_active || !participants) {
-      Swal.fire({
-        title: "종료된 스터디",
-        text: "이미 종료되어 더 이상 입장할 수 없는 스터디입니다.",
-        icon: "warning",
-        confirmButtonText: "확인",
-      });
-      return;
-    }
-
-    else if (participants>10) {
+    // 인원이 10명을 초과하면 입장 불가
+    if (participantNum > 10) {
       Swal.fire({
         title: "최대 인원",
-        text: "최대 인원이 입장하여 더이상 입장할 수 없는 스터디입니다.",
+        text: "최대 인원이 입장하여 더 이상 입장할 수 없습니다.",
         icon: "warning",
         confirmButtonText: "확인",
       });
       return;
     }
 
-    // 비밀방/오픈방 상관없이 navigate
+    // 입장 로직
     Swal.fire({
       title: "스터디 입장",
       icon: "success",
       confirmButtonText: "확인",
     }).then(() => {
-      navigate(`/meeting/${id}`, {
+      navigate(`/meeting/${conferenceId}`, {
         state: {
-          isPrivate: !!entry_password,
+          // isPassword가 null이 아니면 비밀방
+          isPrivate: !!isPassword,
         },
       });
     });
@@ -52,32 +44,49 @@ const RoomCard = ({
 
   return (
     <div
-      className="card w-72 bg-base-100 shadow-xl rounded-sm  cursor-pointer"
+      className="card w-72 bg-base-100 shadow-xl rounded-sm cursor-pointer"
       onClick={handleCardClick}
     >
       <figure className="relative">
         {/* 비밀번호가 있으면 자물쇠 표시 */}
-        {entry_password && (
+        {isPassword && (
           <FaLock className="absolute right-2 top-2 text-red-500 text-xl" />
         )}
         <img
-          src={thumbnail_url}
+          src={thumbnailUrl}
           alt="Room Thumbnail"
           className="w-full h-36 object-cover"
         />
       </figure>
 
       <div className="card-body p-4">
-        {/* 방 이름 */}
+        {/* 방 제목 */}
         <h2 className="card-title text-lg font-bold">{title}</h2>
+        {/* 방 설명 */}
+        {description && (
+          <p className="text-sm text-gray-500 my-2 line-clamp-2">
+            {description}
+          </p>
+        )}
+
+
+        {/* 호스트 닉네임 */}
+        {hostNickName && (
+          <p className="text-sm text-gray-600 mt-1">개최자: {hostNickName}</p>
+        )}
 
         {/* 인원 수 */}
-        {participants !== undefined && participants > 0 && (
-          <p className="text-sm text-gray-600">{participants}/10 명 참여 중</p>
+        {typeof participantNum === "number" && (
+          <p className="text-sm text-gray-600 mb-2">
+            {participantNum}/10 명 참여 중
+          </p>
         )}
+
         {/* 태그 정보 */}
-        {tags && tags.length > 0 && (
-          <p className="text-xs text-gray-500">태그: {tags.join(", ")}</p>
+        {Array.isArray(tagNameList) && tagNameList.length > 0 && (
+          <p className="text-xs text-gray-500">
+            태그: {tagNameList.join(", ")}
+          </p>
         )}
       </div>
     </div>
@@ -85,14 +94,17 @@ const RoomCard = ({
 };
 
 RoomCard.propTypes = {
+  conferenceId: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
-  entry_password: PropTypes.string,
-  thumbnail_url: PropTypes.string,
-  participants: PropTypes.number,
-  language: PropTypes.string,
-  tags: PropTypes.arrayOf(PropTypes.string),
-  id: PropTypes.number.isRequired,
-  is_active: PropTypes.oneOf([0, 1]),
+  description: PropTypes.string,
+  isPassword: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.oneOf([null]), // null이면 오픈방
+  ]),
+  thumbnailUrl: PropTypes.string,
+  participantNum: PropTypes.number,
+  tagNameList: PropTypes.arrayOf(PropTypes.string),
+  hostNickName: PropTypes.string,
 };
 
 export default RoomCard;

@@ -24,12 +24,12 @@ const CreateMeetingForm = () => {
         description: values.description || "",
         tagNameList:values.tags, 
         accessCode: values.isPrivate ? values.entry_password : null,
-        thumbnail:values.thumbnail,
+        thumbnail:values.thumbnail ? values.thumbnail: null,
       };
 
       // 3) 방 생성 API
       const response = await createRoom(payload);
-      const inviteLink = `http://localhost:5174/meeting/${response.data}`;
+      const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.data.conferenceId}`;
 
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
