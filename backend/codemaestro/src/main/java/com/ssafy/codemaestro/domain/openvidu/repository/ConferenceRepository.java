@@ -12,4 +12,6 @@ public interface ConferenceRepository extends JpaRepository<Conference, Long> {
     boolean existsByIdAndModerator(Long id, User moderator);
 
     Optional<Conference> findByModerator(User moderator);
+
+    long countConferenceById(Long id);
 }
