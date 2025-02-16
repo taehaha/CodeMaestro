@@ -8,8 +8,8 @@ import withReactContent from "sweetalert2-react-content";
 import { MdContentCopy } from "react-icons/md";
 import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
-
-const CreateMeetingForm = () => {
+import { createGroupConference } from "../../api/GroupApi";
+const CreateMeetingForm = ({groupId}) => {
   const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
@@ -24,12 +24,21 @@ const CreateMeetingForm = () => {
         description: values.description || "",
         tagNameList:values.tags, 
         accessCode: values.isPrivate ? values.entry_password : null,
-        thumbnail:values.thumbnail,
+        thumbnail:values.thumbnail ? values.thumbnail: null,
       };
 
+      let response
       // 3) 방 생성 API
-      const response = await createRoom(payload);
-      const inviteLink = `http://localhost:5174/meeting/${response.data}`;
+      if (!groupId) {
+        response = await createRoom(payload);
+
+      }
+
+      else{
+       response = await createGroupConference(groupId, payload);
+      }
+
+      const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.conferenceId}`;
 
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
@@ -126,7 +135,7 @@ const CreateMeetingForm = () => {
         validationSchema={CreateMeetingSchema}
         onSubmit={handleSubmit}
       >
-        
+
         {({ setFieldValue, values, isSubmitting }) => {
           // 로컬 상태: 사용자 입력(tagInput), 추천 목록(suggestions)
           const [tagInput, setTagInput] = useState("");

@@ -1,51 +1,77 @@
-import React, { useState } from "react";
-import {
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-  PhoneOff,
-  Monitor,
-  ChevronUp,
-  ChevronDown,
-  Sun,
-  Moon,
+import React, { useMemo, useState } from "react";
+import { 
+  Mic, 
+  MicOff, 
+  Video, 
+  VideoOff, 
+  PhoneOff, 
+  Monitor, 
+  ChevronUp, 
+  ChevronDown 
 } from "lucide-react";
+import { Publisher, StreamManager } from "openvidu-browser";
+import { OpenviduClient } from "../OpenviduClient";
 
 interface VideoControlsProps {
-  streamManager: any;
-  ovClient: any;
-  isScreenSharing: boolean;
-  handleToggleScreenShare: () => void;
+  ovClient: OpenviduClient;
+  ovPublisher: Publisher;
+  ovScreenStreamManager: StreamManager | null
   onLeave?: () => void;
 }
 
 const VideoControls: React.FC<VideoControlsProps> = ({
-  streamManager,
   ovClient,
-  isScreenSharing,
-  handleToggleScreenShare,
+  ovPublisher,
+  ovScreenStreamManager,
   onLeave,
 }) => {
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isAudioActive, setIsAudioActive] = useState(ovPublisher.stream.audioActive);
+  const [isVideoActive, setIsVideoActive] = useState(ovPublisher.stream.videoActive);
+
+  // const isAudioActive: boolean = useMemo(() => {
+  //   return ovPublisher ? ovPublisher.stream.hasAudio : false;
+  // }, [ovPublisher]);
+
+  // const isVideoActive: boolean = useMemo(() => {
+  //   return ovPublisher ? ovPublisher.stream.hasVideo : false;
+  // }, [ovPublisher]);
+
+  const isScreenActive: boolean = useMemo(() => {
+    return ovScreenStreamManager instanceof StreamManager;
+  }, [ovScreenStreamManager]);
+
+  const isMyScreen: boolean = useMemo(() => {
+    return ovScreenStreamManager instanceof Publisher;
+  }, [ovScreenStreamManager]);
 
   // 마이크 토글
   const handleToggleAudio = () => {
-    if (streamManager) {
-      streamManager.publishAudio(!isAudioEnabled);
-      setIsAudioEnabled(!isAudioEnabled);
-    }
+    console.log("마이크 토글");
+    setIsAudioActive(!ovPublisher.stream.audioActive);
+    ovPublisher.publishAudio(!ovPublisher.stream.audioActive);
   };
 
   // 카메라 토글
   const handleToggleVideo = () => {
-    if (streamManager) {
-      streamManager.publishVideo(!isVideoEnabled);
-      setIsVideoEnabled(!isVideoEnabled);
-    }
+    console.log("카메라 토글");
+    setIsVideoActive(!ovPublisher.stream.videoActive);
+    ovPublisher.publishVideo(!ovPublisher.stream.videoActive);
   };
+
+  // 화면공유 시작
+  const StartScreenShare = () => {
+    if (isScreenActive) return;
+
+    ovClient.publishMyScreen();
+  }
+
+  // 화면공유 종료
+  const EndScreenShare = () => {
+    if (isMyScreen) {
+      ovClient.unpublishMyScreen();
+    }
+  }
 
   // 세션 나가기
   const handleLeaveSession = () => {
@@ -79,13 +105,13 @@ const VideoControls: React.FC<VideoControlsProps> = ({
               onClick={handleToggleAudio}
               className="flex flex-col items-center justify-center p-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors duration-200"
             >
-              {isAudioEnabled ? (
+              {isAudioActive ? (
                 <Mic className="w-6 h-6" />
               ) : (
                 <MicOff className="w-6 h-6 text-red-400" />
               )}
               <span className="text-xs mt-1">
-                {isAudioEnabled ? "음소거" : "마이크 켜기"}
+                {isAudioActive ? "음소거" : "마이크 켜기"}
               </span>
             </button>
 
@@ -93,23 +119,25 @@ const VideoControls: React.FC<VideoControlsProps> = ({
               onClick={handleToggleVideo}
               className="flex flex-col items-center justify-center p-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors duration-200"
             >
-              {isVideoEnabled ? (
+              {isVideoActive ? (
                 <Video className="w-6 h-6" />
               ) : (
                 <VideoOff className="w-6 h-6 text-red-400" />
               )}
               <span className="text-xs mt-1">
-                {isVideoEnabled ? "카메라 끄기" : "카메라 켜기"}
+                {isVideoActive ? "카메라 끄기" : "카메라 켜기"}
               </span>
             </button>
 
             <button
-              onClick={handleToggleScreenShare}
+              onClick={isMyScreen ? EndScreenShare : StartScreenShare}
+              disabled={isScreenActive && !isMyScreen}
               className="flex flex-col items-center justify-center p-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors duration-200"
+              
             >
-              <Monitor className={`w-6 h-6 ${isScreenSharing ? "text-green-400" : ""}`} />
+              <Monitor className={`w-6 h-6 ${isMyScreen ? "text-green-400" : ""}`} />
               <span className="text-xs mt-1">
-                {isScreenSharing ? "공유 중지" : "화면 공유"}
+                {isMyScreen ? "공유 중지" : "화면 공유"}
               </span>
             </button>
 

@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import {getGroupStric, LeaveGroup } from "../../api/GroupApi";
+import { getGroupStric, LeaveGroup, createGroupConference, isConference } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
 import GroupManagement from "./GroupManagement";
 import GroupStudies from "./GroupStudies";
 import LoadAnimation from "../../components/LoadAnimation";
-import GroupTable from "./GroupTable"
+import GroupTable from "./GroupTable";
+import { MdFiberManualRecord } from "react-icons/md"; // 라이브 표시 아이콘
 
 const ROLE = {
   NONE: "NONE",
@@ -21,58 +22,49 @@ const ROLE = {
 
 const GroupDetail = () => {
   const user = useSelector((state) => state.user.myInfo);
-  const navigate = useNavigate();
-
   const { groupId } = useParams();
+  const navigate = useNavigate();
 
   const [group, setGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
-  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [isModalOpen, setIsModalOpen] = useState(false);  // 그룹 관리 모달
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);  // 그룹 회의 생성 모달
+  const [isConferenceOngoing, setIsConferenceOngoing] = useState(false);  // 회의 진행 중 여부
+  const [conferenceId, setConferenceId] = useState(null);  // 진행 중인 회의 ID
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const result = await UserAxios.get(`/groups/${groupId}/detail`);
-        // 그룹 정보 설정        
         setGroup(result.data);
-        //더미로
-        // 내 역할 설정
-          console.log(result.data);
-          
-          const member = result.data.members.find(member => member.userId === user.userId);
-          if (member) {
-            setUserRole(member.role);
-          } else {
-            setUserRole("NONE");
-          }      } catch (error) {
-                  console.error("API 에러:", error);
-  
-        // 그룹 정보 에러 시 더미 데이터
-        //
+
+        const member = result.data.members.find(
+          (member) => member.userId === user.userId
+        );
+        if (member) {
+          setUserRole(member.role);
+        } else {
+          setUserRole("NONE");
+        }
+
+        // 1. isConference로 회의 진행 상태 확인
+        const conferenceStatus = await isConference(groupId);
+        if (conferenceStatus.status === 200) {
+          setIsConferenceOngoing(false);  // 회의 진행 중 아님
+        } else if (conferenceStatus.status === 302) {
+          setIsConferenceOngoing(true);  // 회의 진행 중
+          setConferenceId(conferenceStatus.data.conferenceId);  // 현재 진행 중인 회의 ID
+        }
+      } catch (error) {
+        console.error("API 에러:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [groupId])
-
-
-  useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        setLoading(true);
-        const { data } = await UserAxios.get(`/groups/${groupId}/detail`);
-        setGroup(data);
-      } catch (err) {
-        console.error("그룹 상세 조회 에러:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchGroup();
   }, [groupId]);
 
   // 로딩 중이면 아직 group.members를 접근할 수 없음
@@ -84,7 +76,6 @@ const GroupDetail = () => {
   if (!group || !group.members) {
     return <div>그룹 정보가 없습니다.</div>;
   }
-
 
   // 가입 신청
   const handleJoinRequest = async () => {
@@ -112,17 +103,16 @@ const GroupDetail = () => {
 
       
       preConfirm: (message) => {
-        // 입력값이 없으면 에러 메시지 출력
         if (!message) {
-          Swal.showValidationMessage('메시지를 입력해주세요.');
+          Swal.showValidationMessage("메시지를 입력해주세요.");
         }
         return message;
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         const message = result.value; // 사용자가 입력한 메시지
         try {
-          UserAxios.post('groups/requests', {
+          UserAxios.post("groups/requests", {
             userId: user.userId,
             groupId: group.id,
             message: message,
@@ -133,26 +123,25 @@ const GroupDetail = () => {
       }
     });
   };
-  
 
   // 그룹 탈퇴
   const handleLeaveGroup = async () => {
     if (userRole === ROLE.ADMIN) {
       await Swal.fire({
         title: "그룹 탈퇴",
-        text: "그룹 소유주는 탈퇴할 수 없습니다! \n 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
-        icon:"error",
+        text:
+          "그룹 소유주는 탈퇴할 수 없습니다! \n 그룹의 매니저를 양도하거나, 그룹 삭제 절차를 진행해 주세요.",
+        icon: "error",
         width: "500px",
-          background: "#f8f9fa",
-          confirmButtonColor: "#FFCC00",
-          confirmButtonText: "확인",
-          customClass: {
-            popup: "swal-custom-popup",       // 전체 팝업 스타일
-            title: "swal-custom-title",       // 제목 스타일
-            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-            confirmButton: "swal-custom-button" // 버튼 스타일
-          }
-
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup", // 전체 팝업 스타일
+          title: "swal-custom-title", // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button", // 버튼 스타일
+        },
       });
     } else {
       const result = await Swal.fire({
@@ -174,11 +163,10 @@ const GroupDetail = () => {
           cancelButton: "swal-custom-button2" // 버튼 스타일
         }
       });
-  
+
       if (result.isConfirmed) {
         try {
-          const status = await await LeaveGroup({ groupId, userId: user.userId });
-          console.log(status);
+          const status = await LeaveGroup({ groupId, userId: user.userId });
           if (status === 200) {
             await Swal.fire({
               title: "탈퇴 완료",
@@ -240,6 +228,39 @@ const GroupDetail = () => {
     }
   };
 
+  const handleConferenceAction = async () => {
+    if (isConferenceOngoing) {
+      // 302 응답 시 이미 진행 중인 회의 참여
+      const result = await Swal.fire({
+        title: "이미 진행 중인 회의가 있습니다.",
+        text: "현재 진행 중인 회의로 이동하시겠습니까?",
+        showCancelButton: true,
+        confirmButtonText: "이동",
+        cancelButtonText: "취소",
+      });
+  
+      if (result.isConfirmed) {
+        navigate(`/meeting?roomId=${conferenceId}`);
+      }
+    } else {
+      try {
+        // 회의 생성
+        const response = await createGroupConference(groupId, { tagNameList: null });
+        
+        // 회의 생성 후 201 응답을 받으면 회의실로 이동
+        if (response.status === 201) {
+          const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.data.conferenceId}`;
+          navigate(inviteLink);  // 회의실로 이동
+        } else {
+          // 응답 상태가 201이 아닌 경우 처리할 로직 (선택 사항)
+          console.error("회의 생성에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("회의 생성 중 오류 발생:", error);
+      }
+    }
+  };
+  
 
   // 날짜 포맷 (moment 사용 예시)
   const formattedDate = group?.createdAt
@@ -251,20 +272,15 @@ const GroupDetail = () => {
       {/* --------- 헤더 영역 (배경 없이 간단한 카드 형태) --------- */}
       <div className="card bg-base-100 shadow-md p-2 w-3/4 mx-auto py-6 px-8 mb-6">
         <div className="flex items-center gap-10">
-          {/* 그룹 아바타 */}
           <div className="avatar">
             <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
               <img
-                src={
-                  group?.imageUrl ||
-                  "https://placeholder.co/128"
-                }
+                src={group?.imageUrl || "https://placeholder.co/128"}
                 alt="Group Avatar"
               />
             </div>
           </div>
 
-          {/* 그룹 정보 텍스트 */}
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-bold">
               {group?.name || `그룹 아이디: ${group.name}`}
@@ -274,7 +290,6 @@ const GroupDetail = () => {
             )}
 
             <div className="flex flex-row items-center gap-4 mt-1">
-              {/* 현재 인원 */}
               {group?.currentMembers !== undefined && (
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <FaUserFriends />
@@ -282,7 +297,6 @@ const GroupDetail = () => {
                 </div>
               )}
 
-              {/* 생성일 */}
               {group?.createdAt && (
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <FaCalendarAlt />
@@ -312,7 +326,7 @@ const GroupDetail = () => {
           onClick={() => setActiveTab("members")}
           className={`sidebar-item transition-colors relative ${
             activeTab === "members" ? "text-black font-semibold active" : "text-gray-500"
-          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
+          } flex-1`}
         >
           그룹 멤버
         </button>
@@ -320,14 +334,11 @@ const GroupDetail = () => {
           onClick={() => setActiveTab("studies")}
           className={`sidebar-item transition-colors relative ${
             activeTab === "studies" ? "text-black font-semibold active" : "text-gray-500"
-          } flex-1`} // 🔥 flex-1: 버튼 너비 동일하게 자동 조정
+          } flex-1`}
         >
           스터디 기록
         </button>
-        
       </div>
-
-
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
       <div className="w-3/4 mx-auto mt-6">
@@ -353,16 +364,24 @@ const GroupDetail = () => {
           </button>
         )}
 
-        {userRole === ROLE.MEMBER && (
-          <>
-            <button className="btn btn-success rounded-sm">그룹회의 생성</button>
-          </>
+        {userRole === ROLE.MEMBER && !isConferenceOngoing && (
+          <button className="btn btn-success rounded-sm" onClick={handleConferenceAction}>
+            그룹회의 생성
+          </button>
+        )}
+
+        {userRole === ROLE.MEMBER && isConferenceOngoing && (
+          <button className="btn btn-warning rounded-sm" onClick={handleConferenceAction}>
+            <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
+          </button>
         )}
 
         {userRole === ROLE.ADMIN && (
           <div className="flex gap-2">
-            <button className="btn bg-[#ffcc00] btn-success rounded-m border-none hover:bg-[#f0c000]">그룹회의 생성</button>
-            <button 
+            <button className="btn bg-[#ffcc00] btn-success rounded-m border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
+              그룹회의 생성
+            </button>
+            <button
               onClick={() => setIsModalOpen(true)}
               className="btn bg-[#ddd] rounded-m border-none hover:bg-[#ccc]"
             >
@@ -380,7 +399,8 @@ const GroupDetail = () => {
       </div>
     </div>
 
-      {/*--- 그룹관리 모달 ---*/}
+      {/* --- 그룹 회의 생성 모달 --- */}
+      {/* --- 그룹관리 모달 --- */}
       {isModalOpen && (
         <div className="modal modal-open">
           <div className="modal-box relative rounded-lg w-full max-w-4xl min-h-[75vh] bg-white shadow-xl">
@@ -396,16 +416,21 @@ const GroupDetail = () => {
             
           </div>
 
-          <div
-            className="modal-backdrop"
-            onClick={() => setIsModalOpen(false)}
-          ></div>
+          <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}></div>
         </div>
       )}
 
-
-
-      
+      {/* --------- 좌측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
+      {userRole !== ROLE.NONE && (
+        <div className="fixed bottom-4 left-4">
+          <p
+            className="text-gray-400 hover:brightness-75 cursor-pointer text-sm"
+            onClick={handleLeaveGroup}
+          >
+            그룹 탈퇴
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,23 +1,24 @@
 import React from "react";
-import OpenBidooComponent from "./OpenBidooComponent";
 import './VideoGrid.css'; 
+import UserVideoComponent from "./UserVideoComponent";
+import { Subscriber } from "openvidu-browser";
 
 interface VideoGridProps {
-  streamManagers: any[];
-  currentUser: any; // 현재 사용자
-  onSelectUser: (streamManager: any) => void; 
+  streamManagers: Subscriber[];
+  isDarkMode: boolean;
 }
 
-const VideoGrid: React.FC<VideoGridProps> = ({ streamManagers, currentUser, onSelectUser }) => {
+const VideoGrid: React.FC<VideoGridProps> = ({ streamManagers, isDarkMode }) => {
+  console.log("VideoGrid 렌더링 시작했다");
+  
   return (
     <div className="video-grid">
       {streamManagers.map((sm, idx) => (
         <div
           key={idx}
           className="video-wrapper"
-          onClick={() => onSelectUser(sm)} // 비디오 클릭 시 해당 상대 비디오 확대
         >
-          <OpenBidooComponent streamManager={sm} />
+          <UserVideoComponent streamManager={sm} isDarkMode={isDarkMode} key={sm.id}/>
         </div>
       ))}
     </div>

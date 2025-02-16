@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Swal from "sweetalert2";
 import userAxios from "../../api/userAxios";
-
+import localStorage from "redux-persist/es/storage";
 const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
   // Formik 유효성 검사를 위한 Schema
   const validationSchema = Yup.object({
@@ -13,31 +13,38 @@ const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
       .required("비밀번호를 입력해주세요.")
       .max(10, "비밀번호는 최대 10자리입니다."),
   });
-
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-    const { password } = values;
+    const { password } = values;     
+     try {
+        const response = await userAxios.post(`/room/${roomId}/check`, { accessCode:password });
+        if (response.status === 200) {
+          // 인증 성공
+      Swal.fire({
+            title: "비밀번호 인증에 성공하였습니다.",
+            icon: "success",
+            iconColor:"#5FD87D",
+            width: "500px",
+            background: "#f8f9fa",
+            confirmButtonColor: "#FFCC00",
+            confirmButtonText: "확인",
+            customClass: {
+              popup: "swal-custom-popup",       // 전체 팝업 스타일
+              title: "swal-custom-title",       // 제목 스타일
+              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+              confirmButton: "swal-custom-button" // 버튼 스타일
+            }
+          }).then(() => {
+                 localStorage.setItem("accesscode",password)
+                 onPasswordCheck();
+               });
+        }
+      } catch (error) {
+        // 인증 실패 시(404, 401 등)
+        setFieldError("password", "비밀번호 인증에 실패하였습니다. 다시 확인해주세요.");
+        setSubmitting(false);
+        return;
+      }
 
-    /* 
-     * 1) 실제 백엔드 요청 예시 (주석 처리)
-     * try {
-     *   const response = await userAxios.post(`/room/${roomId}/check`, { password });
-     *   if (response.status === 200) {
-     *     // 인증 성공
-     *     Swal.fire({
-     *       title: "비밀번호 인증에 성공하였습니다.",
-     *       icon: "success",
-     *       confirmButtonText: "확인",
-     *     }).then(() => {
-     *       onPasswordCheck();
-     *     });
-     *   }
-     * } catch (error) {
-     *   // 인증 실패 시(404, 401 등)
-     *   setFieldError("password", "비밀번호 인증에 실패하였습니다. 다시 확인해주세요.");
-     *   setSubmitting(false);
-     *   return;
-     * }
-     */
 
     // ============= 더미 로직 (유지) =============
     // password === "404" 라면 인증 실패로 가정 (inline 에러 표시)

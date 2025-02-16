@@ -8,6 +8,7 @@ const GroupListItem = ({group}) => {
         onClick={()=>{navigate(`/group/${group.id}`)}} >
         <div className="flex-1">
             <h3 className="text-lg font-medium text-gray-800">{group.name}</h3>
+            <span className=''>{group.currentMembers}/10</span>
         </div>
     </li>
     )
