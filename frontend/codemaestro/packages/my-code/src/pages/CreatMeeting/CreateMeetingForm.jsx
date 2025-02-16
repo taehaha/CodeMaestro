@@ -8,8 +8,8 @@ import withReactContent from "sweetalert2-react-content";
 import { MdContentCopy } from "react-icons/md";
 import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
-
-const CreateMeetingForm = () => {
+import { createGroupConference } from "../../api/GroupApi";
+const CreateMeetingForm = ({groupId}) => {
   const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
@@ -27,9 +27,18 @@ const CreateMeetingForm = () => {
         thumbnail:values.thumbnail ? values.thumbnail: null,
       };
 
+      let response
       // 3) 방 생성 API
-      const response = await createRoom(payload);
-      const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.data.conferenceId}`;
+      if (!groupId) {
+        response = await createRoom(payload);
+
+      }
+
+      else{
+       response = await createGroupConference(groupId, payload);
+      }
+
+      const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.conferenceId}`;
 
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
