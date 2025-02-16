@@ -300,12 +300,10 @@ const App: React.FC = () => {
     const HOST_URL = new URL(process.env.REACT_APP_BACKEND_URL as string);
     const ACCESS_TOKEN = tokenStorage.getAccessToken() || "";
 
-    console.log("OPENVIDU : OPENVIDU 초기화 시작 직전임!!!!");
+    console.log("OPENVIDU : OPENVIDU 초기화 시작");
     console.log("OPENVIDU : 로드된 conferenceId : " + conferenceId);
     console.log("OPENVIDU : 로드된 HOST_URL : " + HOST_URL);
     console.log("OPENVIDU : 로드된 ACCESS_TOKEN : " + ACCESS_TOKEN);
-
-    console.log("OPENVIDU : Openvidu init");
     const client: OpenviduClient = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
     setOvClient(client);
 
@@ -333,6 +331,7 @@ const App: React.FC = () => {
     });
 
     console.log("OPENVIDU : 콜백 설정 완료");
+    console.log("OPENVIDU : 최초 초기 설정 : " + initInfo.video + " " + initInfo.audio);
     
     //TODO: 방 비밀번호 입력 시퀸스, 입장시 캠 설정 필요함
     client
@@ -448,12 +447,14 @@ const App: React.FC = () => {
                 className="mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2"
                 style={{ height: "100%", resize: "vertical", minHeight: "40vh", maxHeight: "60vh" }}
               >
+              {ovClient &&
                 <ChatComponent
                   onSendMessage={handleSendMessage}
                   messages={chatMessages}
-                  currentUserId={1}
+                  currentUserId={ovClient.getMyConnectionData().userId}
                   isDarkMode={isDarkMode}
                 />
+              }
               </div>
             </>
           )}
