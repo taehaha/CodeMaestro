@@ -174,7 +174,6 @@ const GroupDetail = () => {
               width: "500px",
               background: "#f8f9fa",
               confirmButtonColor: "#FFCC00",
-              confirmButtonText: "확인",
               customClass: {
                 popup: "swal-custom-popup",       // 전체 팝업 스타일
                 title: "swal-custom-title",       // 제목 스타일
@@ -192,7 +191,6 @@ const GroupDetail = () => {
               width: "500px",
               background: "#f8f9fa",
               confirmButtonColor: "#FFCC00",
-              confirmButtonText: "확인",
               customClass: {
                 popup: "swal-custom-popup",       // 전체 팝업 스타일
                 title: "swal-custom-title",       // 제목 스타일

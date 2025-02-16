@@ -12,7 +12,8 @@ import './MyProfile.css';
 const MyProfile = () => {
   // Redux에서 사용자 정보 가져오기
   const user = useSelector((state) => state.user.myInfo);
-  
+
+
   // 모달 상태
   const [isBackgroundEditModalOpen, setisBackgroundEditModalOpen] = useState(false);
 
