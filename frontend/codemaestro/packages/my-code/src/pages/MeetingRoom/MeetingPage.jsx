@@ -5,9 +5,7 @@ import { MdAddCircle } from "react-icons/md";
 
 import RoomList from "./RoomList";
 import SearchBar from "../../components/SearchBar";
-import FilteringBar from "./FilteringBar";
 import GroupRankingPage from "../Group/GroupRankingPage";
-import UserAxios from "../../api/userAxios";
 import LoadAnimation from "../../components/LoadAnimation";
 import { getRoomList } from "../../api/RoomApi";
 
@@ -109,8 +107,6 @@ const MeetingPage = () => {
   
   // 검색어, 언어, 태그 필터링 위해 준비한 state 변수
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLanguages, setSelectedLanguages] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rooms, setRooms] = useState([]);
 
@@ -118,17 +114,7 @@ const MeetingPage = () => {
     setSearchTerm(input);
   };
 
-  const handleFilter = (type, value) => {
-    if (type === "tag") {
-      setSelectedTags((prev) =>
-        prev.includes(value) ? prev.filter((tag) => tag !== value) : [...prev, value]
-      );
-    } else if (type === "language") {
-      setSelectedLanguages((prev) =>
-        prev.includes(value) ? prev.filter((lang) => lang !== value) : [...prev, value]
-      );
-    }
-  };
+
 
   const getMeetingRooms = async () => {
     try {
@@ -151,12 +137,7 @@ const MeetingPage = () => {
     console.log(room);
     
     const matchSearch = room.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchLanguage =
-      selectedLanguages.length === 0 || selectedLanguages.includes(room.language);
-    const matchTags =
-      selectedTags.length === 0 || room.tags.some((tag) => selectedTags.includes(tag));
-
-    return matchSearch && matchLanguage && matchTags;
+    return matchSearch ;
   });
 
   const navigate = useNavigate();
@@ -183,16 +164,6 @@ const MeetingPage = () => {
               <div className="p-1 rounded-md overflow-y-auto">
                 <SearchBar onSearch={handleSearch} onRefresh={getMeetingRooms} setRooms={setRooms} />
                 <div className="flex flex-row">
-                  <FilteringBar
-                    items={["C++", "Python", "Java"]}
-                    onFilter={(value) => handleFilter("language", value)}
-                    selectedItems={selectedLanguages}
-                  />
-                  <FilteringBar
-                    items={["강의", "스터디"]}
-                    onFilter={(value) => handleFilter("tag", value)}
-                    selectedItems={selectedTags}
-                  />
                 </div>
                 {isLoading && <LoadAnimation />}
                 {!isLoading && <RoomList rooms={fillteredRooms} />}
