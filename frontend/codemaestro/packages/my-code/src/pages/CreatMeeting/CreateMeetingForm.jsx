@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { CreateMeetingSchema } from "./CreateMeetingSchema"; // 위에서 만든 Yup 스키마
@@ -10,7 +9,6 @@ import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
 import { createGroupConference } from "../../api/GroupApi";
 const CreateMeetingForm = ({groupId}) => {
-  const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
   // 폼 제출
@@ -38,8 +36,8 @@ const CreateMeetingForm = ({groupId}) => {
        response = await createGroupConference(groupId, payload);
       }
 
-      const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.conferenceId}`;
-
+      const inviteLink = `${window.location.origin}/ide?roomId=${response.conferenceId}`;
+      
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
         title: "회의 생성 완료",
@@ -91,7 +89,7 @@ const CreateMeetingForm = ({groupId}) => {
       }).then((result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
-          navigate(`${inviteLink}`);
+          window.location.href = inviteLink
         }
       });
     } catch (error) {
