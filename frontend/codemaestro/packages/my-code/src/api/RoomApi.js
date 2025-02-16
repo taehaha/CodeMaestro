@@ -34,10 +34,9 @@ export const createRoom = async (payload) => {
       formData.append("accessCode", payload.accessCode ?? null);
       
       // 배열, 객체 형태로 보내야 한다면 JSON.stringify를 사용하는 방법이 일반적임
-      if (payload.tagNameList && payload.tagNameList.length > 0) {
-        formData.append("tagNameList", JSON.stringify(payload.tagNameList));
-      } 
-      
+      formData.append("tagNameList", payload.tagNameList);
+
+
       // 3) 이미지(파일) 데이터 추가
       //    payload.thumbnail이 File이나 Blob 형태인지 확인 필요
       if (payload.thumbnail) {
