@@ -22,7 +22,17 @@ const RoomCard = ({
         title: "최대 인원",
         text: "최대 인원이 입장하여 더 이상 입장할 수 없습니다.",
         icon: "warning",
-        confirmButtonText: "확인",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
       return;
     }
@@ -31,7 +41,18 @@ const RoomCard = ({
     Swal.fire({
       title: "스터디 입장",
       icon: "success",
+      iconColor:"#5FD87D",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
       confirmButtonText: "확인",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button" // 버튼 스타일
+      }
+
     }).then(() => {
       navigate(`/meeting/${conferenceId}`, {
         state: {
@@ -44,7 +65,7 @@ const RoomCard = ({
 
   return (
     <div
-      className="card w-72 bg-base-100 shadow-xl rounded-sm cursor-pointer"
+      className="card w-72 bg-base-100 shadow-xl rounded-xl cursor-pointer"
       onClick={handleCardClick}
     >
       <figure className="relative">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -81,11 +82,26 @@ const GroupDetail = () => {
     Swal.fire({
       title: "가입 신청",
       text: `${group?.name || "이 그룹"}에 가입을 신청하시겠습니까?`,
-      input: "textarea", // 텍스트 입력창 (여러 줄 입력 가능)
-      inputPlaceholder: "가입 신청 메시지를 입력하세요...",
+      input: 'textarea', // 텍스트 입력창 (여러 줄 입력 가능)
+      inputPlaceholder: '가입 신청 메시지를 입력하세요.',
       showCancelButton: true,
       confirmButtonText: "확인",
       cancelButtonText: "취소",
+      confirmButtonText: "확인",
+      cancelButtonText: "취소",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
+      cancelButtonColor: "#ddd",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button", // 버튼 스타일
+        cancelButton: "swal-custom-button2" // 버튼 스타일
+      },
+
+      
       preConfirm: (message) => {
         if (!message) {
           Swal.showValidationMessage("메시지를 입력해주세요.");
@@ -131,9 +147,21 @@ const GroupDetail = () => {
       const result = await Swal.fire({
         title: "그룹 탈퇴",
         text: `정말로 이 그룹에서 탈퇴하시겠습니까?`,
+        icon: "question",
         showCancelButton: true,
         confirmButtonText: "탈퇴하기",
         cancelButtonText: "취소",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        cancelButtonColor: "#ddd",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button", // 버튼 스타일
+          cancelButton: "swal-custom-button2" // 버튼 스타일
+        }
       });
 
       if (result.isConfirmed) {
@@ -145,6 +173,17 @@ const GroupDetail = () => {
               text: "그룹에서 탈퇴했습니다. 메인 페이지로 이동합니다.",
               icon: "success",
               confirmButtonText: "확인",
+              iconColor:"#5FD87D",
+              width: "500px",
+              background: "#f8f9fa",
+              confirmButtonColor: "#FFCC00",
+              confirmButtonText: "확인",
+              customClass: {
+                popup: "swal-custom-popup",       // 전체 팝업 스타일
+                title: "swal-custom-title",       // 제목 스타일
+                htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                confirmButton: "swal-custom-button" // 버튼 스타일
+              }
             });
             window.location.replace("/");
           } else {
@@ -153,6 +192,17 @@ const GroupDetail = () => {
               text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
               icon: "error",
               confirmButtonText: "확인",
+              width: "500px",
+              background: "#f8f9fa",
+              confirmButtonColor: "#FFCC00",
+              confirmButtonText: "확인",
+              customClass: {
+                popup: "swal-custom-popup",       // 전체 팝업 스타일
+                title: "swal-custom-title",       // 제목 스타일
+                htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                confirmButton: "swal-custom-button" // 버튼 스타일
+              }
+    
             });
           }
         } catch (error) {
@@ -161,7 +211,17 @@ const GroupDetail = () => {
             title: "탈퇴 실패",
             text: "그룹 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
             icon: "error",
+            width: "500px",
+            background: "#f8f9fa",
+            confirmButtonColor: "#FFCC00",
             confirmButtonText: "확인",
+            customClass: {
+              popup: "swal-custom-popup",       // 전체 팝업 스타일
+              title: "swal-custom-title",       // 제목 스타일
+              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+              confirmButton: "swal-custom-button" // 버튼 스타일
+            }
+  
           });
         }
       }
@@ -208,9 +268,9 @@ const GroupDetail = () => {
     : null;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-screen">
       {/* --------- 헤더 영역 (배경 없이 간단한 카드 형태) --------- */}
-      <div className="card bg-base-100 shadow-md p-6 py-6 px-8 mb-6">
+      <div className="card bg-base-100 shadow-md p-2 w-3/4 mx-auto py-6 px-8 mb-6">
         <div className="flex items-center gap-10">
           <div className="avatar">
             <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
@@ -243,6 +303,18 @@ const GroupDetail = () => {
                   <span>생성일: {formattedDate}</span>
                 </div>
               )}
+
+              {/* --------- 우측측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
+              {userRole !== ROLE.NONE && (
+                <div className="absolute bottom-4 right-8">
+                  <p
+                    className="text-gray-400 hover:brightness-75 cursor-pointer text-sm"
+                    onClick={handleLeaveGroup}
+                  >
+                    그룹 탈퇴
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -269,19 +341,25 @@ const GroupDetail = () => {
       </div>
 
       {/* --------- 탭 컨텐츠 영역 --------- */}
-      {activeTab === "members" && (
-        <GroupTable members={group.members} userRole={userRole} groupId={groupId} />
-      )}
-      {activeTab === "studies" && (
-        <div className="text-center text-gray-700">
-          <GroupStudies groupId={groupId} userRole={userRole} />
-        </div>
-      )}
+      <div className="w-3/4 mx-auto mt-6">
+        {activeTab === "members" && (
+          <GroupTable members={group.members} userRole={userRole} groupId={groupId}/>
+        )}
+        {activeTab === "studies" && (
+          <div className="text-center text-gray-700">
+            <GroupStudies groupId={groupId} userRole={userRole} />
+          </div>
+        )}
+      </div>
 
-      {/* --------- 우측 하단 액션 영역 --------- */}
-      <div className="fixed bottom-4 right-4 flex flex-col items-end space-y-2">
+
+      <div className="fixed bottom-20 w-full flex justify-end px-6">
+      <div className="flex flex-col space-y-2">
         {userRole === ROLE.NONE && (
-          <button onClick={handleJoinRequest} className="btn btn-primary rounded-sm">
+          <button
+            onClick={handleJoinRequest}
+            className="btn btn-[#ffcc00] rounded-sm"
+          >
             가입 신청
           </button>
         )}
@@ -300,31 +378,42 @@ const GroupDetail = () => {
 
         {userRole === ROLE.ADMIN && (
           <div className="flex gap-2">
-            <button className="btn btn-success rounded-m" onClick={handleConferenceAction}>
+            <button className="btn bg-[#ffcc00] btn-success rounded-m border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
               그룹회의 생성
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="btn btn-[#5FD87D] rounded-m"
+              className="btn bg-[#ddd] rounded-m border-none hover:bg-[#ccc]"
             >
               그룹 관리
             </button>
           </div>
         )}
+
+        <button
+          onClick={() => navigate("/mypage?tab=groups")}
+          className="btn bg-[#ddd] text-black px-4 py-2 rounded-md hover:bg-[#ccc]"
+        >
+          목록
+        </button>
       </div>
+    </div>
 
       {/* --- 그룹 회의 생성 모달 --- */}
       {/* --- 그룹관리 모달 --- */}
       {isModalOpen && (
         <div className="modal modal-open">
-          <div className="modal-box relative rounded-sm w-full max-w-4xl min-h-[80vh] bg-white shadow-xl">
+          <div className="modal-box relative rounded-lg w-full max-w-4xl min-h-[75vh] bg-white shadow-xl">
             <button
               onClick={() => setIsModalOpen(false)}
               className="btn btn-sm btn-circle absolute right-2 top-2"
             >
               ✕
             </button>
-            <GroupManagement group={group} />
+            <GroupManagement
+            group={group}
+            />
+            
           </div>
 
           <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}></div>
