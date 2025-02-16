@@ -148,4 +148,10 @@ public class GroupController {
             @PathVariable Long groupId) {
         return ResponseEntity.ok(groupService.getGroupAttendance(groupId));
     }
+
+    // 현재 그룹 회의가 활성화되어 있는지 확인
+    @GetMapping("/conference/check")
+    public ResponseEntity<Long> currentGroupConferenceCheck(@RequestParam Long groupId) {
+        return groupService.checkCurrentGroupConference(groupId);
+    }
 }
