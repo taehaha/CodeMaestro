@@ -74,7 +74,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
 
-                        config.setAllowedOrigins(List.of(FRONTEND_URL));
+                        config.setAllowedOrigins(List.of(FRONTEND_URL, "http://localhost:3000"));
                         config.setAllowedMethods(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("access", "Set-Cookie"));
