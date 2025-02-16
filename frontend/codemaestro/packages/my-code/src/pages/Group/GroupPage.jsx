@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -85,8 +84,6 @@ const GroupDetail = () => {
       input: 'textarea', // 텍스트 입력창 (여러 줄 입력 가능)
       inputPlaceholder: '가입 신청 메시지를 입력하세요.',
       showCancelButton: true,
-      confirmButtonText: "확인",
-      cancelButtonText: "취소",
       confirmButtonText: "확인",
       cancelButtonText: "취소",
       width: "500px",
