@@ -87,7 +87,13 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId, List<String> tagNameList) {
+    public String initializeConference(User requestUser,
+                                       String title,
+                                       String description,
+                                       String accessCode,
+                                       Long groupId,
+                                       List<String> tagNameList,
+                                       MultipartFile thumbnail) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
@@ -96,6 +102,11 @@ public class ConferenceService {
 
         Conference.ConferenceBuilder conferenceBuilder = Conference.builder();
         Conference conference;
+        String thumbnailUrl = null;
+
+        if (thumbnail != null) {
+            thumbnailUrl = s3Util.uploadFile(thumbnail);
+        }
 
         // 그룹 회의인 경우
         if(groupId != null) {
@@ -112,7 +123,7 @@ public class ConferenceService {
             conferenceBuilder.moderator(requestUser)
                              .title(groupTitle)
                              .description(groupDescription)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .group(group);
 
             // Conference 저장
@@ -145,7 +156,7 @@ public class ConferenceService {
             conferenceBuilder.moderator(requestUser)
                              .title(title)
                              .description(description)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .accessCode(accessCode);
 
             conference = conferenceBuilder.build();
@@ -255,8 +266,7 @@ public class ConferenceService {
     }
 
     public int getParticipantNum(String conferenceId) {
-        Session session = openVidu.getActiveSession(conferenceId);
-        return session.getActiveConnections().size();
+        return (int) conferenceRepository.countConferenceById(Long.valueOf(conferenceId));
     }
 
     public List<User> getParticipants(String conferenceId) {

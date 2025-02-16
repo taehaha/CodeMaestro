@@ -15,4 +15,6 @@ public interface ConferenceRepository extends JpaRepository<Conference, Long> {
     Optional<Conference> findByModerator(User moderator);
 
     Optional<Conference> findByGroup(Group group);
+
+    long countConferenceById(Long id);
 }

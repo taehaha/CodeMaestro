@@ -2,6 +2,7 @@ package com.ssafy.codemaestro.domain.openvidu.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class ConferenceInitRequest {
     String accessCode;
     Long groupId;
     List<String> tagNameList;
+    MultipartFile thumbnail;
 
     @Override
     public String toString() {

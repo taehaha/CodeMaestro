@@ -35,7 +35,7 @@ public class ConferenceController {
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<ConferenceInitResponse> initializeConference(@RequestBody ConferenceInitRequest dto,
+    public ResponseEntity<ConferenceInitResponse> initializeConference(@ModelAttribute ConferenceInitRequest dto,
                                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         User currentUser = userDetails.getUser();
         System.out.println(dto);
@@ -46,7 +46,8 @@ public class ConferenceController {
                 dto.getDescription(),
                 dto.getAccessCode(),
                 dto.getGroupId(),
-                dto.getTagNameList()
+                dto.getTagNameList(),
+                dto.getThumbnail()
         );
 
         return new ResponseEntity<>(new ConferenceInitResponse(conferenceId), HttpStatus.CREATED);
@@ -88,6 +89,7 @@ public class ConferenceController {
                     .conferenceId(conference.getId().toString())
                     .title(conference.getTitle())
                     .description(conference.getDescription())
+                    .isPrivate(conference.getAccessCode() != null)
                     .thumbnailUrl(conference.getThumbnailUrl())
                     .hostNickName(conference.getModerator().getNickname())
                     .participantNum(participantNum)
@@ -117,6 +119,7 @@ public class ConferenceController {
                 .conferenceId(conferenceId)
                 .title(conference.getTitle())
                 .description(conference.getDescription())
+                .isPrivate(conference.getAccessCode() != null)
                 .thumbnailUrl(conference.getThumbnailUrl())
                 .hostNickName(conference.getModerator().getNickname())
                 .participantNum(participantNum)
