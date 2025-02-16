@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import EditProfile from "./EditProfile";
 import EditPassword from "./EditPassword";
@@ -8,7 +9,9 @@ import RecordingsList from "./RecordingsList";
 import "./Sidebar.css";
 
 const Sidebar = ({ onSelect, user }) => {
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const [searchParams] = useSearchParams();
+  const defaulTab = searchParams.get("tab") || "profile";
+  const [selectedTab, setSelectedTab] = useState(defaulTab);
   const [activeTab, setActiveTab] = useState("");
 
   const handleTabClick = (tab) => {

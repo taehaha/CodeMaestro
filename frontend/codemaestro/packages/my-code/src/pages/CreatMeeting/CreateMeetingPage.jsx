@@ -7,7 +7,6 @@ const CreateMeetingPage = () =>{
 <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 p-3 dark:text-darkText mx-auto w-screen-4xl">
 
     <div className="">
-        <header className="header-style">회의 정보</header>
         <CreateMeetingForm 
         // checkedUsers={checkedUsers}
         />

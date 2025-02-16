@@ -1,5 +1,5 @@
 .add-btn {
-  background-color: #86bbf1;
+  background-color: #52a8ff;
   color: #fff;
   /* border: none; */
   padding: 6px 12px;
@@ -8,11 +8,11 @@
   cursor: pointer;
   width: 80%;
   margin-bottom: 14px;
-
+  margin-top: 40px;
 }
 
 .del-btn {
-  background-color: #fcb9aa;
+  background-color: #ff7c5e;
   color: #fff;
   /* border: none; */
   padding: 6px 12px;
@@ -24,7 +24,7 @@
 }
 
 .connect-btn {
-  background-color: #97c1a9;
+  background-color: #00C471;
   color: #fff;
   /* border: none; */
   padding: 6px 12px;
