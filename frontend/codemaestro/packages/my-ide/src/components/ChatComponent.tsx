@@ -1,4 +1,10 @@
-import React, { useState, KeyboardEvent, ChangeEvent } from "react";
+import React, {
+  useState,
+  KeyboardEvent,
+  ChangeEvent,
+  useRef,
+  useEffect,
+} from "react";
 
 export interface ChatMessage {
   userId: number;
@@ -21,6 +27,18 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 }) => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+
+  // 메시지 영역에 대한 ref
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // messages가 변경될 때마다 스크롤을 맨 아래로 이동
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   // 엔터키를 누르면 메시지 전송 (Shift+Enter는 줄바꿈)
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -63,6 +81,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
     >
       {/* 메시지 영역 */}
       <div
+        ref={messagesContainerRef} // 메시지 컨테이너에 ref 할당
         className={`messages flex-1 overflow-y-auto p-2 transition-colors duration-300 ${
           isDarkMode ? "bg-gray-800" : "bg-gray-100"
         }`}
@@ -90,6 +109,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
             </div>
           );
         })}
+        {/* 스크롤 위치를 강제로 맨 아래로 이동시키기 위한 div */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* 입력 영역 */}
@@ -114,7 +135,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
               ? "bg-gray-900 text-white border border-gray-700"
               : "bg-gray-100 text-black border border-gray-300"
           }`}
-          style={{ minHeight: "25px" }} // 최소 높이를 50px로 지정
+          style={{ minHeight: "25px" }} // 최소 높이를 25px로 지정
         />
         <button
           className="send-button ml-2 bg-yellow-500 rounded-full p-2 text-white transition-colors duration-300 hover:bg-yellow-600"

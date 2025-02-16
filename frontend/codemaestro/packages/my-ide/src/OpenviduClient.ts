@@ -53,6 +53,8 @@ class OpenviduClient {
   private OnScreenDeleted: (screen: Publisher | Subscriber) => void = () => {};
 
   private async waitForStreamReady(stream: Stream): Promise<Stream> {
+    console.log("스트림 대기중");
+    
     if (stream.hasVideo) {
       return stream;
     } else {
@@ -64,6 +66,7 @@ class OpenviduClient {
   /**
    * Openvidu Custom SDK for Codemaestro!!!
    * 보규보규 정보규 형님을 위한 Openvidu SDK wrapper Class
+   * @author 1231724-김태영
    * @param HOST_URL URL 객체 
    * @param ACCESS_TOKEN 현재 유저의 ACCESS TOKEN
    * @param conferenceId 회의실 번호
@@ -376,6 +379,10 @@ class OpenviduClient {
     return this.publisher;
   }
 
+  getMyConnectionData(): ConnectionData {
+    return this.myConnectionData;
+  }
+
   /**
    * 현재 송출중인 스크린 스트림을 반환합니다.
    * @returns StreamManager 객체 또는 null
@@ -397,9 +404,13 @@ class OpenviduClient {
       message,
     };
 
+    // 상대방 추가
     const connections: Connection[] = this.subscribers.map(
       (subscriber: Subscriber) => subscriber.stream.connection
     );
+
+    // 나 추가
+    connections.push(this.publisher.stream.connection);
 
     this.session.signal({
       data: JSON.stringify(data),
