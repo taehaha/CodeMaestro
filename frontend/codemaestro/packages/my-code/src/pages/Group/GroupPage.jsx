@@ -51,14 +51,21 @@ const GroupDetail = () => {
 
         // 1. isConference로 회의 진행 상태 확인
         const conferenceStatus = await isConference(groupId);
+        console.log(conferenceStatus);
+        
         if (conferenceStatus.status === 200) {
           setIsConferenceOngoing(false);  // 회의 진행 중 아님
-        } else if (conferenceStatus.status === 302) {
-          setIsConferenceOngoing(true);  // 회의 진행 중
-          setConferenceId(conferenceStatus.data.conferenceId);  // 현재 진행 중인 회의 ID
+      } }
+      
+      catch (error) {
+        if (error.status===302) {
+          await setIsConferenceOngoing(true);  // 회의 진행 중
+          setConferenceId(error.response.data);  // 현재 진행 중인 회의 ID
+
+        } else {
+          console.error("API 에러:", error);
+
         }
-      } catch (error) {
-        console.error("API 에러:", error);
       } finally {
         setLoading(false);
       }
@@ -235,7 +242,7 @@ const GroupDetail = () => {
       });
   
       if (result.isConfirmed) {
-        navigate(`/meeting?roomId=${conferenceId}`);
+        navigate(`/ide?roomId=${conferenceId}`);
       }
     } else {
       try {
@@ -366,7 +373,7 @@ const GroupDetail = () => {
         )}
 
         {userRole === ROLE.MEMBER && isConferenceOngoing && (
-          <button className="btn btn-warning rounded-sm" onClick={handleConferenceAction}>
+          <button className="btn bg-[#ffcc00] rounded-sm" onClick={handleConferenceAction}>
             <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
           </button>
         )}
