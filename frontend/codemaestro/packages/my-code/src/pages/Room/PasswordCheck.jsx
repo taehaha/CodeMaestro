@@ -84,14 +84,14 @@ const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
               <Form className="form-control space-y-4">
                 {/* 비밀번호 입력 */}
                 <label htmlFor="password" className="label">
-                  <span className="label-text">비밀번호를 입력하세요:</span>
+                  <span className="label-text">비밀번호를 입력하세요 :</span>
                 </label>
                 <Field
                   type="password"
                   id="password"
                   name="password"
                   placeholder="비밀번호 입력"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full h-11"
                 />
                 {/* ErrorMessage를 통해 password 필드의 에러(유효성+인증 실패) 표시 */}
                 <ErrorMessage
@@ -102,7 +102,7 @@ const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn bg-[#ffcc00] hover:bg-[#f0c000] rounded-md"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "확인 중..." : "확인"}

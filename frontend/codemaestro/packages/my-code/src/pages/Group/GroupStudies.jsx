@@ -182,29 +182,26 @@ const GroupStudies = ({ groupId,userRole }) => {
           </div>
         </div>
         </div>
-        <div className="tabs mb-4">
-          <button
-            className={`tab tab-bordered ${
-              activeTab === "history" ? "tab-active" : ""
-            }`}
-            onClick={() => setActiveTab("history")}
-          >
-            최근 참여 기록
-          </button>
-          <button
-            className={`tab tab-bordered ${
-              activeTab === "achievement" ? "tab-active" : ""
-            }`}
-            onClick={() => setActiveTab("achievement")}
-          >
-            내 도전과제
-          </button>
-        </div>
+        <div className="tab-buttons">
+        <button 
+          onClick={() => setActiveTab("history")} 
+          className={`tab-button ${activeTab === "history" ? "active" : ""}`}
+        >
+          최근 참여 기록
+        </button>
+        <button 
+          onClick={() => setActiveTab("achievement")} 
+          className={`tab-button ${activeTab === "achievement" ? "active" : ""}`}
+        >
+          내 도전과제
+        </button>
+      </div>
+
 
         {/* --- 탭별 내용 --- */}
         {activeTab === "history" && (
           <div>
-            <h2 className="text-lg font-semibold mb-4">최근 참여 스터디</h2>
+            <h2 className="text-lg font-semibold mt-3 mb-4">최근 참여 기록</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {conferenceHistory.participations?.length > 0 ? (
                 conferenceHistory.participations.map((history) => (

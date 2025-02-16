@@ -6,7 +6,7 @@ export const AchievementList = [
       id: 1,
       type: "attend",
       title: "초보 참석러",
-      content: "회의 5회 참여하기",
+      content: "스터디 5회 참여하기",
       condition: 5,        // 5번 
       value: "bronze",
     },
@@ -14,7 +14,7 @@ export const AchievementList = [
       id: 2,
       type: "attend",
       title: "모범 참석러",
-      content: "회의 10회 참여하기",
+      content: "스터디 10회 참여하기",
       condition: 10,       // 10번
       value: "silver",
     },
@@ -22,7 +22,7 @@ export const AchievementList = [
       id: 3,
       type: "attend",
       title: "프로 참석러",
-      content: "회의 20회 참여하기",
+      content: "스터디 20회 참여하기",
       condition: 20,       // 20번
       value: "gold",
     },
@@ -30,7 +30,7 @@ export const AchievementList = [
       id: 4,
       type: "attend",
       title: "Maestro 참석러",
-      content: "회의 30회 참여하기",
+      content: "스터디 30회 참여하기",
       condition: 30,       // 30번
       value: "platinum",
     },

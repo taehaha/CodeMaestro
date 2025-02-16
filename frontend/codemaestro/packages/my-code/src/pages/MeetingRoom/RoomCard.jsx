@@ -22,7 +22,17 @@ const RoomCard = ({
         title: "존재하지 않는(종료된) 회의실",
         text: "이미 종료되어 더 이상 입장할 수 없는 회의실입니다.",
         icon: "warning",
-        confirmButtonText: "확인",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
       return;
     }
@@ -32,7 +42,18 @@ const RoomCard = ({
       title: "회의실 입장",
       text: "회의실에 입장하는 기능이 추후 구현될 예정입니다.",
       icon: "success",
+      iconColor:"#5FD87D",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
       confirmButtonText: "확인",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button" // 버튼 스타일
+      }
+
     }).then(() => {
       navigate(`/meeting/${id}`, {
         state: {
@@ -44,7 +65,7 @@ const RoomCard = ({
 
   return (
     <div
-      className="card w-72 bg-base-100 shadow-xl rounded-sm  cursor-pointer"
+      className="card w-72 bg-base-100 shadow-xl rounded-xl cursor-pointer"
       onClick={handleCardClick}
     >
       <figure className="relative">

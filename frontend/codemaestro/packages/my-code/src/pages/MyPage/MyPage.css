@@ -1,6 +1,6 @@
 .mypage-container {
   width: 100%; /* 부모 요소의 전체 너비 사용 */
-  height: 130vh; /* 화면 전체 높이 사용 */
+  /* height: 130vh; */
   min-height: 100vh;
   display: flex; /* 사이드바와 콘텐츠를 가로로 배치하려면 flex 적용 */
   flex-direction: row; /* 가로 정렬 */

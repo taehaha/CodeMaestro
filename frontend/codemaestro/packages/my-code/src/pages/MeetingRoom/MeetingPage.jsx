@@ -179,7 +179,7 @@ const MeetingPage = () => {
 
             {/* Right Section */}
             <div className="col-span-2">
-              <h1 className="header-style text-2xl mb-4">Live Rooms</h1>
+              <h1 className="header-style text-2xl mb-4">스터디</h1>
               <div className="p-1 rounded-md overflow-y-auto">
                 <SearchBar onSearch={handleSearch} onRefresh={getMeetingRooms} setRooms={setRooms} />
                 <div className="flex flex-row">
@@ -193,6 +193,14 @@ const MeetingPage = () => {
                     onFilter={(value) => handleFilter("tag", value)}
                     selectedItems={selectedTags}
                   />
+                  {/* 🔹 회의 만들기 버튼 (고정 위치) */}
+                  <button
+                    onClick={handleCreateMeeting}
+                    className="btn bg-[#ffcc00] dark:bg-darkHighlight btn-sm rounded-md flex items-center hover:bg-[#f0c000] ml-auto mr-14 mt-2"
+                  >
+                    <MdAddCircle size={24} />
+                    스터디 만들기
+                  </button>
                 </div>
                 {isLoading && <LoadAnimation />}
                 {!isLoading && <RoomList rooms={fillteredRooms} />}
@@ -202,14 +210,6 @@ const MeetingPage = () => {
         </div>
       </div>
 
-      {/* 🔹 회의 만들기 버튼 (고정 위치) */}
-      <button
-        onClick={handleCreateMeeting}
-        className="btn btn-primary dark:bg-darkHighlight btn-lg fixed bottom-6 right-6 shadow-lg rounded-full flex items-center gap-2"
-      >
-        <MdAddCircle size={24} />
-        회의 만들기
-      </button>
     </>
   );
 };
