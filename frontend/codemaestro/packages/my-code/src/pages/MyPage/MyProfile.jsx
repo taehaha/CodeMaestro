@@ -69,7 +69,7 @@ const MyProfile = () => {
           {/* 탭 내용 렌더링 */}
           <div className="tab-content">
             {activeTab === 'profile' && <EditProfile user={user} onClose={() => {}} onDelete={() => console.log("사용자가 탈퇴했습니다.")}/>}
-            {activeTab === 'password' && user.loginProvider === "LOCAL" && (<EditPassword />)}
+            {user && user.loginProvider === "LOCAL" && activeTab === 'password'(<EditPassword />)}
           </div>
 
         {/* Sidebar를 개별적으로 관리하는 컨테이너 */}
