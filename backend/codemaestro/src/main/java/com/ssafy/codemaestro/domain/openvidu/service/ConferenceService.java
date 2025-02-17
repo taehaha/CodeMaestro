@@ -272,6 +272,13 @@ public class ConferenceService {
         return (int) conferenceRepository.countConferenceById(Long.valueOf(conferenceId));
     }
 
+    public boolean checkAccessCode(String conferenceId, String accessCode) {
+        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
+                .orElseThrow(() -> new CannotFindSessionException("conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
+
+        return openViduUtil.isAccessCodeCorrect(accessCode, conference);
+    }
+
     public List<User> getParticipants(String conferenceId) {
         Long conferenceIdLong = Long.valueOf(conferenceId);
         return userConferenceRepository.findByConference_Id(conferenceIdLong).stream()
