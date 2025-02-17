@@ -46,7 +46,6 @@ const EditBackgroundImage = ({ onClose }) => {
     try {
       // 크롭된 이미지 Data URL 생성
       const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
-      console.log("크롭된 이미지:", croppedImage);
 
       // 프로필 배경 이미지만 업데이트하도록 서버에 요청 (부분 업데이트)
       const responseData = await putUserInfo({

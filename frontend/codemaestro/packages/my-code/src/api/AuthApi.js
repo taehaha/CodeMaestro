@@ -8,7 +8,7 @@ export const signup = async (payload) => {
 
   
     try {
-      console.log(payload);
+      // console.log(payload);
       // 1) FormData 객체 생성
       const formData = new FormData();
       // 2) 텍스트 필드 추가
@@ -41,7 +41,7 @@ export const signup = async (payload) => {
     // 1) FormData 객체 생성
     const formData = new FormData();
     // 2) 텍스트 필드 추가
-    console.log(payload);
+    // console.log(payload);
     
     formData.append("username", payload.username);
     formData.append("password", payload.password);
@@ -68,7 +68,7 @@ export const signout = async () => {
       const response = await UserAxios.delete("/auth/logout")
       return response.data
     } catch (error) {
-      console.log("로그아웃 에러 발생",error);
+      console.error("로그아웃 에러 발생",error);
     }
 }
 
