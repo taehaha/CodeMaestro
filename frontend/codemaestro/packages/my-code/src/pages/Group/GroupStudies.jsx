@@ -201,7 +201,7 @@ const GroupStudies = ({ groupId,userRole }) => {
         {/* --- 탭별 내용 --- */}
         {activeTab === "history" && (
           <div>
-            <h2 className="text-lg font-semibold mt-3 mb-4">최근 참여 기록</h2>
+            <h2 className="text-lg font-semibold mt-4 mb-4">최근 참여 기록</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {conferenceHistory.participations?.length > 0 ? (
                 conferenceHistory.participations.map((history) => (

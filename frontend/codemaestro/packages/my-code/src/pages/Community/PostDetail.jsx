@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { PostsContext } from "../../context/PostsContext";
 import { getBoardDetail, updateBoard, deleteBoard } from "../../api/BoardApi";
@@ -19,6 +19,7 @@ const PostDetail = () => {
   const { boardId } = useParams(); // ✅ 중복 제거
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { deletePost, updatePost } = useContext(PostsContext);
   const [post, setPost] = useState(null);
   const [newTitle, setNewTitle] = useState("");
@@ -190,7 +191,9 @@ const PostDetail = () => {
       {!editing && <Comments board_id={post.boardId} />}
 
 
-      <button className="list-button" onClick={() => navigate("/boards")}>
+      <button 
+      className="list-button" 
+      onClick={() => navigate("/boards", { state: { page: location.state?.page || 0 } })}>
         목록
       </button>
     </div>

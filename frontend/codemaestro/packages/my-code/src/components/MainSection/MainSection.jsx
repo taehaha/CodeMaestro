@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
 import './MainSection.css';
 
 function MainSection() {
@@ -19,7 +20,9 @@ function MainSection() {
         </h1>
         <p>실시간 협업 코딩과 AI기반 학습으로 더 나은 개발자가 되어보세요.</p>
         <div className={`buttons ${isVisible ? 'visible' : ''}`}>
+        <Link to="/meeting">
           <button className="start-btn">무료로 시작하기</button>
+        </Link>
         </div>
       </div>
     </section>

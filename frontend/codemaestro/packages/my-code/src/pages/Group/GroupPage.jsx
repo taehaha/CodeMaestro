@@ -248,14 +248,11 @@ const GroupDetail = () => {
       try {
         // 회의 생성
         const response = await createGroupConference(groupId, { tagNameList: null });
-        
+        console.log(response);
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
-        if (response.status === 201) {
-          const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.data.conferenceId}`;
+        if (response) {
+          const inviteLink = `/ide?roomId=${response.conferenceId}`;
           navigate(inviteLink);  // 회의실로 이동
-        } else {
-          // 응답 상태가 201이 아닌 경우 처리할 로직 (선택 사항)
-          console.error("회의 생성에 실패했습니다.");
         }
       } catch (error) {
         console.error("회의 생성 중 오류 발생:", error);
@@ -275,9 +272,9 @@ const GroupDetail = () => {
       <div className="card bg-base-100 shadow-md p-2 w-3/4 mx-auto py-6 px-8 mb-6">
         <div className="flex items-center gap-10">
           <div className="avatar">
-            <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
+            <div className="w-28 h-28 rounded-full overflow-hidden">
               <img
-                src={group?.imageUrl || "https://placeholder.co/128"}
+                src={group?.imageUrl || "/group.png"}
                 alt="Group Avatar"
               />
             </div>
@@ -306,7 +303,7 @@ const GroupDetail = () => {
                 </div>
               )}
 
-              {/* --------- 우측측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
+              {/* --------- 우측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
               {userRole !== ROLE.NONE && (
                 <div className="absolute bottom-4 right-8">
                   <p
@@ -365,6 +362,7 @@ const GroupDetail = () => {
             가입 신청
           </button>
         )}
+        
 
         {userRole === ROLE.MEMBER && !isConferenceOngoing && (
           <button className="btn btn-success rounded-sm" onClick={handleConferenceAction}>
@@ -416,23 +414,19 @@ const GroupDetail = () => {
             group={group}
             />
             
+            <GroupManagement group={group} />
           </div>
 
-          <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}></div>
+          <div
+            className="modal-backdrop"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
         </div>
       )}
 
-      {/* --------- 좌측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
-      {userRole !== ROLE.NONE && (
-        <div className="fixed bottom-4 left-4">
-          <p
-            className="text-gray-400 hover:brightness-75 cursor-pointer text-sm"
-            onClick={handleLeaveGroup}
-          >
-            그룹 탈퇴
-          </p>
-        </div>
-      )}
+
+
+      
     </div>
   );
 };

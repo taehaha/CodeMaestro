@@ -110,7 +110,11 @@ body {
 }
 
 .header-login-btn {
-  background-color: #E6E6E6;
+  background-color: #ddd;
+  color: rgb(0, 0, 0);
+}
+.header-login-btn:hover {
+  background-color: #ccc;
   color: rgb(0, 0, 0);
 }
 
@@ -120,8 +124,11 @@ body {
 }
 
 .header-signup-btn {
-  background-color:rgb(95, 216, 125);
-  color: white !important;
+  background-color:#ffcc00;
+}
+
+.header-signup-btn:hover {
+  background-color:#f0cc00;
 }
 
 .hamburger-btn {

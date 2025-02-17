@@ -104,7 +104,7 @@ useEffect(() => {
       <button ref={hamburgerRef} className="hamburger-btn" onClick={toggleMenu}>☰</button>
 
       <nav ref={menuRef} className={`menu-left ${menuOpen ? 'open' : ''}`}>
-        <Link to="/meeting" onClick={closeMenu}>회의</Link>
+        <Link to="/meeting" onClick={closeMenu}>스터디</Link>
         <Link to="/boards" onClick={closeMenu}>커뮤니티</Link>
       </nav>
 

@@ -1,6 +1,6 @@
 // Community.js
 import React, { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { PostsContext } from "../../context/PostsContext";
 import { getBoardList } from "../../api/BoardApi";
@@ -10,6 +10,7 @@ import "./Community.css";
 
 const Community = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { posts, setPosts } = useContext(PostsContext);
   
   // 검색어
@@ -67,13 +68,19 @@ const Community = () => {
   );
 
   // 페이지네이션 관련
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(location.state?.page || 0);
   const articles = 4; // 한 페이지 당 게시글 수
 
   // 검색어가 바뀌면 페이지를 0으로 초기화 (첫 페이지로)
   useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
+
+  useEffect(() => {
+  if (location.state?.page !== undefined) {
+    setCurrentPage(location.state.page);
+  }
+}, [location.state]);
 
   // 페이지네이션 계산
   const start = currentPage * articles;
@@ -116,7 +123,7 @@ const Community = () => {
             {filteredPosts.length > 0 ? (
               currentPageData.map((post) => (
                 <li key={post.boardId} className="post-item">
-                  <Link to={`/boards/${post.boardId}`} className="post-title">
+                  <Link to={`/boards/${post.boardId}`} state={{ page: currentPage }} className="post-title">
                     {post.title}
                   </Link>
                   <div className="post-meta">
@@ -139,6 +146,7 @@ const Community = () => {
             nextLabel={"다음"}
             pageCount={pageCount}
             onPageChange={handlePageChange}
+            forcePage={currentPage}
             containerClassName={"pagination"} // CSS 클래스
             activeClassName={"active"}        // 활성화된 페이지 CSS 클래스
           />
