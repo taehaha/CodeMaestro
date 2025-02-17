@@ -300,6 +300,51 @@ const GroupDetail = () => {
                 </div>
               )}
 
+              <div className="flex gap-3 items-center">
+              {userRole === ROLE.NONE && (
+                        <button
+                          onClick={handleJoinRequest}
+                          className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md"
+                        >
+                          가입 신청
+                        </button>
+                      )}
+                      
+
+                      {userRole === ROLE.MEMBER && !isConferenceOngoing && (
+                        <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
+                          그룹회의 생성
+                        </button>
+                      )}
+
+                      {userRole === ROLE.MEMBER && isConferenceOngoing && (
+                        <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
+                          <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
+                        </button>
+                      )}
+
+                      {userRole === ROLE.ADMIN && (
+                        <div className="flex gap-2">
+                          <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
+                            그룹회의 생성
+                          </button>
+                          <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="btn bg-[#ddd] rounded-md border-none hover:bg-[#ccc]"
+                          >
+                            그룹 관리
+                          </button>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => navigate("/mypage?tab=groups")}
+                        className="btn bg-[#ddd] text-black px-4 py-2 rounded-md hover:bg-[#ccc]"
+                      >
+                        목록
+                      </button>
+                      </div>
+              
               {/* --------- 우측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
               {userRole !== ROLE.NONE && (
                 <div className="absolute bottom-4 right-8">
@@ -351,48 +396,7 @@ const GroupDetail = () => {
 
       <div className="fixed bottom-20 w-full flex justify-end px-6">
       <div className="flex flex-col space-y-2">
-        {userRole === ROLE.NONE && (
-          <button
-            onClick={handleJoinRequest}
-            className="btn btn-[#ffcc00] rounded-sm"
-          >
-            가입 신청
-          </button>
-        )}
         
-
-        {userRole === ROLE.MEMBER && !isConferenceOngoing && (
-          <button className="btn btn-success rounded-sm" onClick={handleConferenceAction}>
-            그룹회의 생성
-          </button>
-        )}
-
-        {userRole === ROLE.MEMBER && isConferenceOngoing && (
-          <button className="btn bg-[#ffcc00] rounded-sm" onClick={handleConferenceAction}>
-            <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
-          </button>
-        )}
-
-        {userRole === ROLE.ADMIN && (
-          <div className="flex gap-2">
-            <button className="btn bg-[#ffcc00] btn-success rounded-m border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
-              그룹회의 생성
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="btn bg-[#ddd] rounded-m border-none hover:bg-[#ccc]"
-            >
-              그룹 관리
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={() => navigate("/mypage?tab=groups")}
-          className="btn bg-[#ddd] text-black px-4 py-2 rounded-md hover:bg-[#ccc]"
-        >
-          목록
-        </button>
       </div>
     </div>
 
