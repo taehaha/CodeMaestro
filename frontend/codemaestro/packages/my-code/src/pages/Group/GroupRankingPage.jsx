@@ -26,7 +26,6 @@ const GroupRankingPage = () => {
 
   // 랭킹 그룹 조회 함수 (연도, 월은 내부 상태를 기본값으로 사용)
   const fetchRankingGroups = async (year = selectedYear, month = selectedMonth) => {
-    // setLoading(true);
     setErrorMessage("");
     try {
       const rankingGroups = await GroupRankingList({ year, month });
@@ -45,7 +44,6 @@ const GroupRankingPage = () => {
 
   // 내 그룹 조회 함수
   const fetchMyGroups = async () => {
-    // setLoading(true);
     setErrorMessage("");
     try {
       const myGroupList = await getMyGroupList(userId);
@@ -121,8 +119,8 @@ const GroupRankingPage = () => {
             onChange={(e) => setSelectedYear(Number(e.target.value))}
             className="select select-bordered rounded-md"
           >
-            {Array.from({ length: 10 }, (_, i) => {
-              const year = new Date().getFullYear() - i;
+            {Array.from({ length: currentDate.getFullYear() - 2025 + 1 }, (_, i) => {
+              const year = 2025 + i;
               return (
                 <option key={year} value={year}>
                   {year}
@@ -135,7 +133,7 @@ const GroupRankingPage = () => {
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
             className="select select-bordered rounded-md"
           >
-            {Array.from({ length: 12 }, (_, i) => {
+            {Array.from({ length: currentDate.getMonth() + 1 }, (_, i) => {
               const month = i + 1;
               return (
                 <option key={month} value={month}>

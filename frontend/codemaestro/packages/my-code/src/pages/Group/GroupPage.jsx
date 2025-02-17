@@ -232,8 +232,8 @@ const GroupDetail = () => {
     if (isConferenceOngoing) {
       // 302 응답 시 이미 진행 중인 회의 참여
       const result = await Swal.fire({
-        title: "이미 진행 중인 회의가 있습니다.",
-        text: "현재 진행 중인 회의로 이동하시겠습니까?",
+        title: "이미 진행 중인 스터디가 있습니다.",
+        text: "현재 진행 중인 스터디로 이동하시겠습니까?",
         showCancelButton: true,
         confirmButtonText: "이동",
         cancelButtonText: "취소",
@@ -249,7 +249,7 @@ const GroupDetail = () => {
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
         if (response) {
           Swal.fire({title:"생성 완료",
-            text:"그룹 회의가 생성되었습니다. 회의실로 이동합니다.",
+            text:"그룹 스터디가 생성되었습니다. 스터디룸으으로 이동합니다.",
             icon:"success",
           }).then((res)=>{
             if (res.isConfirmed) {
@@ -258,7 +258,7 @@ const GroupDetail = () => {
           })
         }
       } catch (error) {
-        console.error("회의 생성 중 오류 발생:", error);
+        console.error("스터디 생성 중 오류 발생:", error);
       }
     }
   };
@@ -319,20 +319,20 @@ const GroupDetail = () => {
 
                       {userRole === ROLE.MEMBER && !isConferenceOngoing && (
                         <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
-                          그룹회의 생성
+                          그룹스터디 생성
                         </button>
                       )}
 
                       {userRole === ROLE.MEMBER && isConferenceOngoing && (
                         <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
-                          <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
+                          <MdFiberManualRecord color="red" size={20} /> 그룹스터디 참여
                         </button>
                       )}
 
                       {userRole === ROLE.ADMIN && (
                         <div className="flex gap-2">
                           <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
-                            그룹회의 생성
+                            그룹스터디 생성
                           </button>
                           <button
                             onClick={() => setIsModalOpen(true)}
