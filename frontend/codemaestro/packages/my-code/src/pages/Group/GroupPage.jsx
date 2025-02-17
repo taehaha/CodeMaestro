@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import { getGroupStric, LeaveGroup, createGroupConference, isConference } from "../../api/GroupApi";
+import {LeaveGroup, createGroupConference, isConference } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
 import GroupManagement from "./GroupManagement";
@@ -29,7 +29,6 @@ const GroupDetail = () => {
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
   const [isModalOpen, setIsModalOpen] = useState(false);  // 그룹 관리 모달
-  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);  // 그룹 회의 생성 모달
   const [isConferenceOngoing, setIsConferenceOngoing] = useState(false);  // 회의 진행 중 여부
   const [conferenceId, setConferenceId] = useState(null);  // 진행 중인 회의 ID
 
@@ -71,6 +70,7 @@ const GroupDetail = () => {
       }
     };
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
 
   // 로딩 중이면 아직 group.members를 접근할 수 없음
