@@ -180,15 +180,6 @@ const MeetingPage = () => {
           </div>
         </div>
       </div>
-
-      {/* 🔹 회의 만들기 버튼 (고정 위치) */}
-      <button
-        onClick={handleCreateMeeting}
-        className="btn btn-primary dark:bg-darkHighlight btn-lg fixed bottom-6 right-6 shadow-lg rounded-full flex items-center gap-2"
-      >
-        <MdAddCircle size={24} />
-        스터디 열기
-      </button>
     </>
   );
 };

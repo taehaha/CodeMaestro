@@ -270,9 +270,9 @@ const GroupDetail = () => {
       <div className="card bg-base-100 shadow-md p-2 w-3/4 mx-auto py-6 px-8 mb-6">
         <div className="flex items-center gap-10">
           <div className="avatar">
-            <div className="w-28 h-28 rounded-full ring ring-offset-base-100 ring-offset-2 overflow-hidden">
+            <div className="w-28 h-28 rounded-full overflow-hidden">
               <img
-                src={group?.imageUrl || "https://placeholder.co/128"}
+                src={group?.imageUrl || "/group.png"}
                 alt="Group Avatar"
               />
             </div>
@@ -301,7 +301,7 @@ const GroupDetail = () => {
                 </div>
               )}
 
-              {/* --------- 우측측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
+              {/* --------- 우측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
               {userRole !== ROLE.NONE && (
                 <div className="absolute bottom-4 right-8">
                   <p
@@ -414,18 +414,6 @@ const GroupDetail = () => {
           </div>
 
           <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}></div>
-        </div>
-      )}
-
-      {/* --------- 좌측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
-      {userRole !== ROLE.NONE && (
-        <div className="fixed bottom-4 left-4">
-          <p
-            className="text-gray-400 hover:brightness-75 cursor-pointer text-sm"
-            onClick={handleLeaveGroup}
-          >
-            그룹 탈퇴
-          </p>
         </div>
       )}
     </div>
