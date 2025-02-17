@@ -39,7 +39,7 @@ function GroupTable({ members, groupId }) {
         ),
       },
       {
-        Header: "이름",
+        Header: "닉네임",
         accessor: "userNickname",
       },
       {
@@ -74,7 +74,7 @@ function GroupTable({ members, groupId }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table w-full border" {...getTableProps()}>
+      <table className="table w-full max-w-[1080px] mx-auto border mt-6" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => {
             const headerGroupProps = headerGroup.getHeaderGroupProps();

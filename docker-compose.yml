@@ -30,3 +30,4 @@ services:
     restart: always
     ports:
       - "${REACT_PORT:-3000}:3000"
+      - "${WEBSOCKET_PORT:-3001}:3001"

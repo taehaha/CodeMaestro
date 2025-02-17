@@ -7,7 +7,6 @@ import "./StudyHistoryCard.css"; // flip-card 관련 css
 const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [memo, setMemo] = useState(null);
-
   // 메모 수정 상태
   const [isEdit, setIsEdit] = useState(false);
   // 메모 수정 시 임시로 입력할 컨텐츠
@@ -94,7 +93,7 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
         <div className="front">
           <div className="card-body">
             <h3 className="card-title text-md font-medium mx-auto text-gray-800">
-              스터디 ID: {history.groupConferenceHistoryId}
+              {history.conferenceTitle}
             </h3>
             <hr className="font-extrabold my-2" />
             <p className="text-gray-600 text-sm">
@@ -123,7 +122,7 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
           {/* 메모가 있는 상태 + 수정중이 아닐 때 */}
           {memo && !isEdit && (
             <div className="card-body flex flex-col items-center justify-center gap-4 text-gray-600">
-              <p className="text-gray-600 text-sm whitespace-pre-wrap">
+              <p className="text-gray-600 text-xl whitespace-pre-wrap">
                 {memo.studyContent}
               </p>
               <div className="flex items-center gap-3">
@@ -177,6 +176,7 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
 StudyHistoryCard.propTypes = {
   history: PropTypes.shape({
     id: PropTypes.number.isRequired,
+    conferenceTitle: PropTypes.string,
     groupConferenceHistoryId: PropTypes.number.isRequired,
     joinTime: PropTypes.string,
     leaveTime: PropTypes.string,

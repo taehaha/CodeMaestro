@@ -146,11 +146,11 @@
 }
 
 .pagination a:hover {
-  background-color: #f0f0f0;
+  background-color: #f0c000;
 }
 
 .active a {
-  background-color: #007bff; 
-  border-color: #007bff;
-  color: #fff;
+  background-color: #ffcc00; 
+  border-color: #ffcc00;
+  /* color: #fff; */
 }

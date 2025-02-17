@@ -28,16 +28,17 @@ const SearchBar = ({onSearch, onRefresh}) => {
 <div className="w-full mx-auto flex items-center gap-2">
         <input 
             type="text" 
-            placeholder="검색어를 입력하세요" 
-            className="p-2 rounded-sm flex-1 bg-slate-200  dark:bg-darkBoxColor"
+            placeholder="🔍︎ 검색어를 입력하세요." 
+            className="w-[840px] border border-gray-300 p-2 rounded-md"
             onChange={handleInput}
             onKeyDown={handleKeyDown}
         />
         <button 
             onClick={handleSearch}
-            className=" bg-primaryHighlight dark:bg-darkHighlight p-2 rounded-sm"
+            className=" bg-[#ffcc00] hover:bg-[#f0cc00] dark:bg-darkHighlight p-2 rounded-md"
         >
-            <FaSearch className="size-6"></FaSearch>
+            <FaSearch className="size-5"></FaSearch>
+            {/* 검색 */}
         </button>
         <button
         onClick={()=>{handleReload()}}

@@ -113,14 +113,13 @@ const EditProfile = ({ user, onClose, onDelete }) => {
       if (response.status === 200 || response.status === 204) {
         await Swal.fire({
           title: "탈퇴 완료",
-          text: "회원 탈퇴가 완료되었습니다. \n그동안 Code Maestro를 이용해주셔서 감사합니다.",
+          text: "회원 탈퇴가 완료되었습니다. \n그동안 코드 마에스트로를 이용해주셔서 감사합니다.",
           icon: "success",
           confirmButtonText: "확인",
           iconColor:"#5FD87D",
           width: "500px",
           background: "#f8f9fa",
           confirmButtonColor: "#FFCC00",
-          confirmButtonText: "확인",
           customClass: {
             popup: "swal-custom-popup",       // 전체 팝업 스타일
             title: "swal-custom-title",       // 제목 스타일
@@ -144,7 +143,6 @@ const EditProfile = ({ user, onClose, onDelete }) => {
         width: "500px",
         background: "#f8f9fa",
         confirmButtonColor: "#FFCC00",
-        confirmButtonText: "확인",
         customClass: {
           popup: "swal-custom-popup",       // 전체 팝업 스타일
           title: "swal-custom-title",       // 제목 스타일

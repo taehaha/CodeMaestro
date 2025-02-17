@@ -48,6 +48,10 @@ const AddFriends = ({ onClose }) => {
           >
             Search Friends
           </label>
+        
+        {/* 타이틀 */}
+        <h2 className="text-lg pb-3">친구 추가</h2>
+        
           <div className="relative">
             {/* 검색 아이콘 */}
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -74,8 +78,8 @@ const AddFriends = ({ onClose }) => {
               value={searchInput}
               onChange={handleInputChange}
               className="block w-full p-3 pl-10 text-sm text-gray-900 border 
-                         border-gray-300 rounded-sm bg-gray-50"
-              placeholder="Search friends..."
+                         border-gray-300 rounded-md bg-gray-50"
+              placeholder="닉네임을 입력해주세요."
             />
             {/* 검색 버튼 (type="submit") */}
             <button
@@ -89,8 +93,7 @@ const AddFriends = ({ onClose }) => {
           </div>
         </form>
 
-        {/* 타이틀 */}
-        <h2 className="text-lg pt-1">친구 추가</h2>
+
 
         {/* 검색 결과를 UserList에 전달 */}
         <div style={{ flexGrow: 1, minHeight: "250px" }}>

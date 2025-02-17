@@ -85,7 +85,7 @@
 //       <form onSubmit={handleSearch} className="mb-6 flex flex-col sm:flex-row gap-4">
 //         <input
 //           type="text"
-//           placeholder="사용자 검색..."
+//           placeholder="🔍︎ 사용자 검색..."
 //           value={input}
 //           onChange={handleInput}
 //           className="flex-1 border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
