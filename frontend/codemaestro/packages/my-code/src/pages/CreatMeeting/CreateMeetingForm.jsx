@@ -86,9 +86,11 @@ const CreateMeetingForm = ({groupId}) => {
           </div>
         ),
         confirmButtonText: "확인"
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
+          await localStorage.setItem("camera",true)
+          await localStorage.setItem("audio",true)
           window.location.href = inviteLink
         }
       });
