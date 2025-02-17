@@ -97,7 +97,7 @@ const NotificationModal = ({ onClose }) => {
                   </div>
                 )}
                 {notification.type === "invite" && (
-                  <p className="font-semibold">{notification.name}</p>
+                  <p className="font-semibold">{notification.conferenceId}</p>
                 )}
               </div>
               <div className="flex space-x-2">

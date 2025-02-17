@@ -72,7 +72,7 @@ export const NotificationsProvider = ({ children }) => {
         message = parsedData.title || "새로운 댓글이 달렸습니다.";
       }
       else {
-        message = parsedData.message || "새로운 알림이 도착했습니다.";
+        message = parsedData.conferenceId || "스터디에 초대되었습니다!";
       }
 
       // API를 호출해 전체 알림 목록을 Redux 저장소에 업데이트합니다.
@@ -139,10 +139,10 @@ export const NotificationsProvider = ({ children }) => {
       } catch {
         parsedData = event.data;
       }
-      // console.log("invite 이벤트 데이터:", parsedData);
+      console.log("invite 이벤트 데이터:", parsedData);
       displayToast(
         "info",
-        `초대 알림: ${parsedData.message || "새로운 초대 알림이 도착했습니다."}`
+        `초대 알림: ${parsedData.conferenceId || "번 스터디룸: 새로운 스터디 초대가가 도착했습니다."}`
       );
       dispatch(fetchNotifications(userId));
     });

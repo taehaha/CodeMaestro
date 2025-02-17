@@ -20,7 +20,7 @@ const MemoModal = ({ onClose, onCreate, historyId }) => {
         <button className="close-btn" onClick={onClose}>
           &times;
         </button>
-        <h2>그룹 생성하기</h2>
+        <h2>스터디 메모 기록</h2>
         <label> 설명 (최대 255자)</label>
         <textarea  
           value={description}
