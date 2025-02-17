@@ -248,14 +248,11 @@ const GroupDetail = () => {
       try {
         // 회의 생성
         const response = await createGroupConference(groupId, { tagNameList: null });
-        
+        console.log(response);
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
-        if (response.status === 201) {
-          const inviteLink = `https://www.codemaestro.site/meeting?roomId=${response.data.conferenceId}`;
+        if (response) {
+          const inviteLink = `/ide?roomId=${response.conferenceId}`;
           navigate(inviteLink);  // 회의실로 이동
-        } else {
-          // 응답 상태가 201이 아닌 경우 처리할 로직 (선택 사항)
-          console.error("회의 생성에 실패했습니다.");
         }
       } catch (error) {
         console.error("회의 생성 중 오류 발생:", error);
@@ -365,6 +362,7 @@ const GroupDetail = () => {
             가입 신청
           </button>
         )}
+        
 
         {userRole === ROLE.MEMBER && !isConferenceOngoing && (
           <button className="btn btn-success rounded-sm" onClick={handleConferenceAction}>
@@ -416,11 +414,19 @@ const GroupDetail = () => {
             group={group}
             />
             
+            <GroupManagement group={group} />
           </div>
 
-          <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}></div>
+          <div
+            className="modal-backdrop"
+            onClick={() => setIsModalOpen(false)}
+          ></div>
         </div>
       )}
+
+
+
+      
     </div>
   );
 };
