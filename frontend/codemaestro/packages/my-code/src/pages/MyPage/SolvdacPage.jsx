@@ -4,7 +4,7 @@ import UserAxios from "../../api/userAxios"; // 백엔드 solved.ac 연동 API �
 import { putUserInfo } from "../../api/AuthApi";
 import { useDispatch } from "react-redux";
 import { getMyInfo } from "../../reducer/userSlice";
-
+import { baseURL } from "../../api/userAxios";
 const SolvedacModal = ({ open, onClose }) => {
   const dispatch = useDispatch()
   const [solvedacId, setSolvedacId] = useState("");

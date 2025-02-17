@@ -26,7 +26,7 @@ const GroupRankingPage = () => {
 
   // 랭킹 그룹 조회 함수 (연도, 월은 내부 상태를 기본값으로 사용)
   const fetchRankingGroups = async (year = selectedYear, month = selectedMonth) => {
-    setLoading(true);
+    // setLoading(true);
     setErrorMessage("");
     try {
       const rankingGroups = await GroupRankingList({ year, month });
@@ -45,7 +45,7 @@ const GroupRankingPage = () => {
 
   // 내 그룹 조회 함수
   const fetchMyGroups = async () => {
-    setLoading(true);
+    // setLoading(true);
     setErrorMessage("");
     try {
       const myGroupList = await getMyGroupList(userId);
@@ -75,14 +75,14 @@ const GroupRankingPage = () => {
   if (loading) return <LoadAnimation />;
 
   return (
-    <div className="container mx-auto p-4 shadow-xl">
+    <div className="container mx-auto p-4 shadow-md rounded-lg">
       {/* 상단 헤더 */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Groups</h1>
+        <h1 className="text-xl font-bold">그룹</h1>
         {/* FaPlus 아이콘 클릭 시 모달 열기 */}
         <button
           className="tooltip tooltip-left"
-          data-tip="Search Groups"
+          data-tip="그룹 추가"
           onClick={() => setShowModal(true)}
         >
           <FaPlus size={20} />
@@ -90,25 +90,27 @@ const GroupRankingPage = () => {
       </div>
 
       {/* 탭 메뉴 */}
-      <div className="tabs">
-        <button
-          className={`tab tab-bordered ${activeTab === "ranking" ? "tab-active" : ""}`}
-          onClick={() => {
-            setActiveTab("ranking");
-            setErrorMessage("");
-          }}
-        >
-          전체 그룹
-        </button>
-        <button
-          className={`tab tab-bordered ${activeTab === "myGroups" ? "tab-active" : ""}`}
-          onClick={() => {
-            setActiveTab("myGroups");
-            setErrorMessage("");
-          }}
-        >
-          내 그룹
-        </button>
+      <div className="tab-content -mt-5">
+        <div className="tab-buttons mb-4">
+          <button
+            onClick={() => {
+              setActiveTab("ranking");
+              setErrorMessage("");
+            }}
+            className={`tab-button ${activeTab === "ranking" ? "active" : ""}`}
+          >
+            전체 그룹
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("myGroups");
+              setErrorMessage("");
+            }}
+            className={`tab-button ${activeTab === "myGroups" ? "active" : ""}`}
+          >
+            내 그룹
+          </button>
+        </div>
       </div>
 
       {/* 랭킹 탭일 경우 연도/월 선택 UI */}
@@ -117,7 +119,7 @@ const GroupRankingPage = () => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="select select-bordered rounded-sm"
+            className="select select-bordered rounded-md"
           >
             {Array.from({ length: 10 }, (_, i) => {
               const year = new Date().getFullYear() - i;
@@ -131,7 +133,7 @@ const GroupRankingPage = () => {
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="select select-bordered rounded-sm"
+            className="select select-bordered rounded-md"
           >
             {Array.from({ length: 12 }, (_, i) => {
               const month = i + 1;
@@ -143,7 +145,7 @@ const GroupRankingPage = () => {
             })}
           </select>
           <button
-            className="btn btn-primary rounded-sm"
+            className="btn bg-[#ffcc00] hover:bg-[#f0c000] rounded-md"
             onClick={() => fetchRankingGroups()}
           >
             조회
@@ -167,11 +169,13 @@ const GroupRankingPage = () => {
       {showModal && (
         <div className="modal modal-open">
           <div className="modal-box relative">
-            <h2 className="font-bold text-lg mb-4">Search Groups</h2>
+            <h2 className="font-bold text-lg mb-4">그룹 추가</h2>
             <SearchGroup />
             <div className="modal-action">
               <button
-                className="btn btn-sm rounded-sm"
+                className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
+                       focus:outline-none focus:ring-gray-300 font-medium 
+                       rounded-md text-sm px-4 py-2"
                 onClick={() => setShowModal(false)}
               >
                 닫기

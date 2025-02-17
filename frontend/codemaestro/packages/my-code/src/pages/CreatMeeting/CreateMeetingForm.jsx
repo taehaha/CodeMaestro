@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { CreateMeetingSchema } from "./CreateMeetingSchema"; // 위에서 만든 Yup 스키마
@@ -8,9 +7,8 @@ import withReactContent from "sweetalert2-react-content";
 import { MdContentCopy } from "react-icons/md";
 import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
-
-const CreateMeetingForm = () => {
-  const navigate = useNavigate();
+import { createGroupConference } from "../../api/GroupApi";
+const CreateMeetingForm = ({groupId}) => {
   const MySwal = withReactContent(Swal);
 
   // 폼 제출
@@ -24,13 +22,22 @@ const CreateMeetingForm = () => {
         description: values.description || "",
         tagNameList:values.tags, 
         accessCode: values.isPrivate ? values.entry_password : null,
-        thumbnail:values.thumbnail,
+        thumbnail:values.thumbnail ? values.thumbnail: null,
       };
 
+      let response
       // 3) 방 생성 API
-      const response = await createRoom(payload);
-      const inviteLink = `http://localhost:5174/meeting/${response.data}`;
+      if (!groupId) {
+        response = await createRoom(payload);
 
+      }
+
+      else{
+       response = await createGroupConference(groupId, payload);
+      }
+
+      const inviteLink = `${window.location.origin}/ide?roomId=${response.conferenceId}`;
+      
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
         title: "회의 생성 완료",
@@ -79,10 +86,12 @@ const CreateMeetingForm = () => {
           </div>
         ),
         confirmButtonText: "확인"
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
-          navigate(`${inviteLink}`);
+          await localStorage.setItem("camera",true)
+          await localStorage.setItem("audio",true)
+          window.location.href = inviteLink
         }
       });
     } catch (error) {
@@ -91,7 +100,17 @@ const CreateMeetingForm = () => {
         title: "방 생성 실패",
         text: "서버 오류가 발생했습니다. 다시 시도해주세요.",
         icon: "error",
-        confirmButtonText: "확인",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+
       });
     } finally {
       setSubmitting(false);
@@ -99,8 +118,8 @@ const CreateMeetingForm = () => {
   };
 
   return (
-    <div className="w-min-4xl mx-auto p-4 bg-base-200 rounded-md">
-      <h2 className="text-xl font-bold mb-4">회의 만들기</h2>
+    <div className="w-min-4xl mx-auto p-4 rounded-xl shadow-lg">
+      <h2 className="text-lg mb-4">스터디 만들기</h2>
 
       <Formik
         initialValues={{
@@ -116,7 +135,7 @@ const CreateMeetingForm = () => {
         validationSchema={CreateMeetingSchema}
         onSubmit={handleSubmit}
       >
-        
+
         {({ setFieldValue, values, isSubmitting }) => {
           // 로컬 상태: 사용자 입력(tagInput), 추천 목록(suggestions)
           const [tagInput, setTagInput] = useState("");
@@ -151,17 +170,60 @@ const CreateMeetingForm = () => {
 
             // 간단한 유효성 검사 (최대 3개, 중복, 길이 등)
             if (values.tags.length >= 5) {
-              MySwal.fire("에러", "태그는 최대 5개까지 추가할 수 있습니다.", "error");
+              Swal.fire({
+                title: "에러",
+                text: "태그는 최대 5개까지 추가할 수 있습니다.",
+                icon: "error",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+              });
               return;
             }
             if (trimTag.length > 100) {
-              MySwal.fire("에러", "태그는 최대 100자까지 가능합니다.", "error");
+              Swal.fire({
+                title: "에러",
+                text: "태그는 최대 100자까지 가능합니다.",
+                icon: "error",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+              });
               return;
             }
             if (values.tags.includes(trimTag)) {
-              MySwal.fire("에러", "이미 추가된 태그입니다.", "error");
+              Swal.fire({
+                title: "에러",
+                text: "이미 추가된 태그입니다.",
+                icon: "error",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+              });
               return;
             }
+            
 
             // Formik의 tags 배열에 추가
             setFieldValue("tags", [...values.tags, trimTag]);
@@ -182,11 +244,11 @@ const CreateMeetingForm = () => {
             <Form className="flex flex-col gap-4">
               {/* 회의 제목 */}
               <div className="form-control">
-                <label className="label font-semibold">회의 제목</label>
+                <label className="label font-semibold">스터디 제목</label>
                 <Field
                   type="text"
                   name="title"
-                  className="input input-bordered"
+                  className="input input-bordered h-9 mb-1"
                   placeholder="예: 알고리즘 스터디"
                 />
                 <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
@@ -194,11 +256,11 @@ const CreateMeetingForm = () => {
 
               {/* 설명 */}
               <div className="form-control">
-                <label className="label font-semibold">회의 설명</label>
+                <label className="label font-semibold">스터디 설명</label>
                 <Field
                   type="text"
                   name="description"
-                  className="input input-bordered"
+                  className="input input-bordered h-9"
                   placeholder="예: 주 3회 모임"
                 />
                 <ErrorMessage
@@ -215,7 +277,7 @@ const CreateMeetingForm = () => {
                   {/* 태그 입력창 */}
                   <input
                     type="text"
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full h-9"
                     placeholder="태그 입력"
                     value={tagInput}
                     onChange={handleChangeTagInput}
@@ -224,7 +286,7 @@ const CreateMeetingForm = () => {
                   <button
                     type="button"
                     onClick={handleAddTag}
-                    className="btn btn-primary"
+                    className="btn bg-[#ffcc00] btn-sm dark:bg-darkHighlight rounded-md flex items-center hover:bg-[#f0c000]"
                   >
                     추가
                   </button>
@@ -246,7 +308,7 @@ const CreateMeetingForm = () => {
                 )}
 
                 {/* 실제로 추가된 태그들 표시 */}
-                <div className="flex flex-row flex-wrap gap-2 mt-2 max-w-lg">
+                <div className="flex flex-row flex-wrap gap-2 mt-2 max-w-lg]">
                   {values.tags.map((tag, index) => (
                     <span
                       key={index}
@@ -255,7 +317,7 @@ const CreateMeetingForm = () => {
                       {tag}
                       <button
                         type="button"
-                        className="ml-1 text-red-600 font-bold"
+                        className="ml-1 text-red-600"
                         onClick={() => handleDeleteTag(tag)}
                       >
                         x
@@ -267,14 +329,14 @@ const CreateMeetingForm = () => {
 
               {/* 썸네일 업로드 */}
               <div className="form-control">
-                <label className="label font-semibold">썸네일 업로드</label>
+                <label className="label">썸네일 업로드</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
                     setFieldValue("thumbnail", e.target.files[0]);
                   }}
-                  className="file-input file-input-bordered"
+                  className="file-input file-input-bordered h-9"
                 />
                 {values.thumbnail && (
                   <p className="text-sm mt-1">선택된 파일: {values.thumbnail.name}</p>
@@ -293,7 +355,7 @@ const CreateMeetingForm = () => {
               <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label-text font-semibold">비밀방 설정</span>
-                  <Field type="checkbox" name="isPrivate" className="toggle toggle-primary" />
+                  <Field type="checkbox" name="isPrivate" className="toggle toggle-primary checked:bg-[#ffcc00]" />
                 </label>
               </div>
 
@@ -305,7 +367,7 @@ const CreateMeetingForm = () => {
                     type="password"
                     name="entry_password"
                     placeholder="비밀번호 입력"
-                    className="input input-bordered"
+                    className="input input-bordered h-9 mb-1"
                   />
                   <ErrorMessage
                     name="entry_password"
@@ -320,9 +382,9 @@ const CreateMeetingForm = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn btn-accent"
+                  className="btn bg-[#ffcc00] hover:bg-[#f0cc00] btn-sm"
                 >
-                  {isSubmitting ? "생성 중..." : "회의 생성"}
+                  {isSubmitting ? "생성 중..." : "스터디 생성"}
                 </button>
               </div>
             </Form>

@@ -1,9 +1,9 @@
 package com.ssafy.codemaestro.domain.openvidu.vo;
 
 public enum OpenviduSignalType {
-    UNPUBLISH_VIDEO("unpublish-video"),
-    UNPUBLISH_AUDIO("unpublish-audio"),
-    MODERATOR_CHANGED("moderator-changed");
+    UNPUBLISH_VIDEO("signal:unpublish-video"),
+    UNPUBLISH_AUDIO("signal:unpublish-audio"),
+    MODERATOR_CHANGED("signal:moderator-changed");
 
     private final String type;
 

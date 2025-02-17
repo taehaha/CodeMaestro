@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   const isLoggedIn = useSelector((state) => {
-    console.log("현재 로그인 상태 : ", state.user.isLoggedIn);
     return state.user.isLoggedIn});
   const dispatch = useDispatch();
   const navigate = useNavigate()
@@ -82,7 +81,7 @@ function LoginPage() {
     <div className="login-container">
       <div className="login-box">
         <h1>로그인</h1>
-        <p>Code Maestro에 오신 것을 환영합니다!</p>
+        <p>코드 마에스트로에 오신 것을 환영합니다!</p>
         <form onSubmit={handleSubmit}>
           <div className="login-form">
             <label htmlFor="email">이메일</label>

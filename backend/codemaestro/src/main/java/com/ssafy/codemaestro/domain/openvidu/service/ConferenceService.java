@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -87,7 +88,13 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId, List<String> tagNameList) {
+    public String initializeConference(User requestUser,
+                                       String title,
+                                       String description,
+                                       String accessCode,
+                                       Long groupId,
+                                       List<String> tagNameList,
+                                       MultipartFile thumbnail) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
@@ -96,6 +103,11 @@ public class ConferenceService {
 
         Conference.ConferenceBuilder conferenceBuilder = Conference.builder();
         Conference conference;
+        String thumbnailUrl = null;
+
+        if (thumbnail != null) {
+            thumbnailUrl = s3Util.uploadFile(thumbnail);
+        }
 
         // 그룹 회의인 경우
         if(groupId != null) {
@@ -112,7 +124,7 @@ public class ConferenceService {
             conferenceBuilder.moderator(requestUser)
                              .title(groupTitle)
                              .description(groupDescription)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .group(group);
 
             // Conference 저장
@@ -145,7 +157,7 @@ public class ConferenceService {
             conferenceBuilder.moderator(requestUser)
                              .title(title)
                              .description(description)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .accessCode(accessCode);
 
             conference = conferenceBuilder.build();
@@ -234,7 +246,9 @@ public class ConferenceService {
             connection = session.createConnection(properties);
             screenShareConnection = session.createConnection(screenShareConnectionProperties);
 
-            return new ConferenceConnectResponse(connection.getToken(), screenShareConnection.getToken());
+            return new ConferenceConnectResponse(connection.getToken(),
+                    screenShareConnection.getToken(),
+                    Objects.equals(requestUser.getId(), conference.getModerator().getId()));
         } catch (OpenViduHttpException e) {
             log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
             log.error(e.getMessage());
@@ -255,8 +269,7 @@ public class ConferenceService {
     }
 
     public int getParticipantNum(String conferenceId) {
-        Session session = openVidu.getActiveSession(conferenceId);
-        return session.getActiveConnections().size();
+        return (int) conferenceRepository.countConferenceById(Long.valueOf(conferenceId));
     }
 
     public List<User> getParticipants(String conferenceId) {
@@ -356,9 +369,6 @@ public class ConferenceService {
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
 
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
         openViduUtil.sendSignal(
                 conferenceId,
                 Collections.singletonList(targetConnection),
@@ -383,14 +393,6 @@ public class ConferenceService {
         //
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
-
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
-        Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
-        if (publisher == null) {
-            throw new BadRequestException("Publish가 없습니다.");
-        }
 
         openViduUtil.sendSignal(
                 conferenceId,

@@ -9,7 +9,7 @@ const GroupList = ({ groups,
     <div className="overflow-hidden max-w-lg mx-auto mt-4 max-h-[450px] overflow-y-auto">
       <ul className="divide-y divide-gray-200">
         {groups.length === 0 ? (
-          <div className="text-center py-4">
+          <div className="text-center py-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-12 w-12 text-slate-400 mx-auto"
@@ -24,7 +24,7 @@ const GroupList = ({ groups,
                 d="M9 12h6m-3-3v6m6-9h.01M6 6h.01M18 18h.01M6 18h.01"
               />
             </svg>
-            <h2 className="text-lg font-semibold text-slate-700">
+            <h2 className="text-md font-semibold text-slate-700 mt-3">
               새로운 그룹을 추가해보세요.
             </h2>
           </div>

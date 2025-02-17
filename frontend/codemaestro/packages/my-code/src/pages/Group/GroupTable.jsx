@@ -26,7 +26,7 @@ function GroupTable({ members, groupId }) {
         accessor: "profileImageUrl",
         Cell: ({ row }) => (
           <div className="avatar">
-            <div className="w-12 rounded-full ring-offset-base-100 ring-offset-2">
+            <div className="w-12 rounded-full">
               <img
                 src={
                   row.original.profileImageUrl ||
@@ -39,7 +39,7 @@ function GroupTable({ members, groupId }) {
         ),
       },
       {
-        Header: "이름",
+        Header: "닉네임",
         accessor: "userNickname",
       },
       {
@@ -74,7 +74,7 @@ function GroupTable({ members, groupId }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="table w-full border" {...getTableProps()}>
+      <table className="table w-full max-w-[1080px] mx-auto border mt-6" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => {
             const headerGroupProps = headerGroup.getHeaderGroupProps();
@@ -89,7 +89,7 @@ function GroupTable({ members, groupId }) {
                   return (
                     <th
                       key={headerKey}
-                      className="bg-base-200"
+                      className="bg-gray-100"
                       {...restHeaderProps}
                     >
                       {column.render("Header")}
@@ -107,7 +107,7 @@ function GroupTable({ members, groupId }) {
             const { key: rowKey, ...restRowProps } = rowProps;
 
             return (
-              <tr key={rowKey} {...restRowProps} className="hover">
+              <tr key={rowKey} {...restRowProps} className="hover:bg-[#F5F5F5]">
                 {row.cells.map((cell) => {
                   const cellProps = cell.getCellProps();
                   const { key: cellKey, ...restCellProps } = cellProps;

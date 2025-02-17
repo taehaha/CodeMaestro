@@ -8,6 +8,7 @@ import {
   StreamManager,
   Connection,
   ExceptionEvent,
+  SignalEvent,
 } from "openvidu-browser";
 
 interface ConnectionData {
@@ -30,15 +31,16 @@ class OpenviduClient {
   private AXIOS: AxiosInstance;
 
   // 필드
-  private session: Session;
-  private screenShareSession: Session;
-  private connectionDatas: ConnectionData[] = [];
-  private myConnectionData: ConnectionData = {
+  private session: Session; // 현재 유저 세션
+  private screenShareSession: Session; // 화면공유용 세션
+  private connectionDatas: ConnectionData[] = []; // 연결된 유저의 데이터들
+  private myConnectionData: ConnectionData = { // 현재 유저 데이터
     userId: 0,
     nickname: "not init",
     profileImageUrl: "not init",
     description: "not init"
   };
+  private isModerator: boolean = false; // 현재 유저가 방장인지 확인
 
   // 영상 송수신 stream 객체들
   private screenStreamManager: StreamManager | null = null;
@@ -51,8 +53,11 @@ class OpenviduClient {
   private OnMessageReceived: (userId: number, nickname: string, message: string) => void = () => {};
   private OnScreenAdded: (screen: Publisher | Subscriber) => void = () => {};
   private OnScreenDeleted: (screen: Publisher | Subscriber) => void = () => {};
+  private OnModeratorChanged: (newModeratorId: number) => void = () => {};
 
   private async waitForStreamReady(stream: Stream): Promise<Stream> {
+    console.log("스트림 대기중");
+    
     if (stream.hasVideo) {
       return stream;
     } else {
@@ -64,6 +69,7 @@ class OpenviduClient {
   /**
    * Openvidu Custom SDK for Codemaestro!!!
    * 보규보규 정보규 형님을 위한 Openvidu SDK wrapper Class
+   * @author 1231724-김태영
    * @param HOST_URL URL 객체 
    * @param ACCESS_TOKEN 현재 유저의 ACCESS TOKEN
    * @param conferenceId 회의실 번호
@@ -130,8 +136,12 @@ class OpenviduClient {
     // 새로운 참가자가 입장하면 참가자 연결 정보를 저장함
     this.session.on("connectionCreated", ({ connection }: { connection: Connection }) => {
       if (connection.data) {
+        console.log("새로운 사용자가 들어옴");
         const newConnectionData: ConnectionData = JSON.parse(connection.data) as ConnectionData;
-        this.connectionDatas.push(newConnectionData);
+        
+        if (newConnectionData.userId !== JSON.parse(this.session.connection.data).userId) {
+          this.connectionDatas.push(newConnectionData);
+        }
       }
     });
 
@@ -166,6 +176,12 @@ class OpenviduClient {
       this.OnMessageReceived(data.userId, data.nickname, data.message);
     });
 
+    // 방장이 나로 바뀔 경우
+    this.session.on("signal:moderator-changed", (signalEvent: SignalEvent) => {
+      this.isModerator = true;
+      this.OnModeratorChanged(this.myConnectionData.userId);
+    })
+
     // 오류 발생하면 로그 찍어줌
     this.session.on("exception", (event: ExceptionEvent) => {
       console.warn("OpenviduClient 오류 발생 " + event.message);
@@ -192,12 +208,13 @@ class OpenviduClient {
 
     const connectionToken: string = response.data.connectionToken;
     const screenShareConnectionToken: string = response.data.screenShareConnectionToken;
-
+    
     // Connection 과 데이터 얻기
     await this.session.connect(connectionToken);
     this.myConnectionData = JSON.parse(this.session.connection.data) as ConnectionData;
-
+    
     await this.screenShareSession.connect(screenShareConnectionToken);
+    this.isModerator = response.data.moderator;
 
     // 웹캠 및 마이크 송출하기
     this.publisher = this.OV.initPublisher(undefined, {
@@ -216,10 +233,6 @@ class OpenviduClient {
     console.log("OPENVIDU 초기화 완료됨");
     
     return;
-  }
-
-  async initScreen() {
-
   }
 
   /**
@@ -262,6 +275,14 @@ class OpenviduClient {
    */
   setScreenDeletedCallback(callback: (screenSubscriber: Subscriber | Publisher) => void): void {
     this.OnScreenDeleted = callback;
+  }
+
+  /**
+   * 사용자가 변경될 겨웅
+   * @param callback callback(newModeratorId) 
+   */
+  setModeratorChangedCallback(callback: (newModeratorId: number) => void): void {
+    this.OnModeratorChanged = callback;
   }
 
   /**
@@ -376,12 +397,20 @@ class OpenviduClient {
     return this.publisher;
   }
 
+  getMyConnectionData(): ConnectionData {
+    return this.myConnectionData;
+  }
+
   /**
    * 현재 송출중인 스크린 스트림을 반환합니다.
    * @returns StreamManager 객체 또는 null
    */
   getScreenStreamManager(): StreamManager | null {
     return this.screenStreamManager;
+  }
+
+  getIsModerator(): Boolean {
+    return this.isModerator;
   }
 
   /**
@@ -397,29 +426,19 @@ class OpenviduClient {
       message,
     };
 
+    // 상대방 추가
     const connections: Connection[] = this.subscribers.map(
       (subscriber: Subscriber) => subscriber.stream.connection
     );
+
+    // 나 추가
+    connections.push(this.publisher.stream.connection);
 
     this.session.signal({
       data: JSON.stringify(data),
       to: connections,
       type: "message",
     });
-  }
-
-  /**
-   * 방장을 변경합니다.
-   * @param userId 방장이 될 참가자 유저 번호
-   */
-  manageModerator(userId: number): void {
-    this.AXIOS.patch("/moderator/" + userId)
-      .then(() => {
-        // 성공 처리
-      })
-      .catch((err) => {
-        console.error("방장 변경 중 오류 발생 : " + err);
-      });
   }
 
   /**
@@ -437,33 +456,31 @@ class OpenviduClient {
   }
 
   /**
-   * 방장이 참가자의 Publish 상태를 조절합니다.
-   * @param userId 조절할 참가자 유저 번호
-   * @param offVideo true이면 웹캠을 끕니다.
-   * @param offAudio true이면 마이크를 끕니다.
+   * 방장이 참가자 웹캠의 Publish 상태를 조절합니다.
+   * @param userId 
    */
-  manageParticipantPublishStatus(userId: number, offVideo: boolean, offAudio: boolean): void {
-    console.log("입갤");
+  manageParticipantVideoOff(userId: number) {
+    this.AXIOS.delete("/video/" + userId)
+    .then(() => {
+      console.log("웹캠 끄기 성공. 대상 : " + userId);
+    })
+    .catch((err) => {
+      console.error("웹캠 끄기 중 에러 발생 : " + err);
+    });
+  }
 
-    if (!offVideo) {
-      this.AXIOS.delete("/video/" + userId)
-        .then(() => {
-          console.log("웹캠 끄기 성공. 대상 : " + userId);
-        })
-        .catch((err) => {
-          console.error("웹캠 끄기 중 에러 발생 : " + err);
-        });
-    }
-
-    if (!offAudio) {
-      this.AXIOS.delete("/audio/" + userId)
-        .then(() => {
-          console.log("마이크 끄기 성공. 대상 : " + userId);
-        })
-        .catch((err) => {
-          console.error("마이크 끄기 중 에러 발생 : " + err);
-        });
-    }
+  /**
+   * 방장이 참가자 오디오의 Publish 상태를 조절합니다.
+   * @param userId 
+   */
+  manageParticipantAudioOff(userId: number) {
+    this.AXIOS.delete("/audio/" + userId)
+    .then(() => {
+      console.log("마이크 끄기 성공. 대상 : " + userId);
+    })
+    .catch((err) => {
+      console.error("마이크 끄기 중 에러 발생 : " + err);
+    });
   }
 
   /**
@@ -494,6 +511,25 @@ class OpenviduClient {
         console.error("회의실 내용 변경에 실패함 ㅠㅠ");
       });
   }
-}
+
+  /**
+  * 방장을 변경합니다.
+  * @param userId 방장이 될 참가자 유저 번호
+  */
+  manageChangeModerator(targetUserId: number) {
+    console.log("방장 변경");
+    
+    this.AXIOS.patch("/moderator/" + targetUserId)
+    .then(() => {
+      console.log("방장 변경 성공");
+      this.isModerator = false;
+      this.OnModeratorChanged(targetUserId);
+    })
+    .catch(() => {
+      console.error("방장 변경 실패");
+    });
+  }
+}  
+
 
 export { OpenviduClient };  export type { ConnectionData };

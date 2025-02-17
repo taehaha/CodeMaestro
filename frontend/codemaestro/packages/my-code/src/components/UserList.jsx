@@ -32,7 +32,7 @@ const UserList = ({ users, checkedUsers, setCheckedUsers, addPage, searchTerm })
             />
           </svg>
           <h2 className="text-lg font-semibold text-slate-700">
-            No Users Found
+            등록된 친구가 없습니다. 친구를 추가해보세요!
           </h2>
         </div>
       ) : (

@@ -2,6 +2,7 @@ package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.*;
 import com.ssafy.codemaestro.domain.group.repository.*;
+import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ public class GroupService {
     private final GroupJoinRequestRepository groupJoinRequestRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
     private final GroupConferenceMemberHistoryRepository memberHistoryRepository;
+    private  final ConferenceRepository conferenceRepository;
 
     // 그룹 생성
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
@@ -262,5 +266,21 @@ public class GroupService {
         }
 
         return new GroupConferenceAttendanceResponse(conferenceInfos, memberAttendance);
+    }
+
+    // 현재 진행중인 그룹 회의있는지 확인
+
+    public ResponseEntity<Long> checkCurrentGroupConference(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not Found"));
+
+        Optional<Conference> activeConference = conferenceRepository.findByGroup(group);
+
+        if(activeConference.isPresent()) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .body(activeConference.get().getId());
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

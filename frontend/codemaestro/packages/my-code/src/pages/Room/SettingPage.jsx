@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { OpenVidu } from "openvidu-browser";
 import { MdOutlineMic, MdOutlineMicOff, MdOutlineTvOff, MdOutlineTv } from "react-icons/md";
+import localStorage from "redux-persist/es/storage";
 
 function SettingPage({ onSettingCheck }) {
   // 카메라·오디오 ON/OFF 기본값
@@ -62,7 +63,9 @@ function SettingPage({ onSettingCheck }) {
   };
 
   // 3) 확인 (세팅 완료)
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    await localStorage.setItem("camera",camera)
+    await localStorage.setItem("audio",audio)
     onSettingCheck?.();
   };
 
