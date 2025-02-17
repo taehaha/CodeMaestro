@@ -397,6 +397,18 @@ const App: React.FC = () => {
     }
   };
 
+  // 브라우저 탭 제거 전 동작
+  window.addEventListener("beforeunload", () => {
+    if (!ovIsModerator) return;
+
+    const participantsDatas = ovClient.gerParticipantDatas();
+
+    if (participantsDatas.length >= 1) {
+      const targetUserId = participantsDatas[0].userId;
+      ovClient.manageChangeModerator(targetUserId);
+    }
+  });
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 flex">
       {/* 왼쪽 영역 (채팅, 챗봇, 화면공유) */}
