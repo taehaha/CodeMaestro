@@ -16,7 +16,7 @@ const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
     const { password } = values;     
      try {
-        const response = await userAxios.post(`/room/${roomId}/check`, { accessCode:password });
+        const response = await userAxios.post(`/conference/${roomId}/pre-check`, { accessCode:password });
         if (response.status === 200) {
           // 인증 성공
       Swal.fire({
