@@ -248,8 +248,14 @@ const GroupDetail = () => {
         const response = await createGroupConference(groupId, { tagNameList: [] });
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
         if (response) {
-          const inviteLink = `/ide?roomId=${response.conferenceId}`;
-          navigate(inviteLink);  // 회의실로 이동
+          Swal.fire({title:"생성 완료",
+            text:"그룹 회의가 생성되었습니다. 회의실로 이동합니다.",
+            icon:"success",
+          }).then((res)=>{
+            if (res.isConfirmed) {
+              navigate(`/meeting/${response.conferenceId}`);  // 회의실로 이동
+            }
+          })
         }
       } catch (error) {
         console.error("회의 생성 중 오류 발생:", error);
