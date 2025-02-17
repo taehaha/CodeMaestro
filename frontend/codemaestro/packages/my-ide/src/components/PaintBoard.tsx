@@ -54,7 +54,7 @@ interface Shape {
 }
 
 const PaintBoard: React.FC = () => {
-  // URL 쿼리에서 roomId 추출
+  // URL 쿼리에서 roomId 가져옴옴
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('roomId') || 'paintboard';
 
@@ -89,7 +89,7 @@ const PaintBoard: React.FC = () => {
   // 현재 드로잉 중인 도형 id (사용자별로 독립)
   const currentShapeIdRef = useRef<string | null>(null);
 
-  // 색상상
+  // 색상
   const presetColors = [
     '#000000',
     '#ff0000',
@@ -188,12 +188,10 @@ const PaintBoard: React.FC = () => {
   useEffect(() => {
     const localState = awareness.getLocalState() || {};
     if (!localState.cursorColor) {
-      // 원하는 색상 배열 또는 Math.random()을 사용해 생성할 수 있습니다.
+      // 색상 지정 
       const colors = ['#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
-      // 클라이언트 ID 기반으로 일관된 색상을 주려면 아래처럼 해도 좋습니다.
+      // 클라이언트 ID 기반으로 일관된 색상
       const randomColor = colors[awareness.clientID % colors.length];
-      // 혹은 완전히 랜덤하게 하려면:
-      // const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
       awareness.setLocalStateField('cursorColor', randomColor);
     }
   }, [awareness]);
@@ -649,7 +647,7 @@ const PaintBoard: React.FC = () => {
                   y={state.cursor.y}
                   radius={5}
                   fill={state.cursorColor || 'red'}
-                  listening={false} // 이벤트를 무시하여 도형에 영향이 없도록 함
+                  listening={false} 
                 />
               );
             })}

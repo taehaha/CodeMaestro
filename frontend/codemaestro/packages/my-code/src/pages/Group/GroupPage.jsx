@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaUserFriends, FaCalendarAlt } from "react-icons/fa"; // 예시 아이콘
 import moment from "moment"; // 날짜 포맷 라이브러리 (선택)
-import { getGroupStric, LeaveGroup, createGroupConference, isConference } from "../../api/GroupApi";
+import {LeaveGroup, createGroupConference, isConference } from "../../api/GroupApi";
 
 import UserAxios from "../../api/userAxios";
 import GroupManagement from "./GroupManagement";
@@ -29,7 +29,6 @@ const GroupDetail = () => {
   const [activeTab, setActiveTab] = useState("members");
   const [userRole, setUserRole] = useState(ROLE.ADMIN);
   const [isModalOpen, setIsModalOpen] = useState(false);  // 그룹 관리 모달
-  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);  // 그룹 회의 생성 모달
   const [isConferenceOngoing, setIsConferenceOngoing] = useState(false);  // 회의 진행 중 여부
   const [conferenceId, setConferenceId] = useState(null);  // 진행 중인 회의 ID
 
@@ -51,19 +50,27 @@ const GroupDetail = () => {
 
         // 1. isConference로 회의 진행 상태 확인
         const conferenceStatus = await isConference(groupId);
+        console.log(conferenceStatus);
+        
         if (conferenceStatus.status === 200) {
           setIsConferenceOngoing(false);  // 회의 진행 중 아님
-        } else if (conferenceStatus.status === 302) {
-          setIsConferenceOngoing(true);  // 회의 진행 중
-          setConferenceId(conferenceStatus.data.conferenceId);  // 현재 진행 중인 회의 ID
+      } }
+      
+      catch (error) {
+        if (error.status===302) {
+          await setIsConferenceOngoing(true);  // 회의 진행 중
+          setConferenceId(error.response.data);  // 현재 진행 중인 회의 ID
+
+        } else {
+          console.error("API 에러:", error);
+
         }
-      } catch (error) {
-        console.error("API 에러:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
 
   // 로딩 중이면 아직 group.members를 접근할 수 없음
@@ -174,7 +181,6 @@ const GroupDetail = () => {
               width: "500px",
               background: "#f8f9fa",
               confirmButtonColor: "#FFCC00",
-              confirmButtonText: "확인",
               customClass: {
                 popup: "swal-custom-popup",       // 전체 팝업 스타일
                 title: "swal-custom-title",       // 제목 스타일
@@ -192,7 +198,6 @@ const GroupDetail = () => {
               width: "500px",
               background: "#f8f9fa",
               confirmButtonColor: "#FFCC00",
-              confirmButtonText: "확인",
               customClass: {
                 popup: "swal-custom-popup",       // 전체 팝업 스타일
                 title: "swal-custom-title",       // 제목 스타일
@@ -237,7 +242,7 @@ const GroupDetail = () => {
       });
   
       if (result.isConfirmed) {
-        navigate(`/meeting?roomId=${conferenceId}`);
+        navigate(`/ide?roomId=${conferenceId}`);
       }
     } else {
       try {
@@ -368,7 +373,7 @@ const GroupDetail = () => {
         )}
 
         {userRole === ROLE.MEMBER && isConferenceOngoing && (
-          <button className="btn btn-warning rounded-sm" onClick={handleConferenceAction}>
+          <button className="btn bg-[#ffcc00] rounded-sm" onClick={handleConferenceAction}>
             <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
           </button>
         )}

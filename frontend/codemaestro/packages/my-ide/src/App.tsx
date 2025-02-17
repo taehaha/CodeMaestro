@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Base64 } from "js-base64";
-import { Sun, Moon, Play, Save } from "lucide-react";
+import { Sun, Moon, Play, Save, Cog } from "lucide-react";
 import PaintBoard from "./components/PaintBoard";
 import Editor from "./components/Editor";
 import InputArea from "./components/InputArea";
@@ -18,6 +18,7 @@ import VideoGrid from "./components/VideoGrid";
 import { Publisher, StreamManager, Subscriber } from "openvidu-browser";
 import UserVideoComponent from "./components/UserVideoComponent";
 import ScreenVideoComponent from "./components/ScreenVideoComponent";
+import ManageModalComponent from "./components/ManageModalComponenet";
 
 const getAuthStatus = () => {
   // 토큰을 가져옴.
@@ -29,7 +30,7 @@ const getAuthStatus = () => {
     try {
       // 먼저 Redux Persist에서 저장한 객체를 파싱
       const persistedUserObj = JSON.parse(persistedUserStr);
-      // 그 안에 myInfo 키 파싱합니다.
+      // 그 안에 myInfo 키 파싱.
       if (persistedUserObj.myInfo) {
         myInfo = JSON.parse(persistedUserObj.myInfo);
       }
@@ -98,8 +99,12 @@ const App: React.FC = () => {
   const [ovSubscribers, setOvSubscribers ] = useState<Subscriber[]>([]);
     // 스크린 스트림 관리자 (내 화면 또는 상대 화면)
   const [ovScreenStreamManager, setOvScreenStreamManager] = useState<StreamManager | null>(null);
+    // 내가 방장인지 여부 관리
+  const [ovIsModerator, setOvIsModerator] = useState<Boolean>(false);
     // 채팅 관련 상태 추가
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    // 관리 모달 오픈 상태
+  const [isManageModalOpen, setIsManageModalOpen] = useState<Boolean>(false);
     // 스크린 공유 상태
   const isScreenSharing: boolean = useMemo(() => {
     return ovScreenStreamManager !== null;
@@ -329,6 +334,13 @@ const App: React.FC = () => {
     client.setScreenDeletedCallback((screenStreamManager) => {
       setOvScreenStreamManager(null);
     });
+    client.setModeratorChangedCallback((newModerator: number) => {
+      if (newModerator === ovClient.getMyConnectionData().userId) {
+        setOvIsModerator(true);
+      } else {
+        setOvIsModerator(false);
+      }
+    });
 
     console.log("OPENVIDU : 콜백 설정 완료");
     console.log("OPENVIDU : 최초 초기 설정 : " + initInfo.video + " " + initInfo.audio);
@@ -339,11 +351,8 @@ const App: React.FC = () => {
       .then(() => {
         // 내 퍼블리셔 스트림 저장
         setOvPublisher(client.getMyPublisher());
-        // // 원격 구독자 스트림 저장
-        // setOvSubscribers(client.getSubscribers());
-        // // 스크린 공유 스트림 저장
-        // setOvScreenStreamManager(client.getScreenStreamManager()));
-        
+        // 방장인지 확인
+        setOvIsModerator(client.getIsModerator());
         console.log("OPENVIDU : 최초 스트림 설정됨.");
 
       })
@@ -535,7 +544,19 @@ const App: React.FC = () => {
                 />
                 그림판
               </button>
-              <div className="absolute top-0 right-0 mt-2 p-1">
+              
+              {ovIsModerator &&
+                // 관리자 페이지 버튼
+                <div className="absolute top-0 right-12 mt-1 p-1">
+                  <button
+                  onClick={() => setIsManageModalOpen(true)}
+                      className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
+                  >
+                    <Cog className="w-6 h-6" />
+                  </button>
+                </div>
+              }
+              <div className="absolute top-0 right-0 mt-1 p-1">
                 <button
                   onClick={() => setIsDarkMode(!isDarkMode)}
                   className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
@@ -619,6 +640,14 @@ const App: React.FC = () => {
             console.log("방에서 나갔습니다.");
           }}
         />
+      }
+      { ovClient && ovPublisher && ovIsModerator &&
+        <ManageModalComponent 
+        ovClient={ovClient}
+        isOpen={isManageModalOpen}
+        onClose={() => setIsManageModalOpen(false)}
+        connectionDatas={ovClient.gerParticipantDatas()}
+      />
       }
     </div>
   );
