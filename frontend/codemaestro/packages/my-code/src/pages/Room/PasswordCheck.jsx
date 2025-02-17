@@ -34,7 +34,7 @@ const PasswordCheck = ({ roomId, title, onPasswordCheck }) => {
               confirmButton: "swal-custom-button" // 버튼 스타일
             }
           }).then(() => {
-                 localStorage.setItem("accesscode",password)
+                 localStorage.setItem("accessCode",password)
                  onPasswordCheck();
                });
         }
