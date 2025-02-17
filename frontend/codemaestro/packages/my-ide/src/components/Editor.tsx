@@ -415,7 +415,7 @@ const CollaborativeEditor = React.memo((props: any) => {
         .padStart(6, "0");
     let userColor = randomColor;
     let userProfileImageUrl = ""; // 기본값은 빈 문자열 (없으면 AvatarStack에서 기본 이미지 처리)
-  
+
     const persistedUserStr = localStorage.getItem("persist:persistedUser");
     if (persistedUserStr) {
       try {
@@ -455,7 +455,7 @@ const CollaborativeEditor = React.memo((props: any) => {
   const editorRef = useCallback(
     (node: HTMLDivElement) => {
       if (!node) return;
-      
+
       // 쿼리에서 roomId 추출
       function getRoomNameFromURL(): string {
         const params = new URLSearchParams(window.location.search);
@@ -479,7 +479,7 @@ const CollaborativeEditor = React.memo((props: any) => {
         colorLight: userColor + "80",
         profileImageUrl: userProfileImageUrl,
       });
-      
+
 
       // AI 자동완성을 위한 함수 (inlineCopilot에 사용)
       const aiCompletion = async (prefix: string, suffix: string) => {
@@ -555,7 +555,7 @@ const CollaborativeEditor = React.memo((props: any) => {
       userColor,
     ]
   );
-  
+
   // lintEnabled 옵션 변경 시 에디터 업데이트
   useEffect(() => {
     if (editorViewRef.current) {
@@ -580,7 +580,7 @@ const CollaborativeEditor = React.memo((props: any) => {
       });
     }
   }, [lintEnabled, props.selectedLanguage]);
-  
+
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (provider) {
@@ -592,26 +592,24 @@ const CollaborativeEditor = React.memo((props: any) => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [provider]);
-  
+
   return (
     <div className="border border-gray-800 rounded overflow-visible transition-colors duration-500">
       <div className="flex items-center mb-2 p-4 bg-gray-100 dark:bg-gray-800 space-x-4">
         <button
           onClick={() => props.setEnableAI(!props.enableAI)}
-          className={`px-4 py-2 bg-gradient-to-r from-red-400 to-yellow-400 via-green-400 to-blue-400 text-white font-bold rounded-lg shadow-md 
-            hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300
-            ${props.enableAI ? "rainbow-border" : ""}`}
+          className={`px-4 py-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-bold rounded-lg shadow-md 
+    hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300
+    ${props.enableAI ? "rainbow-border" : ""}`}
         >
-          {props.enableAI
-            ? "🤖 AI 자동완성 켜짐"
-            : "🤖 AI 자동완성 꺼짐"}
+          {props.enableAI ? "🤖 AI 자동완성 켜짐" : "🤖 AI 자동완성 꺼짐"}
         </button>
+
         <button
           onClick={props.analyzeCode}
           disabled={props.isAnalyzing}
-          className={`px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg shadow-md ${
-            props.isAnalyzing ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg shadow-md ${props.isAnalyzing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
         >
           {props.isAnalyzing ? "🔍 분석 중..." : "📊 코드 분석"}
         </button>
@@ -625,9 +623,8 @@ const CollaborativeEditor = React.memo((props: any) => {
           onClick={() => {
             setLintEnabled((prev) => !prev);
           }}
-          className={`px-4 py-2 text-white rounded-lg shadow-md transition-colors ${
-            lintEnabled ? "bg-red-700" : "bg-gray-400"
-          }`}
+          className={`px-4 py-2 text-white rounded-lg shadow-md transition-colors ${lintEnabled ? "bg-red-700" : "bg-gray-400"
+            }`}
         >
           {lintEnabled
             ? "🚨 문법 검사 켜짐"

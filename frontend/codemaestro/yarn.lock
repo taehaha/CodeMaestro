@@ -11397,13 +11397,6 @@ react-native@*:
     ws "^6.2.3"
     yargs "^17.6.2"
 
-react-paginate@^8.3.0:
-  version "8.3.0"
-  resolved "https://registry.npmjs.org/react-paginate/-/react-paginate-8.3.0.tgz"
-  integrity sha512-TptZE37HPkT3R+7AszWA++LOTIsIHXcCSWMP9WW/abeF8sLpJzExFB/dVs7xbtqteJ5njF6kk+udTDC0AR3y5w==
-  dependencies:
-    prop-types "^15"
-
 react-reconciler@0.31.0:
   version "0.31.0"
   resolved "https://registry.npmjs.org/react-reconciler/-/react-reconciler-0.31.0.tgz"

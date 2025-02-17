@@ -30,7 +30,7 @@ const getAuthStatus = () => {
     try {
       // 먼저 Redux Persist에서 저장한 객체를 파싱
       const persistedUserObj = JSON.parse(persistedUserStr);
-      // 그 안에 myInfo 키 파싱합니다.
+      // 그 안에 myInfo 키 파싱.
       if (persistedUserObj.myInfo) {
         myInfo = JSON.parse(persistedUserObj.myInfo);
       }
