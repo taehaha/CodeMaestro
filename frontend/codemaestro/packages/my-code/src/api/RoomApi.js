@@ -78,7 +78,7 @@ export const createRoom = async (payload) => {
       }
   
       // 4) Axios로 multipart/form-data 형식으로 PUT 요청 전송
-      const response = await UserAxios.put(`/rooms/${roomId}`, formData, {
+      const response = await UserAxios.put(`/conference/${roomId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
