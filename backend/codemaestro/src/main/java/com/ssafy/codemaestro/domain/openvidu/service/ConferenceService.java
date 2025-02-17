@@ -107,6 +107,8 @@ public class ConferenceService {
 
         if (thumbnail != null) {
             thumbnailUrl = s3Util.uploadFile(thumbnail);
+        } else {
+            thumbnailUrl = "https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_thumbnail.png";
         }
 
         // 그룹 회의인 경우
