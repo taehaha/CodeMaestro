@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -245,7 +246,9 @@ public class ConferenceService {
             connection = session.createConnection(properties);
             screenShareConnection = session.createConnection(screenShareConnectionProperties);
 
-            return new ConferenceConnectResponse(connection.getToken(), screenShareConnection.getToken());
+            return new ConferenceConnectResponse(connection.getToken(),
+                    screenShareConnection.getToken(),
+                    Objects.equals(requestUser.getId(), conference.getModerator().getId()));
         } catch (OpenViduHttpException e) {
             log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
             log.error(e.getMessage());
@@ -366,9 +369,6 @@ public class ConferenceService {
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
 
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
         openViduUtil.sendSignal(
                 conferenceId,
                 Collections.singletonList(targetConnection),
@@ -393,14 +393,6 @@ public class ConferenceService {
         //
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
-
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
-        Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
-        if (publisher == null) {
-            throw new BadRequestException("Publish가 없습니다.");
-        }
 
         openViduUtil.sendSignal(
                 conferenceId,

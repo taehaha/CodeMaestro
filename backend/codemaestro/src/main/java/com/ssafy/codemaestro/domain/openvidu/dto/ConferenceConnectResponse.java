@@ -10,4 +10,5 @@ import lombok.Setter;
 public class ConferenceConnectResponse {
     String connectionToken;
     String screenShareConnectionToken;
+    boolean isModerator;
 }
