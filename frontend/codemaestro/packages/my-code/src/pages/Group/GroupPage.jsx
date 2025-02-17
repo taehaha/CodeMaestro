@@ -316,7 +316,6 @@ const GroupDetail = () => {
                         </button>
                       )}
                       
-
                       {userRole === ROLE.MEMBER && !isConferenceOngoing && (
                         <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
                           그룹스터디 생성
@@ -324,24 +323,32 @@ const GroupDetail = () => {
                       )}
 
                       {userRole === ROLE.MEMBER && isConferenceOngoing && (
-                        <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
+                        <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
                           <MdFiberManualRecord color="red" size={20} /> 그룹스터디 참여
                         </button>
                       )}
 
                       {userRole === ROLE.ADMIN && (
                         <div className="flex gap-2">
-                          <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
-                            그룹스터디 생성
-                          </button>
-                          <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="btn bg-[#ddd] rounded-md border-none hover:bg-[#ccc]"
-                          >
+                          {/* 그룹스터디 생성/참여 버튼 */}
+                          {!isConferenceOngoing ? (
+                            <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
+                              그룹스터디 생성
+                            </button>
+                          ) : (
+                            <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
+                              <MdFiberManualRecord color="red" size={20} /> 그룹스터디 참여
+                            </button>
+                          )}
+
+                          {/* 그룹 관리 버튼 */}
+                          <button onClick={() => setIsModalOpen(true)} className="btn bg-[#ddd] rounded-md border-none hover:bg-[#ccc]">
                             그룹 관리
                           </button>
                         </div>
                       )}
+
+            
 
                       <button
                         onClick={() => navigate("/mypage?tab=groups")}
