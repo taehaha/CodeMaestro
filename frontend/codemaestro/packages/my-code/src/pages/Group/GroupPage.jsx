@@ -411,10 +411,6 @@ const GroupDetail = () => {
             >
               ✕
             </button>
-            <GroupManagement
-            group={group}
-            />
-            
             <GroupManagement group={group} />
           </div>
 
