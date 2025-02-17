@@ -3,12 +3,28 @@ import "./EditPassword.css"; // 스타일 적용
 import Swal from "sweetalert2";
 import { putPassword } from "../../api/AuthApi";
 import { useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux";
+import { AiOutlineExclamationCircle } from 'react-icons/ai';
+
 const EditPassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate()
+  const user = useSelector((state) => state.user.myInfo);
 
+  if (user.loginProvider !== "LOCAL") {
+    return(
+      <div className="flex items-center justify-center w-full">
+        <div className="p-6 max-w-sm w-full ">
+          <div className="flex items-center justify-center mb-4">
+            <AiOutlineExclamationCircle className="text-red-500 text-4xl mr-3" />
+            <h2 className="text-md font-semibold text-gray-800">소셜 로그인 유저는 이용할 수 없습니다.</h2>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
   
