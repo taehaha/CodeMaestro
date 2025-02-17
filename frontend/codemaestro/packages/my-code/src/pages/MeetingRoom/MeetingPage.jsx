@@ -51,7 +51,6 @@ const fillteredRooms = rooms.filter((room) => {
   });
 
   const selectTag = (tag) =>{
-    console.log(tag);
     setSearchTags((prevTags) => {
       // 태그가 이미 searchTags에 있다면 제거, 없으면 추가
       if (prevTags.includes(tag)) {

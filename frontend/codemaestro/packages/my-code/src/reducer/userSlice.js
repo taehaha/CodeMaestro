@@ -78,15 +78,15 @@ const userSlice = createSlice({
     // 로그인 성공
     builder.addCase(loginUser.fulfilled, (state, action) => {
       if (action.payload?.status === 200) {
-        console.log(action.payload);        
+        // console.log(action.payload);        
         state.isLoggedIn = true;
         state.myInfo = getMyInfo();
       }
     });
 
     // 로그아웃 성공
-    builder.addCase(logoutUser.fulfilled, async (state) => {
-      state.myInfo = await null;
+    builder.addCase(logoutUser.fulfilled,  (state) => {
+      state.myInfo =  null;
       state.isLoggedIn = false;
     });
 

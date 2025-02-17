@@ -13,7 +13,6 @@ export const getBoardList = async () => {
 
 // 게시글 상세 조회
 export const getBoardDetail = async (boardId) => {
-  console.log("📌 getBoardDetail에서 받은 boardId:", boardId);  
   try {
     const response = await UserAxios.get(`/boards/${boardId}`);
     return response.data;

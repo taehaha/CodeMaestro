@@ -28,7 +28,6 @@ const EmailAuth = () => {
     setLoading(true);
     try {
       const checkResponse = await emailCheck(email);
-      console.log(checkResponse);
       if (checkResponse === 302) {
         setMessage("이미 존재하는 이메일입니다.");
         setSubmitDisabled(true);
@@ -56,7 +55,6 @@ const EmailAuth = () => {
     }
     try {
       const res = await UserAxios.put("/auth/verify/email", { email, pin: code });
-      console.log(res);
       if (res.status === 200) {
         setEmailMessage("이메일 인증이 완료되었습니다.");
         setStep(2);
@@ -206,7 +204,6 @@ const EmailAuth = () => {
                           }
                           try {
                             const response = await nicknameCheck(values.nickname);
-                            console.log(response);
                             
                             if (response === 200) {
                               // 사용 가능하면 에러 메시지를 지웁니다.
