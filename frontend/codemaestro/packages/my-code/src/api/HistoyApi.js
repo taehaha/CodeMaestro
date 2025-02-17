@@ -6,7 +6,7 @@ import UserAxios from "./userAxios";
 export const GetGroupHistory = async (groupId) => {
     try {
         const response = await UserAxios.get(`/groups/${groupId}/conferences/my-stats`)
-        console.log(response.data);
+        // console.log(response.data);
         
         return response.data
     } catch (error) {

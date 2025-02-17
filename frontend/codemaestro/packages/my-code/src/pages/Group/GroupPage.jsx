@@ -49,9 +49,7 @@ const GroupDetail = () => {
         }
 
         // 1. isConference로 회의 진행 상태 확인
-        const conferenceStatus = await isConference(groupId);
-        console.log(conferenceStatus);
-        
+        const conferenceStatus = await isConference(groupId);        
         if (conferenceStatus.status === 200) {
           setIsConferenceOngoing(false);  // 회의 진행 중 아님
       } }
@@ -242,13 +240,12 @@ const GroupDetail = () => {
       });
   
       if (result.isConfirmed) {
-        navigate(`/ide?roomId=${conferenceId}`);
+        navigate(`/meeting/${conferenceId}`);
       }
     } else {
       try {
         // 회의 생성
         const response = await createGroupConference(groupId, { tagNameList: null });
-        console.log(response);
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
         if (response) {
           const inviteLink = `/ide?roomId=${response.conferenceId}`;

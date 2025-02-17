@@ -31,7 +31,7 @@ import UserAxios from "./userAxios";
     
 // 그룹 탈퇴
     export const LeaveGroup = async (payload) => {
-        console.log(payload);
+        // console.log(payload);
         
         try {
             const response = await UserAxios.delete(`/groups/leave`, {

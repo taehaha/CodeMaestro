@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   const isLoggedIn = useSelector((state) => {
-    console.log("현재 로그인 상태 : ", state.user.isLoggedIn);
     return state.user.isLoggedIn});
   const dispatch = useDispatch();
   const navigate = useNavigate()

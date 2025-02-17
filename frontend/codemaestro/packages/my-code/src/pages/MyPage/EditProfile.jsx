@@ -51,7 +51,6 @@ const EditProfile = ({ user, onClose, onDelete }) => {
       if (profileImage && profileImage instanceof File) {
         formData.append("profileImage", profileImage);
       }
-      console.log("업데이트할 formData:", formData);
 
       await putUserInfo(formData);
       await dispatch(getMyInfo());

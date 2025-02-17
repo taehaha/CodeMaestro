@@ -123,7 +123,7 @@ export const NotificationsProvider = ({ children }) => {
       } catch {
         parsedData = event.data;
       }
-      console.log("groupRequest 이벤트 데이터:", parsedData);
+      // console.log("groupRequest 이벤트 데이터:", parsedData);
       displayToast(
         "info",
         `그룹 요청: ${parsedData.groupName || "새로운 그룹 가입 요청이 있습니다."}`
@@ -139,7 +139,7 @@ export const NotificationsProvider = ({ children }) => {
       } catch {
         parsedData = event.data;
       }
-      console.log("invite 이벤트 데이터:", parsedData);
+      // console.log("invite 이벤트 데이터:", parsedData);
       displayToast(
         "info",
         `초대 알림: ${parsedData.message || "새로운 초대 알림이 도착했습니다."}`
@@ -184,7 +184,7 @@ export const NotificationsProvider = ({ children }) => {
           console.error("응답 파싱 실패:", e);
           result = {};
         }
-        console.log("unsubscribe 성공:", result);
+        // console.log("unsubscribe 성공:", result);
       }
     } catch (error) {
       console.error("unsubscribe 에러:", error);
@@ -192,7 +192,7 @@ export const NotificationsProvider = ({ children }) => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
-        console.log("SSE 연결 종료됨");
+        // console.log("SSE 연결 종료됨");
       }
     }
   };

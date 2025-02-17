@@ -34,7 +34,7 @@ const Comments = ({ board_id }) => {
       if (!board_id) return;
       try {
         const data = await getCommentsByBoardId(board_id);
-        console.log("서버에서 받은 댓글:", data);
+        // console.log("서버에서 받은 댓글:", data);
         
         setComments(data);
       } catch (error) {
@@ -53,7 +53,7 @@ const Comments = ({ board_id }) => {
 
     try {
       const newComment = await addComment(board_id, CURRENT_USER_ID, commentText.trim());
-      console.log("📌 추가된 댓글 데이터:", newComment);
+      // console.log("📌 추가된 댓글 데이터:", newComment);
   
       if (newComment) {
         setCommentText(""); // ✅ 입력창 초기화

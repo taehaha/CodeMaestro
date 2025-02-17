@@ -16,8 +16,6 @@ const FriendsList = () => {
   // UserList 체크 상태 관리
   const [checkedUsers, setCheckedUsers] = useState([]);
   const user = useSelector((state) => state.user.myInfo);
-
-  console.log(user);
   
   useEffect(() => {
     const fetchFriends = async () => {
@@ -25,7 +23,6 @@ const FriendsList = () => {
       try {
         const response = await getFriendsInfo(user.userId);
         setFriends(response);
-        console.log(friends);
         
       } catch (error) {
         console.error("친구 정보를 가져오는 중 오류 발생:", error);
