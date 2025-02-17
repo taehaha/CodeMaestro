@@ -401,10 +401,17 @@ const GroupDetail = () => {
         )}
         {activeTab === "studies" && (
           <div className="text-center text-gray-700">
-            <GroupStudies groupId={groupId} userRole={userRole} />
-            <div className="flex justify-center items-center h-40 text-gray-500">
-          <p>그룹 가입을 통해 나의 다양한 스터디 기록을 확인하세요!</p>
-        </div>
+            {userRole !== ROLE.NONE ? (
+              <>
+                <GroupStudies groupId={groupId} userRole={userRole} />
+                <div className="flex justify-center items-center h-40 text-gray-500">
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-center items-center h-40 text-gray-500">
+                <p>스터디 그룹에 가입하여 기록을 확인할 수 있습니다.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
