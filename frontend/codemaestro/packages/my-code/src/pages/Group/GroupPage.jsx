@@ -359,6 +359,16 @@ const GroupDetail = () => {
                       </div>
               
               {/* --------- 우측 하단 '그룹 탈퇴' (MEMBER, ADMIN) --------- */}
+              {userRole !== ROLE.NONE && (
+                <div className="absolute bottom-4 right-8">
+                  <p
+                    className="text-gray-400 hover:brightness-75 cursor-pointer text-sm"
+                    onClick={handleLeaveGroup}
+                  >
+                    그룹 탈퇴
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -389,20 +399,14 @@ const GroupDetail = () => {
         {activeTab === "members" && (
           <GroupTable members={group.members} userRole={userRole} groupId={groupId}/>
         )}
-          {activeTab === "studies" && (
-            <div className="text-center text-gray-700">
-              {userRole !== ROLE.NONE ? (
-                <>
-                  <GroupStudies groupId={groupId} userRole={userRole} />
-                </>
-              ) : (
-                <div className="flex justify-center items-center h-40 text-gray-500">
-                  <p>스터디 그룹에 가입하여 기록을 확인할 수 있습니다.</p>
-                </div>
-              )}
-            </div>
-          )}
-
+        {activeTab === "studies" && (
+          <div className="text-center text-gray-700">
+            <GroupStudies groupId={groupId} userRole={userRole} />
+            <div className="flex justify-center items-center h-40 text-gray-500">
+          <p>그룹 가입을 통해 나의 다양한 스터디 기록을 확인하세요!</p>
+        </div>
+          </div>
+        )}
       </div>
 
 
