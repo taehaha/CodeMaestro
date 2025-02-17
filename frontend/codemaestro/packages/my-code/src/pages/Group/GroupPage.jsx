@@ -245,7 +245,7 @@ const GroupDetail = () => {
     } else {
       try {
         // 회의 생성
-        const response = await createGroupConference(groupId, { tagNameList: null });
+        const response = await createGroupConference(groupId, { tagNameList: [] });
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
         if (response) {
           const inviteLink = `/ide?roomId=${response.conferenceId}`;
