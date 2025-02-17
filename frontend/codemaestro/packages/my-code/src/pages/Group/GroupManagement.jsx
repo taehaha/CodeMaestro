@@ -50,7 +50,7 @@ const GroupManagement = ({group}) => {
         if (status === 200) {
           Swal.fire({
             title: "권한 변경 완료",
-            text: "그룹 관리자 권한이 성공적으로 양도되었습니다!",
+            text: "그룹 관리자 권한이 성공적으로 양도되었습니다.",
             icon: "success",
             iconColor:"#5FD87D",
             width: "500px",
@@ -63,7 +63,11 @@ const GroupManagement = ({group}) => {
               htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
               confirmButton: "swal-custom-button" // 버튼 스타일
             }
-          });
+          }).then((res)=>{
+            if (res.isConfirmed) {
+              window.location.reload()
+            }
+          })
         } else {
           Swal.fire({
             title: "권한 변경 실패",
