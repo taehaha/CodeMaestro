@@ -89,9 +89,11 @@ const CreateMeetingForm = ({groupId}) => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
-          await localStorage.setItem("camera",true)
-          await localStorage.setItem("audio",true)
-          await localStorage.setItem("accessCode",values.entry_password)
+          await localStorage.setItem("camera",false)
+          await localStorage.setItem("audio",false)
+          if (values.entry_password) {
+            await localStorage.setItem("accessCode",values.entry_password)
+          }
 
           window.location.href = inviteLink
         }

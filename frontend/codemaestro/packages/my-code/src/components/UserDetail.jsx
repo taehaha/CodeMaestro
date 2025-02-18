@@ -6,6 +6,12 @@ import { useSelector } from "react-redux";
 const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
   // 체크박스 선택/해제 처리
   const myInfo = useSelector((state) => state.user.myInfo);
+  const friends = useSelector((state) => state.user.friends);
+
+  // 친구 중복 확인용
+  const isFriend= (userId) => {
+    return friends.some((f) => f.friendId === userId);
+  }
 
   const handleCheckboxChange = (isChecked) => {
     if (isChecked) {
@@ -19,6 +25,18 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
 
   // 친구 추가 요청 처리 (addPage 모드)
   const handleAdd = () => {
+    if (isFriend(user.userId)) {
+      
+      Swal.fire({
+        title: "친구 추가 실패",
+        text: "이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
+        icon: "error",
+      })
+      return;
+    }
+
+
+
     Swal.fire({
       title: "친구 추가",
       text: `${user.nickname}님에게 친구 추가를 요청하시겠습니까?`,
@@ -40,6 +58,9 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+
+
+
           await FriendRequest({
             senderId: myInfo.userId,
             receiverId: user.userId,
@@ -65,7 +86,7 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             console.error("친구추가 요청 실패", error);
 
             if (error.response.status === 400) {
-              Swal.fire({title:"중복 요청청",
+              Swal.fire({title:"중복 요청",
                 icon:"error",
                 text:"이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
                 width: "500px",
