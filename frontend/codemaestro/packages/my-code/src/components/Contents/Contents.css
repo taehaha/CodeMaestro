@@ -68,7 +68,7 @@
 /* 이미지 크기 조정 */
 .feature-image {
   width: 100%; /* 격자 내부에서 작게 배치 */
-  max-width: 600px; /* 최대 크기 제한 */
+  max-width: 800px; /* 최대 크기 제한 */
   /* height: auto; */
   object-fit: contain; /* 원본 비율 유지 */
   border-radius: 10px;

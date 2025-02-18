@@ -57,7 +57,7 @@ const TagList = ({ rooms, selectTag }) => {
             <button
               key={index}
               onClick={() => handleTagClick(tag.tag)}
-              className={`btn btn-sm btn-outline border-0 px-2 py-2 rounded-sm text-sm font-semibold transition-all
+              className={`btn btn-sm btn-outline border-0 px-2 py-2 rounded-full text-sm font-semibold transition-all
                 ${selectedTags.includes(tag.tag)
                   ? "bg-gray-800 text-white" // 선택된 태그는 어두운 배경
                   : "bg-transparent text-black hover:bg-gray-200" // 기본 상태
