@@ -29,8 +29,18 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
       
       Swal.fire({
         title: "친구 추가 실패",
-        text: "이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
         icon: "error",
+        text: "이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
+        confirmButtonColor: "#FFCC00",
+        width: "500px",
+        background: "#f8f9fa", 
+        confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button", // 버튼 스타일
+            cancelButton: "swal-custom-button2"} // 버튼 스타일
       })
       return;
     }
