@@ -16,7 +16,6 @@ const EditProfile = ({ user, onClose, onDelete }) => {
   const [description, setDescription] = useState(user.description || "");
   const [profileImage, setProfileImage] = useState(null); // 파일 객체
   const [previewImage, setPreviewImage] = useState(user.profileImage || null); // 미리보기 URL
-  console.log(user);
   
   useEffect(() => {
     setNickname(user.nickname || "");
