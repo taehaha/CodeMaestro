@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import UserList from "../../components/UserList";
 import ManageFriend from "../Friend/ManageFriend";
 import AddFriends from "../Friend/AddFriends";
 import { getFriendsInfo } from "../../api/FriendApi";
 import LoadAnimation from "../../components/LoadAnimation";
 import { PropTypes } from "prop-types";
-import { useSelector } from "react-redux";
-
+import { useDispatch, useSelector } from "react-redux";
+import { getFriends } from "../../reducer/userSlice";
 import "./FriendsList.css";
+import { set } from "lodash";
 
 const FriendsList = () => {
   const [friends, setFriends] = useState([]);
@@ -16,14 +17,17 @@ const FriendsList = () => {
   // UserList 체크 상태 관리
   const [checkedUsers, setCheckedUsers] = useState([]);
   const user = useSelector((state) => state.user.myInfo);
-  
+  const dispatch = useDispatch();
+  const fetchfriends = useSelector((state) => state.user.friends);
+
   useEffect(() => {
-    const fetchFriends = async () => {
+
+    const fetchFriends = async  () => {
+
       setIsLoading(true);
       try {
-        const response = await getFriendsInfo(user.userId);
-        setFriends(response);
-        
+        await dispatch(getFriends(user.userId));
+        setFriends(fetchfriends);
       } catch (error) {
         console.error("친구 정보를 가져오는 중 오류 발생:", error);
       } finally {
@@ -67,7 +71,7 @@ const FriendsList = () => {
       {isAddFriendModalOpen && (
         <div className="modal-overlay" onClick={() => setIsAddFriendModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <AddFriends onClose={() => setIsAddFriendModalOpen(false)} />
+            <AddFriends onClose={() => setIsAddFriendModalOpen(false)} friends={friends}/>
           </div>
         </div>
       )}
