@@ -81,7 +81,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     if (onLeave) {
       onLeave();
     }
-    window.location.href = "/meeting";
+    window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/meeting`;
   };
 
   // 최소화/확대 토글
