@@ -21,22 +21,24 @@ const FriendsList = () => {
   const fetchfriends = useSelector((state) => state.user.friends);
 
   useEffect(() => {
-
-    const fetchFriends = async  () => {
-
+    const fetchFriends = async () => {
       setIsLoading(true);
       try {
-        await dispatch(getFriends(user.userId));
-        setFriends(fetchfriends);
+        await dispatch(getFriends(user.userId)); // 친구 목록 가져오기
+        // dispatch가 완료된 후 상태를 가져와서 friends를 설정
+        setFriends(fetchfriends); 
       } catch (error) {
         console.error("친구 정보를 가져오는 중 오류 발생:", error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchFriends();
-  }, []); // 컴포넌트 마운트 시 한 번 실행
+  
+    if (user.userId) {
+      fetchFriends();
+    }
+  }, [dispatch, user.userId, fetchfriends]); // 의존성에 dispatch, user.userId, fetchfriends 추가
+  
 
   // 친구 추가 모달 오픈 함수
   const openAddFriendPage = () => {
