@@ -250,6 +250,7 @@ class OpenviduClient {
 
     // Connection 과 데이터 얻기
     await this.session.connect(connectionToken);
+    
     this.myConnectionData = JSON.parse(
       this.session.connection.data
     ) as ConnectionData;
@@ -263,7 +264,7 @@ class OpenviduClient {
       videoSource: undefined, // 기본 설정 적용
       publishVideo: video,
       publishAudio: audio,
-      resolution: "640x480",
+      resolution: "320x240",
       frameRate: 15,
       insertMode: "APPEND",
       mirror: false,
