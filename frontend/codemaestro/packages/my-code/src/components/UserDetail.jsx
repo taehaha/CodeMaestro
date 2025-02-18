@@ -6,6 +6,12 @@ import { useSelector } from "react-redux";
 const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
   // 체크박스 선택/해제 처리
   const myInfo = useSelector((state) => state.user.myInfo);
+  const friends = useSelector((state) => state.user.friends);
+
+  // 친구 중복 확인용
+  const isFriend= (userId) => {
+    return friends.some((f) => f.friendId === userId);
+  }
 
   const handleCheckboxChange = (isChecked) => {
     if (isChecked) {
@@ -19,6 +25,18 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
 
   // 친구 추가 요청 처리 (addPage 모드)
   const handleAdd = () => {
+    if (isFriend(user.userId)) {
+      
+      Swal.fire({
+        title: "친구 추가 실패",
+        text: "이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
+        icon: "error",
+      })
+      return;
+    }
+
+
+
     Swal.fire({
       title: "친구 추가",
       text: `${user.nickname}님에게 친구 추가를 요청하시겠습니까?`,
@@ -40,6 +58,9 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+
+
+
           await FriendRequest({
             senderId: myInfo.userId,
             receiverId: user.userId,
@@ -61,8 +82,27 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
             }
           });
         } catch (error) {
+            
             console.error("친구추가 요청 실패", error);
-            Swal.fire({title:"에러 발생",
+
+            if (error.response.status === 400) {
+              Swal.fire({title:"중복 요청",
+                icon:"error",
+                text:"이미 친구인 유저에게 친구 요청을 보낼 수 없습니다.",
+                width: "500px",
+                background: "#f8f9fa",
+                confirmButtonColor: "#FFCC00",
+                confirmButtonText: "확인",
+                customClass: {
+                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                  title: "swal-custom-title",       // 제목 스타일
+                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                  confirmButton: "swal-custom-button" // 버튼 스타일
+                }
+      
+            })
+            } else {
+              Swal.fire({title:"에러 발생",
                 icon:"error",
                 text:"친구 추가 요청 중 에러가 발생하였습니다.",
                 width: "500px",
@@ -77,6 +117,9 @@ const UserDetail = ({ user, checkedUsers, setCheckedUsers, addPage }) => {
                 }
       
             })
+            }
+
+
             
         }
       }

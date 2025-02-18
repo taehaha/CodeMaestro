@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
+import UserAxios from "./api/userAxios";
 import {
   OpenVidu,
   Publisher,
@@ -19,9 +20,9 @@ interface ConnectionData {
 }
 
 interface Message {
-  userId: number
-  nickname: string
-  message: string
+  userId: number;
+  nickname: string;
+  message: string;
 }
 
 class OpenviduClient {
@@ -31,14 +32,16 @@ class OpenviduClient {
   private AXIOS: AxiosInstance;
 
   // 필드
+  private sessionId: number;
   private session: Session; // 현재 유저 세션
   private screenShareSession: Session; // 화면공유용 세션
   private connectionDatas: ConnectionData[] = []; // 연결된 유저의 데이터들
-  private myConnectionData: ConnectionData = { // 현재 유저 데이터
+  private myConnectionData: ConnectionData = {
+    // 현재 유저 데이터
     userId: 0,
     nickname: "not init",
     profileImageUrl: "not init",
-    description: "not init"
+    description: "not init",
   };
   private isModerator: boolean = false; // 현재 유저가 방장인지 확인
 
@@ -50,18 +53,22 @@ class OpenviduClient {
   // 클래스 사용자가 설정한 Callback 함수들
   private OnSubscriberAdded: (subscriber: Subscriber) => void = () => {};
   private OnSubscriberDeleted: (subscriber: Subscriber) => void = () => {};
-  private OnMessageReceived: (userId: number, nickname: string, message: string) => void = () => {};
+  private OnMessageReceived: (
+    userId: number,
+    nickname: string,
+    message: string
+  ) => void = () => {};
   private OnScreenAdded: (screen: Publisher | Subscriber) => void = () => {};
   private OnScreenDeleted: (screen: Publisher | Subscriber) => void = () => {};
   private OnModeratorChanged: (newModeratorId: number) => void = () => {};
 
   private async waitForStreamReady(stream: Stream): Promise<Stream> {
     console.log("스트림 대기중");
-    
+
     if (stream.hasVideo) {
       return stream;
     } else {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       return await this.waitForStreamReady(stream);
     }
   }
@@ -70,19 +77,21 @@ class OpenviduClient {
    * Openvidu Custom SDK for Codemaestro!!!
    * 보규보규 정보규 형님을 위한 Openvidu SDK wrapper Class
    * @author 1231724-김태영
-   * @param HOST_URL URL 객체 
+   * @param HOST_URL URL 객체
    * @param ACCESS_TOKEN 현재 유저의 ACCESS TOKEN
    * @param conferenceId 회의실 번호
    */
   constructor(HOST_URL: URL, ACCESS_TOKEN: string, conferenceId: number) {
-    this.AXIOS = axios.create({
-      baseURL: HOST_URL.href + "conference/" + conferenceId,
-      timeout: 1000,
-      headers: {
-        "Content-Type": "application/json",
-        access: ACCESS_TOKEN,
-      },
-    });
+    // this.AXIOS = axios.create({
+    //   baseURL: HOST_URL.href + "conference/" + conferenceId,
+    //   timeout: 1000,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     access: ACCESS_TOKEN,
+    //   },
+    // });
+    this.AXIOS = UserAxios;
+    this.sessionId = conferenceId;
 
     this.session = this.OV.initSession();
     this.screenShareSession = this.OVScreen.initSession();
@@ -91,28 +100,33 @@ class OpenviduClient {
     this.session.on("streamCreated", ({ stream }: { stream: Stream }) => {
       if (stream.typeOfVideo === "CAMERA" && stream.hasVideo) {
         console.log("웹캠 스트림 생성됨");
-        this.waitForStreamReady(stream)
-        .then((stream) => {
-          const subscriber = this.session.subscribe(stream, undefined); 
+        this.waitForStreamReady(stream).then((stream) => {
+          const subscriber = this.session.subscribe(stream, undefined);
           this.subscribers.push(subscriber);
           this.OnSubscriberAdded(subscriber);
         });
       }
     });
-    this.screenShareSession.on("streamCreated", ({ stream }: { stream: Stream }) => {
-      if (stream.typeOfVideo === "SCREEN" && stream.hasVideo) {
-        console.log("스크린 스트림 생성됨");
-        const screenSubscriber: Subscriber = this.screenShareSession.subscribe(stream, undefined);
-        this.screenStreamManager = screenSubscriber;
-        this.OnScreenAdded(screenSubscriber);
+    this.screenShareSession.on(
+      "streamCreated",
+      ({ stream }: { stream: Stream }) => {
+        if (stream.typeOfVideo === "SCREEN" && stream.hasVideo) {
+          console.log("스크린 스트림 생성됨");
+          const screenSubscriber: Subscriber =
+            this.screenShareSession.subscribe(stream, undefined);
+          this.screenStreamManager = screenSubscriber;
+          this.OnScreenAdded(screenSubscriber);
+        }
       }
-    });
+    );
 
     // 참가자가 떠나면 publish 구독을 해제함
     this.session.on("streamDestroyed", ({ stream }: { stream: Stream }) => {
       if (stream.typeOfVideo === "CAMERA") {
         console.log("웹캠 스트림 제거됨");
-        const index = this.subscribers.indexOf(stream.streamManager as Subscriber);
+        const index = this.subscribers.indexOf(
+          stream.streamManager as Subscriber
+        );
         if (index >= 0) {
           const subscriber = this.subscribers[index];
           this.subscribers.splice(index, 1);
@@ -121,41 +135,62 @@ class OpenviduClient {
         }
       }
     });
-    this.screenShareSession.on("streamDestroyed", ({ stream }: { stream: Stream }) => {
-      if (stream.typeOfVideo === "SCREEN") {
-        console.log("스크린 스트림 제거됨");
-        this.screenShareSession.unsubscribe(stream.streamManager as Subscriber);
-        const screenSubscriber = this.screenStreamManager;
-        this.screenStreamManager = null;
-        if (screenSubscriber && screenSubscriber instanceof Subscriber) {
-          this.OnScreenDeleted(screenSubscriber);
+    this.screenShareSession.on(
+      "streamDestroyed",
+      ({ stream }: { stream: Stream }) => {
+        if (stream.typeOfVideo === "SCREEN") {
+          console.log("스크린 스트림 제거됨");
+          this.screenShareSession.unsubscribe(
+            stream.streamManager as Subscriber
+          );
+          const screenSubscriber = this.screenStreamManager;
+          this.screenStreamManager = null;
+          if (screenSubscriber && screenSubscriber instanceof Subscriber) {
+            this.OnScreenDeleted(screenSubscriber);
+          }
         }
       }
-    });
+    );
 
     // 새로운 참가자가 입장하면 참가자 연결 정보를 저장함
-    this.session.on("connectionCreated", ({ connection }: { connection: Connection }) => {
-      if (connection.data) {
-        console.log("새로운 사용자가 들어옴");
-        const newConnectionData: ConnectionData = JSON.parse(connection.data) as ConnectionData;
-        
-        if (newConnectionData.userId !== JSON.parse(this.session.connection.data).userId) {
-          this.connectionDatas.push(newConnectionData);
-        }
-      }
-    });
+    this.session.on(
+      "connectionCreated",
+      ({ connection }: { connection: Connection }) => {
+        if (connection.data) {
+          console.log("새로운 사용자가 들어옴");
+          const newConnectionData: ConnectionData = JSON.parse(
+            connection.data
+          ) as ConnectionData;
 
-    this.session.on("connectionDestroyed", ({ connection }: { connection: Connection }) => {
-      if (connection.data) {
-        console.log("사용자가 제거됨");
-        
-        const removedConnectionData: ConnectionData = JSON.parse(connection.data) as ConnectionData;
-        const index = this.connectionDatas.findIndex((connectionData) => connectionData.userId === removedConnectionData.userId);
-        if (index >= 0) {
-          this.connectionDatas.splice(index, 1);
+          if (
+            newConnectionData.userId !==
+            JSON.parse(this.session.connection.data).userId
+          ) {
+            this.connectionDatas.push(newConnectionData);
+          }
         }
       }
-    });
+    );
+
+    this.session.on(
+      "connectionDestroyed",
+      ({ connection }: { connection: Connection }) => {
+        if (connection.data) {
+          console.log("사용자가 제거됨");
+
+          const removedConnectionData: ConnectionData = JSON.parse(
+            connection.data
+          ) as ConnectionData;
+          const index = this.connectionDatas.findIndex(
+            (connectionData) =>
+              connectionData.userId === removedConnectionData.userId
+          );
+          if (index >= 0) {
+            this.connectionDatas.splice(index, 1);
+          }
+        }
+      }
+    );
 
     // 내가 송출하는 video를 중지하라는 명령이 들어오는 경우 실행
     this.session.on("signal:unpublish-video", () => {
@@ -180,6 +215,13 @@ class OpenviduClient {
     this.session.on("signal:moderator-changed", (signalEvent: SignalEvent) => {
       this.isModerator = true;
       this.OnModeratorChanged(this.myConnectionData.userId);
+    });
+
+    this.session.on("sessionDisconnected", (event) => {
+      if (process.env.REACT_APP_FRONTEND_URL) {
+        window.location.href=`/${process.env.REACT_APP_FRONTEND_URL}/meeting`;
+        this.session.disconnect();
+      }
     })
 
     // 오류 발생하면 로그 찍어줌
@@ -202,17 +244,24 @@ class OpenviduClient {
     audio: boolean
   ): Promise<void> {
     // Connection Token 얻기
-    const response: AxiosResponse<any> = await this.AXIOS.post("/issue-token", {
-      accessCode: accessCode ? accessCode : null,
-    });
+    const response: AxiosResponse<any> = await this.AXIOS.post(
+      `/conference/${this.sessionId}/issue-token`,
+      {
+        accessCode: accessCode ? accessCode : null,
+      }
+    );
 
     const connectionToken: string = response.data.connectionToken;
-    const screenShareConnectionToken: string = response.data.screenShareConnectionToken;
-    
+    const screenShareConnectionToken: string =
+      response.data.screenShareConnectionToken;
+
     // Connection 과 데이터 얻기
     await this.session.connect(connectionToken);
-    this.myConnectionData = JSON.parse(this.session.connection.data) as ConnectionData;
     
+    this.myConnectionData = JSON.parse(
+      this.session.connection.data
+    ) as ConnectionData;
+
     await this.screenShareSession.connect(screenShareConnectionToken);
     this.isModerator = response.data.moderator;
 
@@ -220,9 +269,9 @@ class OpenviduClient {
     this.publisher = this.OV.initPublisher(undefined, {
       audioSource: undefined, // 기본 설정 적용
       videoSource: undefined, // 기본 설정 적용
-      publishAudio: video,
-      publishVideo: audio,
-      resolution: "640x480",
+      publishVideo: video,
+      publishAudio: audio,
+      resolution: "320x240",
       frameRate: 15,
       insertMode: "APPEND",
       mirror: false,
@@ -231,7 +280,7 @@ class OpenviduClient {
     this.session.publish(this.publisher);
 
     console.log("OPENVIDU 초기화 완료됨");
-    
+
     return;
   }
 
@@ -247,7 +296,9 @@ class OpenviduClient {
    * subscriber가 제거될 경우 실행될 callback 함수 등록
    * @param callback callback(subscriber)
    */
-  setSubscriberDeletedCallback(callback: (subscriber: Subscriber) => void): void {
+  setSubscriberDeletedCallback(
+    callback: (subscriber: Subscriber) => void
+  ): void {
     this.OnSubscriberDeleted = callback;
   }
 
@@ -265,7 +316,9 @@ class OpenviduClient {
    * 스크린 공유가 켜지면 실행될 callback 함수 등록
    * @param callback callback(screenSubscriber)
    */
-  setScreenAddedCallback(callback: (screenSubscriber: Subscriber | Publisher) => void): void {
+  setScreenAddedCallback(
+    callback: (screenSubscriber: Subscriber | Publisher) => void
+  ): void {
     this.OnScreenAdded = callback;
   }
 
@@ -273,15 +326,19 @@ class OpenviduClient {
    * 스크린 공유가 꺼지면 실행될 callback 함수 등록
    * @param callback callback(screenSubscriber)
    */
-  setScreenDeletedCallback(callback: (screenSubscriber: Subscriber | Publisher) => void): void {
+  setScreenDeletedCallback(
+    callback: (screenSubscriber: Subscriber | Publisher) => void
+  ): void {
     this.OnScreenDeleted = callback;
   }
 
   /**
    * 사용자가 변경될 겨웅
-   * @param callback callback(newModeratorId) 
+   * @param callback callback(newModeratorId)
    */
-  setModeratorChangedCallback(callback: (newModeratorId: number) => void): void {
+  setModeratorChangedCallback(
+    callback: (newModeratorId: number) => void
+  ): void {
     this.OnModeratorChanged = callback;
   }
 
@@ -325,7 +382,7 @@ class OpenviduClient {
 
             if (this.screenStreamManager instanceof Publisher) {
               this.OnScreenDeleted(this.screenStreamManager);
-              
+
               this.screenShareSession.unpublish(this.screenStreamManager);
               this.screenStreamManager = null;
             }
@@ -359,10 +416,13 @@ class OpenviduClient {
   unpublishMyScreen(): void {
     console.log("내 스크린 공유 끄기");
 
-    if (this.screenStreamManager && this.screenStreamManager instanceof Publisher) {
+    if (
+      this.screenStreamManager &&
+      this.screenStreamManager instanceof Publisher
+    ) {
       this.screenShareSession.unpublish(this.screenStreamManager);
       this.OnScreenDeleted(this.screenStreamManager);
-      
+
       this.screenStreamManager = null;
     }
   }
@@ -446,7 +506,7 @@ class OpenviduClient {
    * @param userId 내보낼 참가자 유저 번호
    */
   manageKickParticipant(userId: number): void {
-    this.AXIOS.delete("/user/" + userId)
+    this.AXIOS.delete(`/conference/${this.session.sessionId}/user/${userId}`)
       .then(() => {
         console.log("추방 성공. 추방된 유저 정보 :" + userId);
       })
@@ -457,30 +517,30 @@ class OpenviduClient {
 
   /**
    * 방장이 참가자 웹캠의 Publish 상태를 조절합니다.
-   * @param userId 
+   * @param userId
    */
   manageParticipantVideoOff(userId: number) {
-    this.AXIOS.delete("/video/" + userId)
-    .then(() => {
-      console.log("웹캠 끄기 성공. 대상 : " + userId);
-    })
-    .catch((err) => {
-      console.error("웹캠 끄기 중 에러 발생 : " + err);
-    });
+    this.AXIOS.delete(`/conference/${this.session.sessionId}/video/${userId}`)
+      .then(() => {
+        console.log("웹캠 끄기 성공. 대상 : " + userId);
+      })
+      .catch((err) => {
+        console.error("웹캠 끄기 중 에러 발생 : " + err);
+      });
   }
 
   /**
    * 방장이 참가자 오디오의 Publish 상태를 조절합니다.
-   * @param userId 
+   * @param userId
    */
   manageParticipantAudioOff(userId: number) {
-    this.AXIOS.delete("/audio/" + userId)
-    .then(() => {
-      console.log("마이크 끄기 성공. 대상 : " + userId);
-    })
-    .catch((err) => {
-      console.error("마이크 끄기 중 에러 발생 : " + err);
-    });
+    this.AXIOS.delete(`/conference/${this.session.sessionId}/audio/${userId}`)
+      .then(() => {
+        console.log("마이크 끄기 성공. 대상 : " + userId);
+      })
+      .catch((err) => {
+        console.error("마이크 끄기 중 에러 발생 : " + err);
+      });
   }
 
   /**
@@ -490,7 +550,12 @@ class OpenviduClient {
    * @param accessCode 비밀번호
    * @param thumbnailFile 썸네일 파일
    */
-  manageUpdateConferenceInfo(title: string, description: string, accessCode: string, thumbnailFile: File): void {
+  manageUpdateConferenceInfo(
+    title: string,
+    description: string,
+    accessCode: string,
+    thumbnailFile: File
+  ): void {
     console.log("회의실 내용 변경");
 
     const formData = new FormData();
@@ -499,7 +564,7 @@ class OpenviduClient {
     formData.append("accessCode", accessCode);
     formData.append("thumbnailFile", thumbnailFile);
 
-    this.AXIOS.put("", formData, {
+    this.AXIOS.put(`/conference/${this.session.sessionId}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -513,23 +578,25 @@ class OpenviduClient {
   }
 
   /**
-  * 방장을 변경합니다.
-  * @param userId 방장이 될 참가자 유저 번호
-  */
+   * 방장을 변경합니다.
+   * @param userId 방장이 될 참가자 유저 번호
+   */
   manageChangeModerator(targetUserId: number) {
     console.log("방장 변경");
-    
-    this.AXIOS.patch("/moderator/" + targetUserId)
-    .then(() => {
-      console.log("방장 변경 성공");
-      this.isModerator = false;
-      this.OnModeratorChanged(targetUserId);
-    })
-    .catch(() => {
-      console.error("방장 변경 실패");
-    });
+
+    this.AXIOS.patch(
+      `/conference/${this.session.sessionId}/moderator/${targetUserId}`
+    )
+      .then(() => {
+        console.log("방장 변경 성공");
+        this.isModerator = false;
+        this.OnModeratorChanged(targetUserId);
+      })
+      .catch(() => {
+        console.error("방장 변경 실패");
+      });
   }
-}  
+}
 
-
-export { OpenviduClient };  export type { ConnectionData };
+export { OpenviduClient };
+export type { ConnectionData };

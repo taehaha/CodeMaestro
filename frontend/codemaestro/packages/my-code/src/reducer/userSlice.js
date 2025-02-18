@@ -1,10 +1,10 @@
 // userSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { signin, signout, getUserInfo } from "../api/AuthApi";
+import { getFriendsInfo } from "../api/FriendApi";
 import tokenStorage from "../utils/tokenstorage";
 import Swal from "sweetalert2";
-import { clearNotifications } from "./notificationSlice";
-import { useDispatch } from "react-redux";
+
 // 1) 로그인
 export const loginUser = createAsyncThunk(
   "user/login",
@@ -54,12 +54,19 @@ export const getMyInfo = createAsyncThunk("user/getMyInfo", async () => {
   return response;
 });
 
+// 4) 친구 목록 조회
+export const getFriends = createAsyncThunk("user/getFriends", async (userId) => {
+  const response = await getFriendsInfo(userId);
+  return response;
+})
+
 // Slice
 const userSlice = createSlice({
   name: "user",
   initialState: {
     myInfo: {},
     isLoggedIn: false,
+    friends: [],
   },
   reducers: {
     setLoggedIn: (state, action) => {
@@ -97,6 +104,11 @@ const userSlice = createSlice({
     builder.addCase(getMyInfo.rejected, (state, action) => {
       console.error("유저 정보 요청 실패:", action.error.message);
     });
+
+    builder.addCase(getFriends.fulfilled, (state, action) => {
+      state.friends = action.payload;
+    });
+
   },
 });
 

@@ -6,6 +6,7 @@ import "./EmailAuth.css";
 import SignUpValidationSchema from "./SignUpValidationSchema";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Swal from "sweetalert2";
+
 const EmailAuth = () => {
   // Step 1 (이메일 인증) 관련 상태
   const [email, setEmail] = useState("");
@@ -18,6 +19,9 @@ const EmailAuth = () => {
 
   // 회원가입 완료 후 표시할 닉네임 (Step 3)
   const [registeredNickname, setRegisteredNickname] = useState("");
+
+  // 닉네임 중복 체크 상태
+  const [duplicateCheck, setDuplicateCheck] = useState(false); // 기본값은 false
 
   // 인증번호 전송 (이메일 중복 체크 및 인증번호 요청)
   const handleResendCode = async () => {
@@ -161,6 +165,12 @@ const EmailAuth = () => {
               }}
               validationSchema={SignUpValidationSchema}
               onSubmit={async (values, { setSubmitting, setStatus }) => {
+                // duplicateCheck가 false일 경우, 가입 진행되지 않도록 함
+                if (!duplicateCheck) {
+                  setStatus("닉네임 중복 확인을 먼저 해주세요.");
+                  setSubmitting(false);
+                  return;
+                }
                 try {
                   // 이메일 정보도 함께 전달하여 회원가입 API 호출
                   const res = await signup({
@@ -210,7 +220,7 @@ const EmailAuth = () => {
                           }
                           try {
                             const response = await nicknameCheck(values.nickname);
-                            
+
                             if (response === 200) {
                               // 사용 가능하면 에러 메시지를 지웁니다.
                               Swal.fire({
@@ -230,12 +240,13 @@ const EmailAuth = () => {
                               })
                               setFieldError("nickname", "");
                               setFieldTouched("nickname", true, false);
-                  
                             } else {
                               setFieldError("nickname", "이미 사용 중인 닉네임입니다.");
+                              setDuplicateCheck(false); // 중복이면 false
                             }
                           } catch (error) {
                             setFieldError("nickname", "서버 오류. 다시 시도해 주세요.");
+                            setDuplicateCheck(false); // 오류 발생 시 false
                           }
                         }}
                       >
@@ -270,7 +281,7 @@ const EmailAuth = () => {
                       placeholder="자기소개 입력 (최대 255자)"
                     />
                     <ErrorMessage name="description" component="div" className="error-message" />
-                    
+
                     <div className="signup-agreement">
                       <Field type="checkbox" id="agreement" name="agreement" />
                       <label htmlFor="agreement">
@@ -278,7 +289,6 @@ const EmailAuth = () => {
                       </label>
                     </div>
                     <ErrorMessage name="agreement" component="div" className="error-message mt-0" />
-
 
                     {status && <div className="status-message">{status}</div>}
 

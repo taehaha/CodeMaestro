@@ -16,23 +16,15 @@ const RoomCard = ({
   const navigate = useNavigate();
 
   const handleCardClick = () => {
+    console.log(isPassword);
+    
     // 인원이 10명을 초과하면 입장 불가
     if (participantNum > 10) {
       Swal.fire({
         title: "최대 인원",
         text: "최대 인원이 입장하여 더 이상 입장할 수 없습니다.",
         icon: "warning",
-        width: "500px",
-          background: "#f8f9fa",
-          confirmButtonColor: "#FFCC00",
-          confirmButtonText: "확인",
-          customClass: {
-            popup: "swal-custom-popup",       // 전체 팝업 스타일
-            title: "swal-custom-title",       // 제목 스타일
-            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-            confirmButton: "swal-custom-button" // 버튼 스타일
-          }
-
+        confirmButtonText: "확인",
       });
       return;
     }
@@ -41,23 +33,11 @@ const RoomCard = ({
     Swal.fire({
       title: "스터디 입장",
       icon: "success",
-      iconColor:"#5FD87D",
-      width: "500px",
-      background: "#f8f9fa",
-      confirmButtonColor: "#FFCC00",
       confirmButtonText: "확인",
-      customClass: {
-        popup: "swal-custom-popup",       // 전체 팝업 스타일
-        title: "swal-custom-title",       // 제목 스타일
-        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-        confirmButton: "swal-custom-button" // 버튼 스타일
-      }
-
     }).then(() => {
       navigate(`/meeting/${conferenceId}`, {
         state: {
-          // isPassword가 null이 아니면 비밀방
-          isPrivate: !!isPassword,
+          isPrivate: isPassword,
         },
       });
     });
@@ -65,7 +45,7 @@ const RoomCard = ({
 
   return (
     <div
-      className="card w-72 bg-base-100 shadow-xl rounded-xl cursor-pointer"
+      className="card w-72 bg-base-100 shadow-xl rounded-sm cursor-pointer"
       onClick={handleCardClick}
     >
       <figure className="relative">

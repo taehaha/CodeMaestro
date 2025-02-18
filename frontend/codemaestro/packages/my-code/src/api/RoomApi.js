@@ -31,7 +31,9 @@ export const createRoom = async (payload) => {
       // 문자열(또는 숫자)은 그대로 append
       formData.append("title", payload.title);
       formData.append("description", payload.description ?? "");
-      formData.append("accessCode", payload.accessCode ?? null);
+      if (payload.accessCode) {
+        formData.append("accessCode", payload.accessCode ?? null);
+      }
       
       // 배열, 객체 형태로 보내야 한다면 JSON.stringify를 사용하는 방법이 일반적임
       formData.append("tagNameList", payload.tagNameList);
@@ -78,7 +80,7 @@ export const createRoom = async (payload) => {
       }
   
       // 4) Axios로 multipart/form-data 형식으로 PUT 요청 전송
-      const response = await UserAxios.put(`/rooms/${roomId}`, formData, {
+      const response = await UserAxios.put(`/conference/${roomId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

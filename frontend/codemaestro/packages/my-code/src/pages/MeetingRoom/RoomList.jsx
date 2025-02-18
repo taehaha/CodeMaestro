@@ -9,7 +9,7 @@ const RoomList = ({ rooms }) => {
           key={room.conferenceId}
           conferenceId={room.conferenceId}
           title={room.title}
-          isPrivate={room.isPrivate}
+          isPassword={room.private}
           thumbnailUrl={room.thumbnailUrl}
           participantNum={room.participantNum}
           tagNameList={room.tagNameList}
