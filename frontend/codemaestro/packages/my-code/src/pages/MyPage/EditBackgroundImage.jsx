@@ -244,16 +244,6 @@ const EditBackgroundImage = ({ onClose }) => {
               저장
             </button>
           )}
-                    {imageSrc && (
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-sm text-sm font-medium bg-indigo-600 text-white
-                       hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              aria-label="저장"
-            >
-              취소소
-            </button>
-          )}
         </div>
       </div>
     </div>
