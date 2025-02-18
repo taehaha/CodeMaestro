@@ -98,7 +98,7 @@ const EmailAuth = () => {
         {step === 1 && (
           <div>
             <h2>이메일 인증</h2>
-            <p>Code Master에 가입하기 위해서 이메일 인증이 필요합니다!</p>
+            <p>코드 마에스트로에 가입하기 위해서 이메일 인증이 필요합니다!</p>
             <form className="signup-form" onSubmit={handleEmailVerification}>
               <div className="form-row">
                 <label htmlFor="email">이메일</label>
@@ -150,11 +150,12 @@ const EmailAuth = () => {
         {step === 2 && (
           <div>
             <h2>프로필 입력</h2>
-            <p>Code Master에 가입하기 위해 필요한 정보를 입력해주세요!</p>
+            <p>코드 마에스트로에 가입하기 위해 필요한 정보를 입력해주세요!</p>
             <Formik
               initialValues={{
                 nickname: "",
                 password: "",
+                passwordCheck: "",
                 description: "",
                 agreement: false,
               }}
@@ -186,17 +187,22 @@ const EmailAuth = () => {
               {({ isSubmitting, status, values, setFieldError, setFieldTouched }) => (
                 <Form className="signup-form step-2">
                   <div className="form-group">
-                    <label htmlFor="nickname">닉네임</label>
+                    <label htmlFor="nickname"
+                    style={{marginBottom:"-15px"}}>닉네임</label>
                     <div className="input-group">
                       <Field
                         type="text"
                         id="nickname"
                         name="nickname"
                         placeholder="닉네임 입력"
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        style={{ width: "100%", borderColor: "#ccc", padding: "8px", borderRadius: "5px", marginBottom:"-20px"}}
                       />
                       <button 
                         type="button" 
                         className="duplication-btn" 
+                        style={{ marginBottom:"-20px"}}
+
                         onClick={async () => {
                           if (!values.nickname) {
                             setFieldError("nickname", "닉네임을 입력하세요.");
@@ -208,8 +214,19 @@ const EmailAuth = () => {
                             if (response === 200) {
                               // 사용 가능하면 에러 메시지를 지웁니다.
                               Swal.fire({
-                                title:"사용이 가능한 닉네임입니다.",
+                                title:"사용이 가능한 닉네임 입니다.",
                                 icon:"success",
+                                iconColor:"#5FD87D",
+                                width: "500px",
+                                background: "#f8f9fa",
+                                confirmButtonColor: "#FFCC00",
+                                confirmButtonText: "확인",
+                                customClass: {
+                                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                                  title: "swal-custom-title",       // 제목 스타일
+                                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                                  confirmButton: "swal-custom-button" // 버튼 스타일
+                                }
                               })
                               setFieldError("nickname", "");
                               setFieldTouched("nickname", true, false);
@@ -234,8 +251,16 @@ const EmailAuth = () => {
                       name="password"
                       placeholder="비밀번호 입력"
                     />
-                    
                     <ErrorMessage name="password" component="div" className="error-message" />
+                    
+                    <label htmlFor="passwordCheck">비밀번호 확인</label>
+                    <Field
+                      type="password"
+                      id="passwordCheck"
+                      name="passwordCheck"
+                      placeholder="비밀번호 입력"
+                    />
+                    <ErrorMessage name="passwordCheck" component="div" className="error-message" />
 
                     <label htmlFor="description">자기소개</label>
                     <Field
@@ -272,7 +297,7 @@ const EmailAuth = () => {
           <div className="signup-complete">
             <h1>회원가입 완료</h1>
             <p>{registeredNickname}님 반가워요</p>
-            <p>Code Master에서 다양한 기능을 사용해보세요!</p>
+            <p>코드 마에스트로에서 다양한 기능을 사용해보세요!</p>
             <Link to="/login" className="signup-btn">
               로그인
             </Link>

@@ -222,5 +222,6 @@
   color: red;
   font-weight: bold;
   font-size: 12px;
-  margin-top: 2px;
+  /* margin-top: -25px; */
+  margin-bottom: 5px;
 }

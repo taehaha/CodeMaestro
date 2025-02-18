@@ -18,7 +18,7 @@ function MainSection() {
           우리 모두 함께해요, <br />
           <span className="highlight">코드 마에스트로</span>
         </h1>
-        <p>실시간 협업 코딩과 AI기반 학습으로 더 나은 개발자가 되어보세요.</p>
+        <p>실시간 화상 회의, 동시 편집 코드 툴, AI 기반 코드 리뷰까지! 협업과 학습을 한 곳에서 경험하세요.</p>
         <div className={`buttons ${isVisible ? 'visible' : ''}`}>
         <Link to="/meeting">
           <button className="start-btn">무료로 시작하기</button>

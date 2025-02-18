@@ -25,6 +25,9 @@ const SignUpValidationSchema = Yup.object().shape({
       "비밀번호는 영문, 숫자, 특수문자 중 두 가지 이상을 포함해야 합니다.",
       (value) => validatePasswordStrength(value)
     ),
+    passwordCheck: Yup.string()
+    .oneOf([Yup.ref("password"), null], "비밀번호가 같지 않습니다.") // ✅ 비밀번호 확인
+    .required("비밀번호 확인을 입력하세요."),
   // 자기소개: 최대 255자
   description: Yup.string().max(255, "자기소개는 최대 255자까지 입력 가능합니다."),
   agreement: Yup.boolean().oneOf([true], '약관에 동의해 주시길 바랍니다.')

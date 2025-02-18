@@ -47,7 +47,7 @@ function GroupTable({ members, groupId }) {
         accessor: "role",
       },
       {
-        Header: "회의 출석현황",
+        Header: "스터디 출석현황",
         Cell: ({ row }) => {
           const { userId } = row.original;
 

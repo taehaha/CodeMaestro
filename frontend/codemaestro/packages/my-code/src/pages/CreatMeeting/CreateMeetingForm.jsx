@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { CreateMeetingSchema } from "./CreateMeetingSchema"; // 위에서 만든 Yup 스키마
@@ -8,9 +9,9 @@ import { MdContentCopy } from "react-icons/md";
 import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
 import { createGroupConference } from "../../api/GroupApi";
-const CreateMeetingForm = ({groupId}) => {
+const CreateMeetingForm = ({groupId, onClose}) => {
   const MySwal = withReactContent(Swal);
-
+  const navigate = useNavigate();
   // 폼 제출
   const handleSubmit = async (values, { setSubmitting }) => {
     setSubmitting(true);
@@ -40,7 +41,7 @@ const CreateMeetingForm = ({groupId}) => {
       
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
-        title: "회의 생성 완료",
+        title: "스터디 생성 완료",
         showCloseButton: true,
         allowOutsideClick: false,
         html: (
@@ -85,7 +86,21 @@ const CreateMeetingForm = ({groupId}) => {
             </div>
           </div>
         ),
-        confirmButtonText: "확인"
+        text: "회의 초대 링크가 생성되었습니다!",
+        icon: "success",
+        iconColor: "#5FD87D",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        showCloseButton: true,
+        allowOutsideClick: false,
+        customClass: {
+          popup: "swal-custom-popup",
+          title: "swal-custom-title",
+          htmlContainer: "swal-custom-text",
+          confirmButton: "swal-custom-button"
+        },
       }).then(async (result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
@@ -95,9 +110,9 @@ const CreateMeetingForm = ({groupId}) => {
         }
       });
     } catch (error) {
-      console.error("방 생성 실패:", error);
+      console.error("스터디 생성 실패:", error);
       Swal.fire({
-        title: "방 생성 실패",
+        title: "스터디 생성 실패",
         text: "서버 오류가 발생했습니다. 다시 시도해주세요.",
         icon: "error",
         width: "500px",
@@ -354,7 +369,7 @@ const CreateMeetingForm = ({groupId}) => {
               {/* 비밀방 체크 */}
               <div className="form-control">
                 <label className="label cursor-pointer">
-                  <span className="label-text font-semibold">비밀방 설정</span>
+                  <span className="label font-semibold">비밀방 설정</span>
                   <Field type="checkbox" name="isPrivate" className="toggle toggle-primary checked:bg-[#ffcc00]" />
                 </label>
               </div>
@@ -362,7 +377,7 @@ const CreateMeetingForm = ({groupId}) => {
               {/* 비밀번호 (isPrivate true일 때만) */}
               {values.isPrivate && (
                 <div className="form-control">
-                  <label className="label font-semibold">비밀번호 (최대 15자)</label>
+                  <label className="label ml-1">비밀번호 (최대 15자)</label>
                   <Field
                     type="password"
                     name="entry_password"
@@ -378,7 +393,8 @@ const CreateMeetingForm = ({groupId}) => {
               )}
 
               {/* 제출 버튼 */}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+              <button className="btn bg-[#ddd] hover:bg-[#ccc] btn-sm" onClick={() => navigate("/meeting")}>취소</button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
