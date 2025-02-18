@@ -345,14 +345,6 @@ const CreateMeetingForm = ({groupId}) => {
                 )}
               </div>
 
-              {/* 공개 여부 */}
-              {/* <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text font-semibold">공개 여부</span>
-                  <Field type="checkbox" name="isVisible" className="toggle toggle-primary" />
-                </label>
-              </div> */}
-
               {/* 비밀방 체크 */}
               <div className="form-control">
                 <label className="label cursor-pointer">
