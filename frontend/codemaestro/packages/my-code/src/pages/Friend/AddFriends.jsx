@@ -4,7 +4,7 @@ import axios from "axios";
 import UserList from "../../components/UserList";
 import { searchUserInfo } from "../../api/FriendApi";
 
-const AddFriends = ({ onClose }) => {
+const AddFriends = ({ onClose,friends }) => {
   const [checkedUsers, setCheckedUsers] = useState([]); 
   const [searchInput, setSearchInput] = useState("");   
   const [searchResult, setSearchResult] = useState([]); // 검색 결과 저장
