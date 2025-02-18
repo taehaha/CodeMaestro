@@ -60,12 +60,15 @@ const Sidebar = ({ onSelect, user }) => {
               >
                 프로필 수정
               </button>
-              <button 
+              {(!user.loginProvider || user.loginProvider === "LOCAL") && (
+
+                <button 
                 onClick={() => setActiveTab("password")} 
                 className={`tab-button ${activeTab === "password" ? "active" : ""}`}
-              >
+                >
                 비밀번호 변경
               </button>
+              )}
             </div>
 
             {activeTab === "profile" && <EditProfile user={user} />}
