@@ -9,14 +9,11 @@
   text-align: center;
 }
 @font-face {
-  font-family: 'EditorFont';
-  src: url('./fonts/monaco.ttf') format('truetype');
+  font-family: 'NanumSquare_acB';
+  src: url('./fonts/NanumSquare_acB.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  /* 기본 라틴(0020-007F), 라틴-1 보충(00A0-00FF) */
-  unicode-range: U+0020-007F, U+00A0-00FF;
 }
-
 /* (2) 에디터용 EditorFont: 한글 -> NanumSquare_acB */
 @font-face {
   font-family: 'EditorFont';
