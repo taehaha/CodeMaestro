@@ -113,6 +113,78 @@ const EditBackgroundImage = ({ onClose }) => {
     }
   }, [imageSrc, croppedAreaPixels, onClose]);
 
+  const handleDelete= useCallback(async () => {
+    
+    try {
+
+      // 프로필 배경 이미지만 업데이트하도록 서버에 요청 (부분 업데이트)
+      const responseData = await putUserInfo({
+        profileBackgroundImage: null,
+      });
+
+      // API 모듈화 상태에 따라 응답 구조가 달라질 수 있으므로 적절히 수정
+      if (responseData === 200 || responseData.status === 200) {
+
+        await Swal.fire({
+          title: "변경 완료",
+          text: "프로필 배경이 변경되었습니다.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "확인",
+          iconColor:"#5FD87D",
+          width: "500px",
+          background: "#f8f9fa",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+        });
+        // 성공 시 새로고침s
+ 
+        await dispatch(getMyInfo());
+        window.location.reload();
+      } else {
+        await Swal.fire({
+          title: "오류",
+          text: "프로필 배경 변경 중 문제가 발생했습니다.",
+          icon: "error",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+        });
+      }
+      onClose();
+    } catch (error) {
+      console.error("이미지 크롭 오류:", error);
+      await Swal.fire({
+        title: "오류",
+        text: "프로필 배경 변경 중 문제가 발생했습니다.",
+        icon: "error",
+        width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+      });
+    }
+  }, [imageSrc, croppedAreaPixels, onClose]);
+
+
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-sm shadow-xl w-full max-w-md mx-4 sm:mx-0 p-6">
@@ -170,6 +242,16 @@ const EditBackgroundImage = ({ onClose }) => {
               aria-label="저장"
             >
               저장
+            </button>
+          )}
+                    {imageSrc && (
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 rounded-sm text-sm font-medium bg-indigo-600 text-white
+                       hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              aria-label="저장"
+            >
+              취소소
             </button>
           )}
         </div>

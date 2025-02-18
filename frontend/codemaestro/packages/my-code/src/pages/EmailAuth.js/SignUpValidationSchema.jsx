@@ -16,6 +16,7 @@ const SignUpValidationSchema = Yup.object().shape({
   nickname: Yup.string()
   .required("닉네임은 필수 항목입니다.")
   .max(10, "닉네임은 최대 10자입니다."),
+
   // 비밀번호: 공백 불가, 최소 8자, 영문/숫자/특수문자 중 두 가지 이상 포함
   password: Yup.string()
     .required("비밀번호는 필수 항목입니다.")
