@@ -217,6 +217,13 @@ class OpenviduClient {
       this.OnModeratorChanged(this.myConnectionData.userId);
     });
 
+    this.session.on("sessionDisconnected", (event) => {
+      if (process.env.REACT_APP_FRONTEND_URL) {
+        window.location.href=`/${process.env.REACT_APP_FRONTEND_URL}/meeting`;
+        this.session.disconnect();
+      }
+    })
+
     // 오류 발생하면 로그 찍어줌
     this.session.on("exception", (event: ExceptionEvent) => {
       console.warn("OpenviduClient 오류 발생 " + event.message);
