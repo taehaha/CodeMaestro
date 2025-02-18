@@ -112,7 +112,7 @@ const AddFriends = ({ onClose }) => {
       </div>
 
         {/* 버튼 영역 */}
-        <div className="flex justify-end gap-2 mt-12">
+        <div className="flex justify-end gap-2 mt-12 fixed bottom-4 right-4">
           <button
             className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
                        focus:outline-none focus:ring-gray-300 font-medium 
