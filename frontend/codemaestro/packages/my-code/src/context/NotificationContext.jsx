@@ -142,7 +142,8 @@ export const NotificationsProvider = ({ children }) => {
       console.log("invite 이벤트 데이터:", parsedData);
       displayToast(
         "info",
-        `초대 알림: ${parsedData.conferenceId || "새로운 스터디 초대가가 도착했습니다."}`
+        `초대 알림: ${parsedData.conferenceId || "새로운 스터디 초대가 도착했습니다."}`
+
       );
       dispatch(fetchNotifications(userId));
     });

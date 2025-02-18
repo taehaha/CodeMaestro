@@ -11,6 +11,12 @@
 # production
 /build
 
+# 모노레포용
+/dist
+
+# ydoc
+/server/yjs-docs
+
 # misc
 .DS_Store
 .env.local

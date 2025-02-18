@@ -45,14 +45,13 @@ const getAuthStatus = () => {
 
 const getOvInitInfo = () => {
   const OvInitInfo = {
-    audio: Boolean(localStorage.getItem('audio')),
-    video: Boolean(localStorage.getItem('video')),
-    accessCode: String(localStorage.getItem('accessCode'))
+    audio: localStorage.getItem("audio") === "true" ? true : false,
+    video: localStorage.getItem("camera") === "true" ? true : false,
+    accessCode: String(localStorage.getItem("accessCode")),
   };
 
   return OvInitInfo;
-}
-
+};
 
 const languages: Language[] = [
   { name: "Python", id: 71 },
@@ -74,8 +73,12 @@ const App: React.FC = () => {
 
   // 아래 모든 Hook은 조건에 상관없이 항상 호출되어야 함
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-  const [currentLeftTab, setCurrentLeftTab] = useState<"chat" | "chatbot" | "screen_share">("chat");
-  const [currentRightTab, setCurrentRightTab] = useState<"code" | "paint">("code");
+  const [currentLeftTab, setCurrentLeftTab] = useState<
+    "chat" | "chatbot" | "screen_share"
+  >("chat");
+  const [currentRightTab, setCurrentRightTab] = useState<"code" | "paint">(
+    "code"
+  );
   const [leftWidth, setLeftWidth] = useState<number>(400);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -87,25 +90,28 @@ const App: React.FC = () => {
   const [execTime, setExecTime] = useState<number | null>(null);
   const [execMemory, setExecMemory] = useState<number | null>(null);
   const initialTemplateApplied = useState<boolean>(false)[0];
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(languages[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(
+    languages[0]
+  );
   const [inputWidth, setInputWidth] = useState<number>(50);
   const [isSplitDragging, setIsSplitDragging] = useState<boolean>(false);
 
   // Openvidu 관련 상태
   const [ovClient, setOvClient] = useState<OpenviduClient>(null!);
-    // 내 Publisher 객체 (내 영상)
+  // 내 Publisher 객체 (내 영상)
   const [ovPublisher, setOvPublisher] = useState<Publisher>(null!);
-    // 원격 Subscriber 객체 배열 (상대 영상들)
-  const [ovSubscribers, setOvSubscribers ] = useState<Subscriber[]>([]);
-    // 스크린 스트림 관리자 (내 화면 또는 상대 화면)
-  const [ovScreenStreamManager, setOvScreenStreamManager] = useState<StreamManager | null>(null);
-    // 내가 방장인지 여부 관리
+  // 원격 Subscriber 객체 배열 (상대 영상들)
+  const [ovSubscribers, setOvSubscribers] = useState<Subscriber[]>([]);
+  // 스크린 스트림 관리자 (내 화면 또는 상대 화면)
+  const [ovScreenStreamManager, setOvScreenStreamManager] =
+    useState<StreamManager | null>(null);
+  // 내가 방장인지 여부 관리
   const [ovIsModerator, setOvIsModerator] = useState<Boolean>(false);
-    // 채팅 관련 상태 추가
+  // 채팅 관련 상태 추가
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-    // 관리 모달 오픈 상태
+  // 관리 모달 오픈 상태
   const [isManageModalOpen, setIsManageModalOpen] = useState<Boolean>(false);
-    // 스크린 공유 상태
+  // 스크린 공유 상태
   const isScreenSharing: boolean = useMemo(() => {
     return ovScreenStreamManager !== null;
   }, [ovScreenStreamManager]);
@@ -113,10 +119,13 @@ const App: React.FC = () => {
   // 언어 템플릿 적용
   const prevTemplateRef = React.useRef<string>("");
   useEffect(() => {
-    const template = languageTemplates.find(
-      (lang) => lang.id === selectedLanguage.id
-    )?.template || "";
-    if (!initialTemplateApplied && (code.trim() === "" || code === prevTemplateRef.current)) {
+    const template =
+      languageTemplates.find((lang) => lang.id === selectedLanguage.id)
+        ?.template || "";
+    if (
+      !initialTemplateApplied &&
+      (code.trim() === "" || code === prevTemplateRef.current)
+    ) {
       setCode(template);
       prevTemplateRef.current = template;
     }
@@ -186,7 +195,7 @@ const App: React.FC = () => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             source_code: encodedCode,
@@ -208,9 +217,15 @@ const App: React.FC = () => {
         console.log("Judge0 result:", result);
 
         if (result.status.id === 3) {
-          const decodedStdout = result.stdout ? Base64.decode(result.stdout) : "";
-          const decodedStderr = result.stderr ? Base64.decode(result.stderr) : "";
-          setOutput(decodedStdout + (decodedStderr ? `\nError:\n${decodedStderr}` : ""));
+          const decodedStdout = result.stdout
+            ? Base64.decode(result.stdout)
+            : "";
+          const decodedStderr = result.stderr
+            ? Base64.decode(result.stderr)
+            : "";
+          setOutput(
+            decodedStdout + (decodedStderr ? `\nError:\n${decodedStderr}` : "")
+          );
           if (result.time != null) {
             const timeVal = parseFloat(result.time);
             if (!isNaN(timeVal)) setExecTime(timeVal * 1000);
@@ -221,15 +236,21 @@ const App: React.FC = () => {
           }
           break;
         } else if (result.status.id === 7) {
-          const errOutput = result.stderr ? Base64.decode(result.stderr) : "Unknown runtime error.";
+          const errOutput = result.stderr
+            ? Base64.decode(result.stderr)
+            : "Unknown runtime error.";
           setOutput(`Runtime Error:\n${errOutput}`);
           break;
         } else if (result.status.id === 6) {
-          const compileError = result.compile_output ? Base64.decode(result.compile_output) : "Unknown compilation error.";
+          const compileError = result.compile_output
+            ? Base64.decode(result.compile_output)
+            : "Unknown compilation error.";
           setOutput(`Compilation Error:\n${compileError}`);
           break;
         } else if (result.status.id === 11) {
-          const errorOutput = result.stderr ? Base64.decode(result.stderr) : "Unknown error.";
+          const errorOutput = result.stderr
+            ? Base64.decode(result.stderr)
+            : "Unknown error.";
           setOutput(`Error:\n${errorOutput}`);
           break;
         }
@@ -309,13 +330,19 @@ const App: React.FC = () => {
     console.log("OPENVIDU : 로드된 conferenceId : " + conferenceId);
     console.log("OPENVIDU : 로드된 HOST_URL : " + HOST_URL);
     console.log("OPENVIDU : 로드된 ACCESS_TOKEN : " + ACCESS_TOKEN);
-    const client: OpenviduClient = new OpenviduClient(HOST_URL, ACCESS_TOKEN, conferenceId);
+    const client: OpenviduClient = new OpenviduClient(
+      HOST_URL,
+      ACCESS_TOKEN,
+      conferenceId
+    );
     setOvClient(client);
 
     // 채팅 메시지 수신 콜백 설정
-    client.setMessageReceivedCallback((userId: number, nickname: string, message: string) => {
-      setChatMessages((prev) => [...prev, { userId, nickname, message }]);
-    });
+    client.setMessageReceivedCallback(
+      (userId: number, nickname: string, message: string) => {
+        setChatMessages((prev) => [...prev, { userId, nickname, message }]);
+      }
+    );
     client.setSubscriberAddedCallback((remoteStreamManager) => {
       console.log("유저 접속 콜백 실행됨!");
       setOvSubscribers((prev) => [...prev, remoteStreamManager]);
@@ -324,8 +351,11 @@ const App: React.FC = () => {
     // 유저 접속해제 콜백 설정
     client.setSubscriberDeletedCallback((deletedSubscriber: Subscriber) => {
       setOvSubscribers((prevSubscribers: Subscriber[]) =>
-        prevSubscribers.filter(subscriber => 
-          subscriber.stream.connection.connectionId !== deletedSubscriber.stream.connection.connectionId)
+        prevSubscribers.filter(
+          (subscriber) =>
+            subscriber.stream.connection.connectionId !==
+            deletedSubscriber.stream.connection.connectionId
+        )
       );
     });
     client.setScreenAddedCallback((screenStreamManager) => {
@@ -342,9 +372,6 @@ const App: React.FC = () => {
       }
     });
 
-    console.log("OPENVIDU : 콜백 설정 완료");
-    console.log("OPENVIDU : 최초 초기 설정 : " + initInfo.video + " " + initInfo.audio);
-    
     //TODO: 방 비밀번호 입력 시퀸스, 입장시 캠 설정 필요함
     client
       .initConnection(initInfo.accessCode, initInfo.video, initInfo.audio)
@@ -354,7 +381,6 @@ const App: React.FC = () => {
         // 방장인지 확인
         setOvIsModerator(client.getIsModerator());
         console.log("OPENVIDU : 최초 스트림 설정됨.");
-
       })
       .catch((err) => {
         console.error("Openvidu 연결 실패:", err);
@@ -370,7 +396,19 @@ const App: React.FC = () => {
       ovClient.sendMessage(message);
     }
   };
-  
+
+  // 브라우저 탭 제거 전 동작
+  window.addEventListener("beforeunload", () => {
+    if (!ovIsModerator) return;
+
+    const participantsDatas = ovClient.gerParticipantDatas();
+
+    if (participantsDatas.length >= 1) {
+      const targetUserId = participantsDatas[0].userId;
+      ovClient.manageChangeModerator(targetUserId);
+    }
+  });
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors duration-300 flex">
       {/* 왼쪽 영역 (채팅, 챗봇, 화면공유) */}
@@ -383,15 +421,18 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chat")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chat"
-                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "chat"
+                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                }`}
               >
                 <img
                   src="/ide/img/talking.png"
                   alt="Chat"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chat" ? "opacity-100" : "opacity-50"}`}
+                  className={`w-6 h-6 me-2 ${
+                    currentLeftTab === "chat" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 채팅
               </button>
@@ -399,15 +440,18 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("chatbot")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "chatbot"
-                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "chatbot"
+                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                }`}
               >
                 <img
                   src="/ide/img/robot.png"
                   alt="Chatbot"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"}`}
+                  className={`w-6 h-6 me-2 ${
+                    currentLeftTab === "chatbot" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 챗봇
               </button>
@@ -416,15 +460,20 @@ const App: React.FC = () => {
             <li className="flex-1">
               <button
                 onClick={() => setCurrentLeftTab("screen_share")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentLeftTab === "screen_share"
-                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentLeftTab === "screen_share"
+                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                }`}
               >
                 <img
                   src="/ide/img/video.png"
                   alt="Screen Share"
-                  className={`w-6 h-6 me-2 ${currentLeftTab === "screen_share" ? "opacity-100" : "opacity-50"}`}
+                  className={`w-6 h-6 me-2 ${
+                    currentLeftTab === "screen_share"
+                      ? "opacity-100"
+                      : "opacity-50"
+                  }`}
                 />
                 화면공유
               </button>
@@ -437,7 +486,10 @@ const App: React.FC = () => {
               {ovPublisher ? (
                 <div className="mb-4">
                   <h3 className="text-lg font-bold mb-2">내 영상</h3>
-                  <UserVideoComponent streamManager={ovPublisher} isDarkMode={isDarkMode} />
+                  <UserVideoComponent
+                    streamManager={ovPublisher}
+                    isDarkMode={isDarkMode}
+                  />
                 </div>
               ) : (
                 <div>내 스트림이 설정되지 않았습니다.</div>
@@ -454,16 +506,21 @@ const App: React.FC = () => {
               </div>
               <div
                 className="mt-2 rounded overflow-auto scrollbar-thin-custom bg-white dark:bg-gray-900 p-2"
-                style={{ height: "100%", resize: "vertical", minHeight: "40vh", maxHeight: "60vh" }}
+                style={{
+                  height: "100%",
+                  resize: "vertical",
+                  minHeight: "40vh",
+                  maxHeight: "60vh",
+                }}
               >
-              {ovClient &&
-                <ChatComponent
-                  onSendMessage={handleSendMessage}
-                  messages={chatMessages}
-                  currentUserId={ovClient.getMyConnectionData().userId}
-                  isDarkMode={isDarkMode}
-                />
-              }
+                {ovClient && (
+                  <ChatComponent
+                    onSendMessage={handleSendMessage}
+                    messages={chatMessages}
+                    currentUserId={ovClient.getMyConnectionData().userId}
+                    isDarkMode={isDarkMode}
+                  />
+                )}
               </div>
             </>
           )}
@@ -479,7 +536,9 @@ const App: React.FC = () => {
                   <ScreenVideoComponent streamManager={ovScreenStreamManager} />
                 ) : (
                   <div className="flex items-center justify-center h-full text-white">
-                    {isScreenSharing ? "화면 공유 스트림 로딩 중..." : "화면 공유가 활성화되지 않았습니다."}
+                    {isScreenSharing
+                      ? "화면 공유 스트림 로딩 중..."
+                      : "화면 공유가 활성화되지 않았습니다."}
                   </div>
                 )}
               </div>
@@ -488,18 +547,22 @@ const App: React.FC = () => {
         </div>
       </div>
       <div
-        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${isDragging
-          ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
-          : "bg-gradient-to-b from-gray-300 to-gray-400"
-          }`}
+        className={`relative flex items-center justify-center w-3 h-full cursor-col-resize group ${
+          isDragging
+            ? "bg-gradient-to-b from-yellow-300 to-yellow-500"
+            : "bg-gradient-to-b from-gray-300 to-gray-400"
+        }`}
         style={{ height: "100vh" }}
         onMouseDown={() => setIsDragging(true)}
       >
         <div
-          className={`w-6 h-20 rounded-full shadow-md border-2 ${isDragging
-            ? "bg-yellow-500 border-yellow-700"
-            : "bg-white border-gray-300 group-hover:border-blue-500"
-            } transition-all transform ${isDragging ? "scale-125" : "group-hover:scale-110"}`}
+          className={`w-6 h-20 rounded-full shadow-md border-2 ${
+            isDragging
+              ? "bg-yellow-500 border-yellow-700"
+              : "bg-white border-gray-300 group-hover:border-blue-500"
+          } transition-all transform ${
+            isDragging ? "scale-125" : "group-hover:scale-110"
+          }`}
         ></div>
       </div>
       {/* 오른쪽 영역 (코드, 그림판) */}
@@ -509,15 +572,18 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("code")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "code"
-                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentRightTab === "code"
+                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                }`}
               >
                 <img
                   src="/ide/img/programming.png"
                   alt="Code"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "code" ? "opacity-100" : "opacity-50"}`}
+                  className={`w-6 h-6 me-2 ${
+                    currentRightTab === "code" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 코드
               </button>
@@ -532,43 +598,52 @@ const App: React.FC = () => {
             <li className="flex-1 relative">
               <button
                 onClick={() => setCurrentRightTab("paint")}
-                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${currentRightTab === "paint"
-                  ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
-                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                  }`}
+                className={`inline-flex items-center justify-center w-full p-4 border-b-2 rounded-t-lg ${
+                  currentRightTab === "paint"
+                    ? "text-yellow-600 border-yellow-600 dark:text-yellow-500 dark:border-yellow-500"
+                    : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                }`}
               >
                 <img
                   src="/ide/img/palette.png"
                   alt="Paint"
-                  className={`w-6 h-6 me-2 ${currentRightTab === "paint" ? "opacity-100" : "opacity-50"}`}
+                  className={`w-6 h-6 me-2 ${
+                    currentRightTab === "paint" ? "opacity-100" : "opacity-50"
+                  }`}
                 />
                 그림판
               </button>
-              
-              {ovIsModerator &&
+
+              {ovIsModerator && (
                 // 관리자 페이지 버튼
                 <div className="absolute top-0 right-12 mt-1 p-1">
                   <button
-                  onClick={() => setIsManageModalOpen(true)}
-                      className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
+                    onClick={() => setIsManageModalOpen(true)}
+                    className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
                   >
                     <Cog className="w-6 h-6" />
                   </button>
                 </div>
-              }
+              )}
               <div className="absolute top-0 right-0 mt-1 p-1">
                 <button
                   onClick={() => setIsDarkMode(!isDarkMode)}
                   className="p-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 dark:from-gray-700 dark:to-gray-600 hover:from-yellow-500 hover:to-orange-600 dark:hover:from-gray-600 dark:hover:to-gray-500 text-white shadow-lg transform hover:scale-105 transition duration-300 flex items-center justify-center"
                 >
-                  {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+                  {isDarkMode ? (
+                    <Sun className="w-6 h-6" />
+                  ) : (
+                    <Moon className="w-6 h-6" />
+                  )}
                 </button>
               </div>
             </li>
           </ul>
         </div>
         <div className="flex-grow overflow-auto p-4 transition-colors duration-300 scrollbar-thin-custom">
-          <div style={{ display: currentRightTab === "code" ? "block" : "none" }}>
+          <div
+            style={{ display: currentRightTab === "code" ? "block" : "none" }}
+          >
             <Editor
               code={code}
               handleCodeChange={setCode}
@@ -596,7 +671,6 @@ const App: React.FC = () => {
               >
                 <Save className="w-5 h-5" />
               </button>
-
             </div>
             <div
               id="input-output-container"
@@ -626,12 +700,14 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
-          <div style={{ display: currentRightTab === "paint" ? "block" : "none" }}>
+          <div
+            style={{ display: currentRightTab === "paint" ? "block" : "none" }}
+          >
             <PaintBoard />
           </div>
         </div>
       </div>
-      { ovClient && ovPublisher &&
+      {ovClient && ovPublisher && (
         <VideoControls
           ovClient={ovClient}
           ovPublisher={ovPublisher}
@@ -640,15 +716,15 @@ const App: React.FC = () => {
             console.log("방에서 나갔습니다.");
           }}
         />
-      }
-      { ovClient && ovPublisher && ovIsModerator &&
-        <ManageModalComponent 
-        ovClient={ovClient}
-        isOpen={isManageModalOpen}
-        onClose={() => setIsManageModalOpen(false)}
-        connectionDatas={ovClient.gerParticipantDatas()}
-      />
-      }
+      )}
+      {ovClient && ovPublisher && ovIsModerator && (
+        <ManageModalComponent
+          ovClient={ovClient}
+          isOpen={isManageModalOpen}
+          onClose={() => setIsManageModalOpen(false)}
+          connectionDatas={ovClient.gerParticipantDatas()}
+        />
+      )}
     </div>
   );
 };
