@@ -384,6 +384,10 @@ const App: React.FC = () => {
       })
       .catch((err) => {
         console.error("Openvidu 연결 실패:", err);
+        alert("스터디가 없거나 이미 접속중 입니다.");
+        if (process.env.REACT_APP_FRONTEND_URL) {
+          window.location.href=process.env.REACT_APP_FRONTEND_URL;
+        }
       });
     return () => {
       client.disconnect();
@@ -398,15 +402,18 @@ const App: React.FC = () => {
   };
 
   // 브라우저 탭 제거 전 동작
-  window.addEventListener("beforeunload", () => {
-    if (!ovIsModerator) return;
+  window.addEventListener("beforeunload", (event) => {
+    if (!ovClient) return; // ovClient가 없으면 그냥 종료
 
-    const participantsDatas = ovClient.gerParticipantDatas();
-
-    if (participantsDatas.length >= 1) {
-      const targetUserId = participantsDatas[0].userId;
-      ovClient.manageChangeModerator(targetUserId);
+    if (ovIsModerator) {
+      const participantsDatas = ovClient.gerParticipantDatas(); // 오타 수정
+      if (participantsDatas.length >= 1) {
+        const targetUserId = participantsDatas[0].userId;
+        ovClient.manageChangeModerator(targetUserId);
+      }
     }
+  
+    ovClient.disconnect(); // 안전한 종료
   });
 
   return (

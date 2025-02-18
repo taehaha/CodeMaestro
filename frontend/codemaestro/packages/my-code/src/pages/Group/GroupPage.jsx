@@ -237,6 +237,17 @@ const GroupDetail = () => {
         showCancelButton: true,
         confirmButtonText: "이동",
         cancelButtonText: "취소",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        cancelButtonColor: "#ddd",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button", // 버튼 스타일
+          cancelButton: "swal-custom-button2" // 버튼 스타일
+        }
       });
   
       if (result.isConfirmed) {

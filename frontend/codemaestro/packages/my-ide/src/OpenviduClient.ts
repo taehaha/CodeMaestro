@@ -217,6 +217,13 @@ class OpenviduClient {
       this.OnModeratorChanged(this.myConnectionData.userId);
     });
 
+    this.session.on("sessionDisconnected", (event) => {
+      if (process.env.REACT_APP_FRONTEND_URL) {
+        window.location.href="meeting";
+        this.session.disconnect();
+      }
+    })
+
     // 오류 발생하면 로그 찍어줌
     this.session.on("exception", (event: ExceptionEvent) => {
       console.warn("OpenviduClient 오류 발생 " + event.message);
@@ -250,6 +257,7 @@ class OpenviduClient {
 
     // Connection 과 데이터 얻기
     await this.session.connect(connectionToken);
+    
     this.myConnectionData = JSON.parse(
       this.session.connection.data
     ) as ConnectionData;
@@ -263,7 +271,7 @@ class OpenviduClient {
       videoSource: undefined, // 기본 설정 적용
       publishVideo: video,
       publishAudio: audio,
-      resolution: "640x480",
+      resolution: "320x240",
       frameRate: 15,
       insertMode: "APPEND",
       mirror: false,
