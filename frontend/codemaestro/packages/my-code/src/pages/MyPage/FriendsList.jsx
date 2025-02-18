@@ -12,18 +12,16 @@ import { set } from "lodash";
 
 const FriendsList = () => {
   const [friends, setFriends] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(false);
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
-  // UserList 체크 상태 관리
   const [checkedUsers, setCheckedUsers] = useState([]);
+
   const user = useSelector((state) => state.user.myInfo);
   const dispatch = useDispatch();
   const fetchfriends = useSelector((state) => state.user.friends);
 
   useEffect(() => {
-
-    const fetchFriends = async  () => {
-
+    const fetchFriends = async () => {
       setIsLoading(true);
       try {
         await dispatch(getFriends(user.userId));
@@ -34,36 +32,32 @@ const FriendsList = () => {
         setIsLoading(false);
       }
     };
-
     fetchFriends();
-  }, []); // 컴포넌트 마운트 시 한 번 실행
+  }, [dispatch, user.userId, fetchfriends]);
 
-  // 친구 추가 모달 오픈 함수
   const openAddFriendPage = () => {
     setIsAddFriendModalOpen(true);
   };
 
-  // 로딩 중일 때는 로딩 애니메이션을 표시
   if (isLoading) {
     return <LoadAnimation />;
   }
 
   return (
-    <div>
-      {/* <p className="header-style-border">친구 목록</p> */}
-      <div className="flex flex-col md:flex-row">
-        {/* UserList 영역 */}
-        <div className="w-full md:w-4/5">
-          <UserList
-            users={friends}
-            checkedUsers={checkedUsers}
-            setCheckedUsers={setCheckedUsers}
-          />
+    <div className="flex flex-col min-h-screen">
+      {/* 친구 목록 & 관리 버튼 컨테이너 */}
+      <div className="flex flex-row flex-grow w-full p-4">
+        {/* UserList (왼쪽) */}
+        <div className="w-full md:w-4/5 overflow-auto">
+          <UserList users={friends} checkedUsers={checkedUsers} setCheckedUsers={setCheckedUsers} />
         </div>
 
-        {/* ManageFriend 영역 */}
-        <div className="w-full md:w-1/5 mt-4 md:mt-0 md:ml-4">
+        {/* ManageFriend (오른쪽) */}
+        <div className="w-1/5 flex justify-end">
+        <div className="w-48 self-start">
+
           <ManageFriend openAddFriendPage={openAddFriendPage} checkedUsers={checkedUsers} />
+        </div>
         </div>
       </div>
 

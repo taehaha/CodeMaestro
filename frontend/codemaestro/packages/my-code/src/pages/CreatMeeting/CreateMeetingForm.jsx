@@ -93,8 +93,6 @@ const CreateMeetingForm = ({groupId, onClose}) => {
         background: "#f8f9fa",
         confirmButtonColor: "#FFCC00",
         confirmButtonText: "확인",
-        showCloseButton: true,
-        allowOutsideClick: false,
         customClass: {
           popup: "swal-custom-popup",
           title: "swal-custom-title",

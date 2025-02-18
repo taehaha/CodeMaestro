@@ -262,6 +262,17 @@ const GroupDetail = () => {
           Swal.fire({title:"생성 완료",
             text:"그룹 스터디가 생성되었습니다. 스터디룸으로 이동합니다.",
             icon:"success",
+            iconColor:"#5FD87D",
+            width: "500px",
+            background: "#f8f9fa",
+            confirmButtonColor: "#FFCC00",
+            confirmButtonText: "확인",
+            customClass: {
+              popup: "swal-custom-popup",       // 전체 팝업 스타일
+              title: "swal-custom-title",       // 제목 스타일
+              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+              confirmButton: "swal-custom-button" // 버튼 스타일
+            }
           }).then((res)=>{
             if (res.isConfirmed) {
               navigate(`/meeting/${response.conferenceId}`);  // 회의실로 이동
