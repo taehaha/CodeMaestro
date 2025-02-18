@@ -23,6 +23,9 @@ const EmailAuth = () => {
   // 닉네임 중복 체크 상태
   const [duplicateCheck, setDuplicateCheck] = useState(false); // 기본값은 false
 
+
+
+
   // 인증번호 전송 (이메일 중복 체크 및 인증번호 요청)
   const handleResendCode = async () => {
     if (!email) {
@@ -166,7 +169,7 @@ const EmailAuth = () => {
               validationSchema={SignUpValidationSchema}
               onSubmit={async (values, { setSubmitting, setStatus }) => {
                 // duplicateCheck가 false일 경우, 가입 진행되지 않도록 함
-                if (!duplicateCheck) {
+                if (!duplicateCheck) {                  
                   setStatus("닉네임 중복 확인을 먼저 해주세요.");
                   setSubmitting(false);
                   return;
@@ -238,6 +241,7 @@ const EmailAuth = () => {
                                   confirmButton: "swal-custom-button" // 버튼 스타일
                                 }
                               })
+                              await setDuplicateCheck(true); // 중복이 아니면 true
                               setFieldError("nickname", "");
                               setFieldTouched("nickname", true, false);
                             } else {

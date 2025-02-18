@@ -4,7 +4,7 @@ import axios from "axios";
 import UserList from "../../components/UserList";
 import { searchUserInfo } from "../../api/FriendApi";
 
-const AddFriends = ({ onClose,friends }) => {
+const AddFriends = ({ onClose }) => {
   const [checkedUsers, setCheckedUsers] = useState([]); 
   const [searchInput, setSearchInput] = useState("");   
   const [searchResult, setSearchResult] = useState([]); // 검색 결과 저장
@@ -112,7 +112,7 @@ const AddFriends = ({ onClose,friends }) => {
       </div>
 
         {/* 버튼 영역 */}
-        <div className="flex justify-end gap-2 mt-12">
+        <div className="flex justify-end gap-2 mt-12 fixed bottom-4 right-4">
           <button
             className="text-black bg-[#ddd] hover:bg-[#ccc] focus:ring-4 
                        focus:outline-none focus:ring-gray-300 font-medium 

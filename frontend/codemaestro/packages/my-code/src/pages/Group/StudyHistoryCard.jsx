@@ -146,7 +146,7 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
           {isEdit && (
             <div className="card-body flex flex-col items-center gap-3">
               <textarea
-                className="textarea textarea-bordered w-full h-1/3"
+                className="mx-auto textarea textarea-bordered w-full "
                 rows={4}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
