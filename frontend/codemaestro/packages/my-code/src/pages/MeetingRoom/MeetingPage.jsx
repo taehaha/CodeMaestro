@@ -97,7 +97,7 @@ const fillteredRooms = rooms.filter((room) => {
                   </button>
                 </div>
                 {isLoading && <LoadAnimation />}
-                {!isLoading && <RoomList rooms={fillteredRooms} />}
+                {!isLoading && <RoomList rooms={fillteredRooms}/>}
               </div>
             </div>
           </div>
