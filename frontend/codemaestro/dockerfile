@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 ###############################
 # Stage 1: 빌드 단계 (builder)
 ###############################
@@ -11,40 +13,30 @@ ARG REACT_APP_CONCURRENCY_BACKEND_URL
 ARG REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL
 
 # ARG 값을 ENV로 설정하여 빌드 도중 참조 가능하도록 함
-ENV OPENAI_API_KEY=${OPENAI_API_KEY} \
-    REACT_APP_FRONTEND_URL=${REACT_APP_FRONTEND_URL} \
-    REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL} \
-    REACT_APP_CONCURRENCY_BACKEND_URL=${REACT_APP_CONCURRENCY_BACKEND_URL} \
-    REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL=${REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL}
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
+ENV REACT_APP_FRONTEND_URL=$REACT_APP_FRONTEND_URL
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+ENV REACT_APP_CONCURRENCY_BACKEND_URL=$REACT_APP_CONCURRENCY_BACKEND_URL
+ENV REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL=$REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL
 
 # 작업 디렉터리 설정
 WORKDIR /app
 
-# 1-1. package.json, yarn.lock만 먼저 복사하여 캐시 활용
+# 1-1. package.json, yarn.lock만 복사하여 캐시 활용
 COPY package.json yarn.lock ./
-
-# (옵션) 중복된 의존성 제거를 위해 yarn-deduplicate 실행 (프로젝트에 devDependency로 추가되어 있어야 함)
-RUN npx yarn-deduplicate || echo "yarn-deduplicate 실행 실패 또는 별도 처리가 필요없음"
 
 # BuildKit 캐시 마운트를 활용하여 의존성 설치 속도 향상
 RUN --mount=type=cache,target=/root/.cache/yarn \
     yarn install --frozen-lockfile
 
-# 1-2. 전체 소스 복사 (.dockerignore로 불필요한 파일 제외)
+# 1-2. 전체 소스 복사 (필요한 파일만 복사하도록 .dockerignore 파일 활용 권장)
 COPY . .
-
-# (옵션) TS 타입 에러 해결을 위한 skipLibCheck 활성화  
-# my-ide 패키지의 tsconfig.json에 "skipLibCheck": true가 없으면 추가합니다.
-RUN if [ -f packages/my-ide/tsconfig.json ]; then \
-      grep -q '"skipLibCheck":' packages/my-ide/tsconfig.json || \
-      sed -i 's/"compilerOptions": {/"compilerOptions": {\n    "skipLibCheck": true,/' packages/my-ide/tsconfig.json; \
-    fi
 
 # 1-3. 모노레포 루트에 정의된 전체 빌드 실행
 RUN yarn build-all
 
-# 1-4. (옵션) 프로덕션 실행에 필요 없는 devDependencies 제거 및 Yarn 캐시 정리
-RUN yarn install --production --frozen-lockfile && yarn cache clean
+# 1-4. (옵션) 프로덕션 실행에 필요 없는 devDependencies 제거
+RUN yarn install --production --frozen-lockfile
 
 ###############################
 # Stage 2: 최종 실행 단계 (runner)
@@ -56,9 +48,6 @@ WORKDIR /app
 
 # 빌드 단계에서 생성된 결과물 복사 (프로덕션용 node_modules 포함)
 COPY --from=builder /app .
-
-# 프로덕션 환경 설정
-ENV NODE_ENV=production
 
 # Express 서버가 사용하는 포트 (예: 3000, 3001)
 EXPOSE 3000
