@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://www.codemaestro.site",
+    origin: process.env.REACT_APP_FRONTEND_URL,
   })
 );
 app.use(express.json());
