@@ -20,7 +20,7 @@
   src: url('./fonts/NanumSquare_acB.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  /* 한글 범위: AC00-D7A3 + 자모(1100-11FF, 3130-318F) */
+  /* 한글 범위: AC00-D7A3 + 자모(1100-11FF, 3130-318F) d*/
   unicode-range: U+AC00-D7A3, U+1100-11FF, U+3130-318F;
 }
 
