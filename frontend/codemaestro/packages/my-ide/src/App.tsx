@@ -384,13 +384,8 @@ const App: React.FC = () => {
         setOvIsModerator(client.getIsModerator());
         console.log("OPENVIDU : 최초 스트림 설정됨.");
       })
-      .catch((err) => {
-        console.error("Openvidu 연결 실패:", err);
-        alert("스터디가 없거나 이미 접속중 입니다.");
-        if (process.env.REACT_APP_FRONTEND_URL) {
-          window.location.href=process.env.REACT_APP_FRONTEND_URL;
-        }
-      });
+
+
     return () => {
       client.disconnect();
     };
