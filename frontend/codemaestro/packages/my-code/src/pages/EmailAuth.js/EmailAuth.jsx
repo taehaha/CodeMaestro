@@ -28,6 +28,14 @@ const EmailAuth = () => {
 
   // 인증번호 전송 (이메일 중복 체크 및 인증번호 요청)
   const handleResendCode = async () => {
+
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setMessage("유효한 이메일 주소를 입력해 주세요.");
+      return;
+    }
+
     if (!email) {
       setMessage("이메일을 입력하세요.");
       return;
@@ -56,6 +64,9 @@ const EmailAuth = () => {
   // 이메일 인증 제출
   const handleEmailVerification = async (e) => {
     e.preventDefault();
+
+
+    
     if (!email || !code) {
       setEmailMessage("모든 필드를 입력하세요.");
       return;
