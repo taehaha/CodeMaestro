@@ -44,15 +44,13 @@ public class S3Util {
      */
     public void deleteFile(String fileUrl) {
         System.out.println("################### fileUrl: " + fileUrl);
-        if (fileUrl == null) return;
+        if (fileUrl == null || fileUrl.isEmpty()) return;
 
         try {
             String fileName = extractFileNameFromUrl(fileUrl);
-            if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
-                throw new RuntimeException("파일이 존재하지 않습니다: " + fileName);
+            if (amazonS3Client.doesObjectExist(bucket, fileName)) { // 파일 존재하면
+                amazonS3Client.deleteObject(bucket, fileName); // 삭제
             }
-
-            amazonS3Client.deleteObject(bucket, fileName);
         } catch (Exception e) {
             throw new RuntimeException("파일 삭제 실패: " + e.getMessage());
         }

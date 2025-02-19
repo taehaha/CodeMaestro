@@ -28,7 +28,7 @@ public class Conference {
     @ManyToOne(fetch = FetchType.LAZY)
     Group group;
 
-    @Column(nullable = false)
+    @Column
     String thumbnailUrl;
 
     @Column(nullable = false)

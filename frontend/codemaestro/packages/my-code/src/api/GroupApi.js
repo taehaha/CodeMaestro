@@ -1,3 +1,4 @@
+import { assign } from "lodash";
 import UserAxios from "./userAxios";
 
     // 랭킹 그룹 가져오기
@@ -30,7 +31,7 @@ import UserAxios from "./userAxios";
     
 // 그룹 탈퇴
     export const LeaveGroup = async (payload) => {
-        console.log(payload);
+        // console.log(payload);
         
         try {
             const response = await UserAxios.delete(`/groups/leave`, {
@@ -116,3 +117,55 @@ import UserAxios from "./userAxios";
           return [];
         }
       };
+
+    
+    export const getGroupStric = async (groupId) => {
+        try {
+            const result = await UserAxios.get(`/groups/${groupId}/attendance`)
+            return result.data
+        } catch (error) {
+            console.error("스트릭 가져오는 중 오류 발생", error);
+            return [];
+        }
+    }
+
+
+    export const createGroupConference = async (groupId, payload) => {
+        try {
+            // 1) FormData 객체 생성
+            const formData = new FormData();
+      // 2) FormData에 필드 추가
+            // 문자열(또는 숫자)은 그대로 append
+            formData.append("title", payload.title);
+            formData.append("description", payload.description ?? "");
+            formData.append("accessCode", payload.accessCode ?? null);
+            
+            // 배열, 객체 형태로 보내야 한다면 JSON.stringify를 사용하는 방법이 일반적임
+            formData.append("tagNameList", payload.tagNameList);
+            formData.append("groupId", groupId);
+
+            // 3) 이미지(파일) 데이터 추가
+            //    payload.thumbnail이 File이나 Blob 형태인지 확인 필요
+            if (payload.thumbnail) {
+              formData.append("thumbnail", payload.thumbnail);
+            }
+        
+            // 4) Axios로 multipart/form-data 전송
+            const response = await UserAxios.post(`/conference/create`, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+        
+            // 5) 응답
+            return response.data;
+          } catch (error) {
+            console.error(error);
+            throw error;
+          }
+        };
+
+    export const isConference = async (groupId) => {
+        const response = await UserAxios.get(`/groups/conference/check`, {params:{groupId:groupId}})
+        return response
+    }

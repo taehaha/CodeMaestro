@@ -6,18 +6,18 @@ import NaverLoginButton from "../components/NaverLogin";
 import GoogleLoginButton from "../components/GoogleLogin";
 const MainPage = () => {
     const dispatch = useDispatch()
-    const handlePost = async () => {
-        const test = {
-            email:"dd@dd.com",
-            nickname:"asd",
-            password:"1234asas",
-            description:"1234asas"
-        }
-        console.log(test);
-        const res = await signup(test)
-        console.log(res);
+    // const handlePost = async () => {
+    //     const test = {
+    //         email:"dd@dd.com",
+    //         nickname:"asd",
+    //         password:"1234asas",
+    //         description:"1234asas"
+    //     }
+    //     console.log(test);
+    //     const res = await signup(test)
+    //     console.log(res);
 
-    }
+    // }
             
     const handleLogin = () => {
         const test = {

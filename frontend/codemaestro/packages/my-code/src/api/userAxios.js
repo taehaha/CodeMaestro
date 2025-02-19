@@ -8,10 +8,10 @@ import { setLoggedOut } from "../reducer/userSlice";
 // =======================================
 export const baseURL = "https://api.codemaestro.site"
 // export const baseURL = "https://test.api.codemaestro.site"
- //export const baseURL = "http://192.168.31.58:8080"
+
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
-  timeout: 3000,                      
+  timeout: 10000,                      
   withCredentials: true,                // 쿠키 전송 허용
 });
 
@@ -68,11 +68,11 @@ UserAxios.interceptors.response.use(
       }
 
       try {
-        console.log("🔄 401 발생 → Refresh Token으로 재발급 시도");
+        // console.log("🔄 401 발생 → Refresh Token으로 재발급 시도");
 
         // Refresh Token으로 Access Token 재발급
         // (withCredentials: true 유지)
-        const refreshResponse = await RefreshAxios.post("/auth/reissue", null);
+        const refreshResponse = await RefreshAxios.post("/auth/reissue", {});
 
         // 새 Access Token 추출
         const newAccessToken = refreshResponse?.headers?.access;

@@ -55,5 +55,9 @@
 
 .start-btn {
   background-color: #FFCC00;
-  color: white;
+  color: #182235;
+}
+.start-btn:hover {
+  background-color: #f0cc00;
+  color: #182235;
 }

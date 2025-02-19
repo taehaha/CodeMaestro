@@ -36,12 +36,14 @@ import PostsProvider from './context/PostsContext';
 import CommentsProvider from './context/CommentsContext';
 import PostCreate from './pages/Community/PostCreate';
 
+import ProtectedIDE from './router/ProtectedIDE';
+
 function App() {
   return (
     // <NotificationsProvider>
-          <PostsProvider>
+      <PostsProvider>
         <CommentsProvider>
-          <div className="w-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
+          <div className="w-screen min-h-screen flex flex-col bg-primaryBg  dark:bg-darkPrimaryBg">
             {/* Header 영역 */}
             <Header />
             {/* Body 영역 */}
@@ -71,12 +73,11 @@ function App() {
                   <Route path="/boards/create" element={<PostCreate />} />
                   <Route path="/boards/:boardId" element={<PostDetail/>}></Route>
                   <Route path="/group/:groupId" element={<GroupPage />} />
+                  <Route path="/ide" element={<ProtectedIDE />} />
                 </Route>
               </Routes>
             </main>
-            <div className="content-wrapper">
-              <Footer/>
-            </div>
+            <Footer className="mt-auto"/>
           </div> 
         </CommentsProvider>
        </PostsProvider>

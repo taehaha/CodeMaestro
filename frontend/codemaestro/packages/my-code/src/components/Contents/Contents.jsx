@@ -2,25 +2,30 @@ import React, { useEffect } from 'react';
 import './Contents.css';
 import ex from '../../assets/images/ex.png';
 import ex2 from '../../assets/images/ex2.gif';
+import edit from '../../assets/edit.mp4'
+import paint from '../../assets/paint.mp4'
 
 function Contents() {
   const features = [
-    {
-      title: '실시간 화상 회의',
-      description: '팀원과 실시간으로 소통하며 효율적인 협업을 진행하세요.',
-    },
+    // {
+    //   title: '실시간 화상 회의',
+    //   description: '팀원과 실시간으로 소통하며 효율적인 협업을 진행하세요.',
+    //   image: ex2
+    // },
     {
       title: '동시 편집 코드 툴',
       description: '즉각적인 코드 리뷰와 피드백으로 개발 경험을 향상시켜 보세요.',
+      video: edit,
     },
     {
       title: '동시 편집 그림판',
       description: '코드만으로 설명하기 어려운 개념을 직관적으로 표현하고 소통할 수 있습니다.',
+      video: paint,
     },
-    {
-      title: 'AI 활용 코드 리뷰',
-      description: 'AI 선생님 리치의 수준별 맞춤형 도움을 받아보세요!',
-    },
+    // {
+    //   title: 'AI 활용 코드 리뷰',
+    //   description: 'AI 선생님 리치의 수준별 맞춤형 도움을 받아보세요!',
+    // },
   ];
 
   useEffect(() => {
@@ -57,7 +62,14 @@ function Contents() {
             className={`feature-wrapper ${index % 2 === 0 ? 'left' : 'right'}`}
           >
             <div className="feature-image-box">
-              <img src={ex2} alt={`${feature.title} 이미지`} className="feature-image" />
+            {feature.image ? (
+              <img src={feature.image} alt={`${feature.title} 이미지`} className="feature-image" />
+            ) : (
+          <video autoPlay loop muted className="feature-video">
+            <source src={feature.video} type="video/mp4" />
+            브라우저가 비디오를 지원하지 않습니다.
+          </video>
+        )}
             </div>
             <div className="feature-item">
               <h3>{feature.title}</h3>

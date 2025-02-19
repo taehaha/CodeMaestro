@@ -8,7 +8,7 @@ export const signup = async (payload) => {
 
   
     try {
-      console.log(payload);
+      // console.log(payload);
       // 1) FormData 객체 생성
       const formData = new FormData();
       // 2) 텍스트 필드 추가
@@ -41,7 +41,7 @@ export const signup = async (payload) => {
     // 1) FormData 객체 생성
     const formData = new FormData();
     // 2) 텍스트 필드 추가
-    console.log(payload);
+    // console.log(payload);
     
     formData.append("username", payload.username);
     formData.append("password", payload.password);
@@ -68,7 +68,7 @@ export const signout = async () => {
       const response = await UserAxios.delete("/auth/logout")
       return response.data
     } catch (error) {
-      console.log("로그아웃 에러 발생",error);
+      console.error("로그아웃 에러 발생",error);
     }
 }
 
@@ -159,22 +159,10 @@ export const emailCheck = async (email) => {
 export const nicknameCheck = async (nickname) =>{
   try {
     const result = await UserAxios.get(`/api/validate/nickname/${nickname}`)
-    console.log(result);
-    
     return result.status
   } catch (error) {
     console.error("닉네임 중복 검사 중 오류 발견", error);
   }
 }
 
-export const getRequest = async () => {
-  try {
-    const result = await UserAxios.get(`users/request`);
-    return result.data;
-  } catch (error) {
-    console.error("요청 목록 가져오는 중 오류 발생", error);
-    // 에러 발생 시 빈 배열 반환 (notifications가 배열이라고 가정)
-    return [];
-  }
-};
 

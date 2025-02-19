@@ -31,7 +31,6 @@ public class GroupRequestService {
     private final NotificationService notificationService;
 
     // 그룹 가입 요청
-    @Transactional
     public void sendGroupJoinRequest(GroupJoinRequestDto request) {
         GroupJoinRequest groupJoinRequest = saveGroupJoinRequest(request);
 
@@ -73,7 +72,6 @@ public class GroupRequestService {
     }
 
     // 그룹 요청 수락
-    @Transactional
     public void acceptGroupJoinRequest(Long requestId) {
         // 요청을 DB에서 찾기
         Optional<GroupJoinRequest> optionalRequest = groupJoinRequestRepository.findById(requestId);

@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://192.168.31.193:3000",
+    origin: "https://www.codemaestro.site",
   })
 );
 app.use(express.json());

@@ -26,7 +26,7 @@ public class BojUser {
     @Column(nullable = false)
     private int tier;    // 백준 티어
 
-    @Column(nullable = false)
+    @Column()
     private LocalDateTime lastUpdated;
 
     public void updateTierInfo(int tier) {

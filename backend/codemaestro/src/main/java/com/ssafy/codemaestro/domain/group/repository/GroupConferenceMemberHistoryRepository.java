@@ -6,10 +6,13 @@ import com.ssafy.codemaestro.global.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface GroupConferenceMemberHistoryRepository extends JpaRepository<GroupConferenceMemberHistory, Long> {
 
     Optional<GroupConferenceMemberHistory> findByGroupConferenceHistoryAndParticipantAndLeaveTimeIsNull(GroupConferenceHistory history, User participant);
+
+    List<GroupConferenceMemberHistory> findByParticipantIdAndGroupConferenceHistory_GroupId(Long userId, Long groupId);
 }

@@ -2,6 +2,7 @@ package com.ssafy.codemaestro.domain.openvidu.service;
 
 import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
 import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
+import com.ssafy.codemaestro.domain.notification.service.NotificationService;
 import com.ssafy.codemaestro.domain.openvidu.dto.ConferenceConnectResponse;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceTagRepository;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -44,6 +46,7 @@ public class ConferenceService {
     private final ConferenceTagRepository conferenceTagRepository;
     private final UserConferenceRepository userConferenceRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
+    private final NotificationService notificationService;
     private final GroupRepository groupRepository;
 
     private final OpenViduUtil openViduUtil;
@@ -85,7 +88,13 @@ public class ConferenceService {
      * @throws RuntimeException OpenVidu 서버 통신이나 OpenVidu Java 클라이언트 오류가 발생한 경우.
      */
     @Transactional
-    public String initializeConference(User requestUser, String title, String description, String accessCode, Long groupId, List<String> tagNameList) {
+    public String initializeConference(User requestUser,
+                                       String title,
+                                       String description,
+                                       String accessCode,
+                                       Long groupId,
+                                       List<String> tagNameList,
+                                       MultipartFile thumbnail) {
         // 이미 User가 Connection을 가지고 있으면 throw
         userConferenceRepository.findByUser(requestUser).ifPresent(
                 conference -> {
@@ -94,6 +103,13 @@ public class ConferenceService {
 
         Conference.ConferenceBuilder conferenceBuilder = Conference.builder();
         Conference conference;
+        String thumbnailUrl = null;
+
+        if (thumbnail != null) {
+            thumbnailUrl = s3Util.uploadFile(thumbnail);
+        } else {
+            thumbnailUrl = "https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_thumbnail.png";
+        }
 
         // 그룹 회의인 경우
         if(groupId != null) {
@@ -102,7 +118,7 @@ public class ConferenceService {
 
             // 회의 기본정보 설정
             LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E)", Locale.KOREAN);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (E) HH시", Locale.KOREAN);
             String date = now.format(formatter);
             String groupTitle = date + " " + group.getName() + " 회의";
             String groupDescription = date + " " + group.getName() + "의 회의입니다.";
@@ -110,7 +126,7 @@ public class ConferenceService {
             conferenceBuilder.moderator(requestUser)
                              .title(groupTitle)
                              .description(groupDescription)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .group(group);
 
             // Conference 저장
@@ -129,13 +145,21 @@ public class ConferenceService {
                     .build();
 
             groupConferenceHistoryRepository.save(history);
+
+            // 그룹 회원들에게 알림 전송
+            List<GroupMember> groupMembers = group.getMembers();
+            for(GroupMember member : groupMembers) {
+                if(!member.getUser().getId().equals(requestUser.getId())) { // 회의 생성자 제외하고 알림
+                    notificationService.sendGroupConferenceNotification(member.getUser().getId(), groupId, group.getName());
+                }
+            }
         }
         // 일반 회의인 경우
         else {
             conferenceBuilder.moderator(requestUser)
                              .title(title)
                              .description(description)
-                             .thumbnailUrl("https://picsum.photos/400/200")
+                             .thumbnailUrl(thumbnailUrl)
                              .accessCode(accessCode);
 
             conference = conferenceBuilder.build();
@@ -224,7 +248,9 @@ public class ConferenceService {
             connection = session.createConnection(properties);
             screenShareConnection = session.createConnection(screenShareConnectionProperties);
 
-            return new ConferenceConnectResponse(connection.getToken(), screenShareConnection.getToken());
+            return new ConferenceConnectResponse(connection.getToken(),
+                    screenShareConnection.getToken(),
+                    Objects.equals(requestUser.getId(), conference.getModerator().getId()));
         } catch (OpenViduHttpException e) {
             log.error("OpenVidu Session 생성 중 OpenVidu Server와 통신 오류.");
             log.error(e.getMessage());
@@ -245,8 +271,14 @@ public class ConferenceService {
     }
 
     public int getParticipantNum(String conferenceId) {
-        Session session = openVidu.getActiveSession(conferenceId);
-        return session.getActiveConnections().size();
+        return (int) conferenceRepository.countConferenceById(Long.valueOf(conferenceId));
+    }
+
+    public boolean checkAccessCode(String conferenceId, String accessCode) {
+        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
+                .orElseThrow(() -> new CannotFindSessionException("conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
+
+        return openViduUtil.isAccessCodeCorrect(accessCode, conference);
     }
 
     public List<User> getParticipants(String conferenceId) {
@@ -346,9 +378,6 @@ public class ConferenceService {
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
 
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
         openViduUtil.sendSignal(
                 conferenceId,
                 Collections.singletonList(targetConnection),
@@ -373,14 +402,6 @@ public class ConferenceService {
         //
         Session session = openVidu.getActiveSession(conferenceId);
         Connection targetConnection = session.getConnection(targetUserConnectionId);
-
-        List<Publisher> publisherList = targetConnection.getPublishers();
-        log.debug("Publisher List is Empty : " + publisherList.isEmpty());
-
-        Publisher publisher = publisherList.isEmpty() ? null : publisherList.get(0);
-        if (publisher == null) {
-            throw new BadRequestException("Publish가 없습니다.");
-        }
 
         openViduUtil.sendSignal(
                 conferenceId,

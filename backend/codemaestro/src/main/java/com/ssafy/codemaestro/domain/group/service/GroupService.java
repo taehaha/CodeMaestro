@@ -1,10 +1,8 @@
 package com.ssafy.codemaestro.domain.group.service;
 
 import com.ssafy.codemaestro.domain.group.dto.*;
-import com.ssafy.codemaestro.domain.group.repository.GroupConferenceHistoryRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupJoinRequestRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupMemberRepository;
-import com.ssafy.codemaestro.domain.group.repository.GroupRepository;
+import com.ssafy.codemaestro.domain.group.repository.*;
+import com.ssafy.codemaestro.domain.openvidu.repository.ConferenceRepository;
 import com.ssafy.codemaestro.domain.user.repository.UserRepository;
 import com.ssafy.codemaestro.global.entity.*;
 import com.ssafy.codemaestro.global.exception.BadRequestException;
@@ -12,12 +10,14 @@ import com.ssafy.codemaestro.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.*;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -31,6 +31,8 @@ public class GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final GroupJoinRequestRepository groupJoinRequestRepository;
     private final GroupConferenceHistoryRepository groupConferenceHistoryRepository;
+    private final GroupConferenceMemberHistoryRepository memberHistoryRepository;
+    private  final ConferenceRepository conferenceRepository;
 
     // 그룹 생성
     public GroupResponseDto createGroup(GroupRequestDto groupRequestDto) {
@@ -184,5 +186,101 @@ public class GroupService {
                 endDate,
                 PageRequest.of(0, 10)
         );
+    }
+
+    // 유저별 그룹 회의 참여 정보 조회
+    public GroupConferenceStateResponse getUserConferenceStats(Long groupId, Long userId) {
+        // 그룹 전체 회의 수 조회
+        Integer totalConferences = groupConferenceHistoryRepository.countByGroupId(groupId);
+
+        // 참여 이력 조회
+        List<GroupConferenceMemberHistory> histories =
+                memberHistoryRepository.findByParticipantIdAndGroupConferenceHistory_GroupId(userId, groupId);
+
+        // DTO 반환
+        List<ConferenceParticipationDto> participations = new ArrayList<>();
+        for(GroupConferenceMemberHistory history : histories) {
+            ConferenceParticipationDto dto = ConferenceParticipationDto.from(history);
+            participations.add(dto);
+        }
+
+        return new GroupConferenceStateResponse(totalConferences, participations);
+    }
+
+    // 최근 5개의 회의별 그룹원 참여 여부
+    public GroupConferenceAttendanceResponse getGroupAttendance(Long groupId) {
+        // 최근 5개의 회의 조회
+        Pageable pageable = PageRequest.of(0, 5);
+        List<GroupConferenceHistory> recentConferences = groupConferenceHistoryRepository
+                .findTop5ByGroupIdOrderByStartTimeDesc(groupId, pageable);
+
+        Group group = groupConferenceHistoryRepository.findGroupWithMembers(groupId);
+
+        List<ConferenceInfo> conferenceInfos = new ArrayList<>(); // 저장 필요
+        for(GroupConferenceHistory conference : recentConferences) {
+            conferenceInfos.add(new ConferenceInfo(
+                    conference.getId(),
+                    conference.getTitle(),
+                    conference.getStartTime()
+            ));
+        }
+
+        // 회의별 참석 현황 기록
+        Map<Long, ConferenceAttendanceDto> attendanceMap = new HashMap<>();
+        // 5개의 회의 순회하면서
+        for(GroupConferenceHistory conference : recentConferences) {
+            // 회의에 참석한 사람들의 ID 저장(중복 없음)
+            Set<Long> attendees = new HashSet<>();
+            for(GroupConferenceMemberHistory history : conference.getMemberHistories()) {
+                attendees.add(history.getParticipant().getId());
+            }
+
+            // 그룹의 모든 멤버 돌면서 참석했는지 확인하고 기록
+            for(GroupMember groupMember : group.getMembers()) {
+                User member = groupMember.getUser();
+                Long memberId = member.getId();
+
+                if(!attendanceMap.containsKey(memberId)) {
+                    attendanceMap.put(memberId, new ConferenceAttendanceDto(
+                            memberId,
+                            member.getNickname(),
+                            new ArrayList<>(),
+                            0.0
+                    ));
+                }
+                attendanceMap.get(memberId).getAttendanceStatus()
+                        .add(attendees.contains(memberId));
+            }
+        }
+
+        // 참석률 계산
+        List<ConferenceAttendanceDto> memberAttendance = new ArrayList<>();
+        for(ConferenceAttendanceDto dto : attendanceMap.values()) {
+            int attendCount = 0;
+            for(Boolean attend : dto.getAttendanceStatus()) {
+                if(attend) attendCount++;
+            }
+
+            dto.setAttendanceRate((double) attendCount * 100 / recentConferences.size());
+            memberAttendance.add(dto);
+        }
+
+        return new GroupConferenceAttendanceResponse(conferenceInfos, memberAttendance);
+    }
+
+    // 현재 진행중인 그룹 회의있는지 확인
+
+    public ResponseEntity<Long> checkCurrentGroupConference(Long groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not Found"));
+
+        Optional<Conference> activeConference = conferenceRepository.findByGroup(group);
+
+        if(activeConference.isPresent()) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .body(activeConference.get().getId());
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

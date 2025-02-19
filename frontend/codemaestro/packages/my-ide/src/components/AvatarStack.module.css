@@ -28,8 +28,8 @@
   object-fit: cover;
 }
 
-/* 마우스 올리면면 나타나는 닉네임 */
-.tooltip {
+.tooltip,
+.extraTooltip {
   position: absolute;
   bottom: -28px;
   left: 50%;
@@ -39,14 +39,18 @@
   font-size: 12px;
   padding: 4px 6px;
   border-radius: 4px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
   white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  z-index: 10;
 }
 
+/* 아바타에 마우스시 닉네임 보이기 */
 .avatar:hover .tooltip {
   opacity: 1;
+  visibility: visible;
 }
 
 .more {
@@ -61,4 +65,16 @@
   font-size: 14px;
   font-weight: bold;
   color: #333;
+  cursor: pointer;
+}
+
+.moreContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* 더보기 영역에 마우스시 추가 사용자 목록 */
+.moreContainer:hover .extraTooltip {
+  opacity: 1;
+  visibility: visible;
 }

@@ -14,7 +14,7 @@ const UserList = ({ users, checkedUsers, setCheckedUsers, addPage, searchTerm })
   });
 
   return (
-    <ul role="list" className="p-6 divide-y divide-slate-200 overflow-y-auto max-h-[400px] mt-3">
+    <ul role="list" className="p-6 divide-y divide-slate-200 max-h-[400px] mt-3">
       {filteredUsers.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-4">
           <svg
@@ -32,7 +32,7 @@ const UserList = ({ users, checkedUsers, setCheckedUsers, addPage, searchTerm })
             />
           </svg>
           <h2 className="text-lg font-semibold text-slate-700">
-            No Users Found
+            등록된 친구가 없습니다. 친구를 추가해보세요!
           </h2>
         </div>
       ) : (

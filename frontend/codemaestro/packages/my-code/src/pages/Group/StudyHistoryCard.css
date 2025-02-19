@@ -1,0 +1,34 @@
+/* 부모 컨테이너에 원근감 부여 */
+.wrapper {
+  perspective: 1000px; /* 카드가 회전될 때 원근 효과 */
+  width: 100%;        /* 카드 크기 예시 */
+  height: 200px;       /* 카드 크기 예시 */
+  position: relative;  /* 필요하다면 위치 지정 */
+}
+
+/* 회전될 카드 자체 */
+.flip-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.5s; /* 회전 애니메이션 부드럽게 */
+  transform-style: preserve-3d; /* 3D 공간에서 자식 요소를 보이게 함 */
+}
+
+/* 클래스가 붙었을 때 회전 */
+.flip-card.flipped {
+  transform: rotateY(180deg);
+}
+
+/* 앞면, 뒷면 공통 스타일 */
+.front, .back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  backface-visibility: hidden; /* 뒤집힐 때 뒷면 보이지 않도록 함 */
+}
+
+/* 뒷면은 기본적으로 180도 회전시켜 놓음 */
+.back {
+  transform: rotateY(180deg);
+}

@@ -31,7 +31,6 @@ const PostCreate = () => {
       userId: CURRENT_USER_ID, // 🔥 userId → user_id (백엔드 요구사항 확인 필요)
     };
   
-    console.log("📌 게시글 생성 요청 데이터:", payload); // ✅ JSON인지 확인
   
     const newPost = await createBoard({ title, content, userId: CURRENT_USER_ID});
     

@@ -50,9 +50,21 @@ const MyGroupList = () => {
     Swal.fire({
       title: "그룹 이동",
       text: `${group.name} 그룹으로 이동하시겠습니까?`,
+      icon: "question",
       showCancelButton: true,
       confirmButtonText: "이동",
       cancelButtonText: "취소",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
+      cancelButtonColor: "#ddd",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button", // 버튼 스타일
+        cancelButton: "swal-custom-button2" // 버튼 스타일
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         navigate(`/group/${group.id}`);
@@ -78,8 +90,25 @@ const MyGroupList = () => {
       </div>
       <hr />
       {groups.length === 0 ? (
-        <div className="empty-group-list">
-          <p>등록된 그룹이 없습니다. 그룹을 생성해보세요!</p>
+        <div className="flex flex-col items-center gap-2 py-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12 text-slate-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12h6m-3-3v6m6-9h.01M6 6h.01M18 18h.01M6 18h.01"
+            />
+          </svg>
+          <h2 className="text-lg font-semibold text-slate-700">
+            등록된 그룹이 없습니다.
+            그룹을 추가해보세요!
+          </h2>
         </div>
       ) : (
         <ul>

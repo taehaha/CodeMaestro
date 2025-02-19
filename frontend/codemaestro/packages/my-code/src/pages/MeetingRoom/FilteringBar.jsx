@@ -9,9 +9,9 @@ return(
             <button
                 key={item}
                 onClick={() => onFilter(item)}
-                className={`px-3 py-2 rounded-3xl border text-xs mt-2 hover:brightness-75
-                    ${selectedItems.includes(item)? 'bg-primaryHighlight dark:bg-darkHighlight' : ' dark:bg-darkText'}`}
-            >#{item}</button>))}  
+                className={`px-3 py-2 rounded-3xl border text-xs mt-3 mr-1 hover:bg-[#ccc]
+                    ${selectedItems.includes(item)? 'bg-[#ddd] dark:bg-darkHighlight' : ' dark:bg-darkText'}`}
+            ># {item}</button>))}  
     </div>
 )
 }
