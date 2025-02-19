@@ -100,7 +100,7 @@ function LoginPage() {
         <div className="social-login">
           <p>간편 로그인</p>
           <div className="social-icons">
-            <NaverLoginButton />
+            {/* <NaverLoginButton /> */}
             <KaKaoLoginButton />
             {/* <GoogleLoginButton /> */}
           </div>
