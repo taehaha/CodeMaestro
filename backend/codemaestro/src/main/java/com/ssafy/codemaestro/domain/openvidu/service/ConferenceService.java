@@ -107,6 +107,8 @@ public class ConferenceService {
 
         if (thumbnail != null) {
             thumbnailUrl = s3Util.uploadFile(thumbnail);
+        } else {
+            thumbnailUrl = "https://code-maestro.s3.ap-northeast-2.amazonaws.com/default_thumbnail.png";
         }
 
         // 그룹 회의인 경우
@@ -270,6 +272,13 @@ public class ConferenceService {
 
     public int getParticipantNum(String conferenceId) {
         return (int) conferenceRepository.countConferenceById(Long.valueOf(conferenceId));
+    }
+
+    public boolean checkAccessCode(String conferenceId, String accessCode) {
+        Conference conference = conferenceRepository.findById(Long.valueOf(conferenceId))
+                .orElseThrow(() -> new CannotFindSessionException("conference를 찾을 수 없습니다. : conferenceId : " + conferenceId));
+
+        return openViduUtil.isAccessCodeCorrect(accessCode, conference);
     }
 
     public List<User> getParticipants(String conferenceId) {

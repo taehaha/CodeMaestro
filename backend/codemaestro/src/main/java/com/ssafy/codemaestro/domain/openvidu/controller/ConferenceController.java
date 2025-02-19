@@ -103,6 +103,19 @@ public class ConferenceController {
         return new ResponseEntity<>(responseList, HttpStatus.OK);
     }
 
+    @PostMapping("/{conferenceId}/pre-check")
+    public ResponseEntity<Void> isAccessCodeCorrect(@PathVariable String conferenceId,
+                                                    @RequestBody ConferencePreCheckRequest dto) {
+        String accessCode = dto.getAccessCode();
+
+        boolean isAccessCodeValid = conferenceService.checkAccessCode(conferenceId, accessCode);
+        if (isAccessCodeValid) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     /**
      * 특정 컨퍼런스의 정보를 반환함
      * @param conferenceId
