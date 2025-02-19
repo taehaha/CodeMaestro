@@ -6,8 +6,9 @@
   ],
   "scripts": {
     "build-all": "yarn workspace my-code build && yarn workspace my-ide build",
+    "prestart:ide": "yarn workspace my-ide prestart",
     "start-server": "concurrently \"yarn workspace server start\" \"yarn workspace my-ide start:socket\"",
-    "start-prod": "yarn build-all && yarn start-server"
+    "start-prod": "yarn prestart:ide && yarn start-server"
   },
   "dependencies": {
     "concurrently": "^7.0.0"
