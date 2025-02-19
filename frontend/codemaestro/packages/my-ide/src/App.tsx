@@ -384,6 +384,10 @@ const App: React.FC = () => {
         setOvIsModerator(client.getIsModerator());
         console.log("OPENVIDU : 최초 스트림 설정됨.");
       })
+      .catch(() => {
+        alert("이미 스터디에 접속중 입니다.");
+        window.location.href=`${process.env.REACT_APP_FRONTEND_URL}/meeting`;
+      });
 
 
     return () => {
