@@ -32,7 +32,7 @@ const MemoModal = ({ onClose, onCreate, historyId }) => {
         </div>
 
         <div className="modal-buttons">
-          <button className="cancel-btn" onClick={onClose}>취소</button>
+          <button className="group-cancel-btn" onClick={onClose}>취소</button>
           <button className="confirm-btn" onClick={handleCreate}>완료</button>
         </div>
       </div>

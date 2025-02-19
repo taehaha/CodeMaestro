@@ -15,6 +15,7 @@ const RoomCard = ({
 }) => {
   const navigate = useNavigate();
 
+
   const handleCardClick = () => {
     console.log(isPassword);
     
@@ -33,7 +34,17 @@ const RoomCard = ({
     Swal.fire({
       title: "스터디 입장",
       icon: "success",
+      iconColor:"#5FD87D",
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
       confirmButtonText: "확인",
+      customClass: {
+        popup: "swal-custom-popup",       // 전체 팝업 스타일
+        title: "swal-custom-title",       // 제목 스타일
+        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+        confirmButton: "swal-custom-button" // 버튼 스타일
+      }
     }).then(() => {
       navigate(`/meeting/${conferenceId}`, {
         state: {
@@ -62,7 +73,7 @@ const RoomCard = ({
 
       <div className="card-body p-4">
         {/* 방 제목 */}
-        <h2 className="card-title text-lg font-bold">{title}</h2>
+        <h2 className="card-title text-lg font-bold p-2 mx-auto border-b-2">{title}</h2>
         {/* 방 설명 */}
         {description && (
           <p className="text-sm text-gray-500 my-2 line-clamp-2">
@@ -73,20 +84,33 @@ const RoomCard = ({
 
         {/* 호스트 닉네임 */}
         {hostNickName && (
-          <p className="text-sm text-gray-600 mt-1">개최자: {hostNickName}</p>
+          <p className="text-sm text-gray-600">개최자: {hostNickName}</p>
         )}
 
         {/* 인원 수 */}
         {typeof participantNum === "number" && (
-          <p className="text-sm text-gray-600 mb-2">
-            {participantNum}/10 명 참여 중
+          <p className="text-sm text-black mb-2 absolute bottom-2 right-2">
+            {participantNum}/10
           </p>
         )}
 
         {/* 태그 정보 */}
         {Array.isArray(tagNameList) && tagNameList.length > 0 && (
-          <p className="text-xs text-gray-500">
-            태그: {tagNameList.join(", ")}
+          <p className="text-xs text-gray-500 pt-2">
+            태그:{" "}
+            {tagNameList.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block border border-gray-200 px-2 py-1 m-1"
+                onClick={() => 
+                  
+                  {
+
+                    handleTagClick(tag)}}
+              >
+                {tag}
+              </span>
+            ))}
           </p>
         )}
       </div>
@@ -106,6 +130,7 @@ RoomCard.propTypes = {
   participantNum: PropTypes.number,
   tagNameList: PropTypes.arrayOf(PropTypes.string),
   hostNickName: PropTypes.string,
+  selectTag: PropTypes.func,
 };
 
 export default RoomCard;
