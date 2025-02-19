@@ -72,7 +72,7 @@ const App: React.FC = () => {
   }, [isAuthenticated]);
 
   // 아래 모든 Hook은 조건에 상관없이 항상 호출되어야 함
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [currentLeftTab, setCurrentLeftTab] = useState<
     "chat" | "chatbot" | "screen_share"
   >("chat");
@@ -382,13 +382,8 @@ const App: React.FC = () => {
         setOvIsModerator(client.getIsModerator());
         console.log("OPENVIDU : 최초 스트림 설정됨.");
       })
-      .catch((err) => {
-        console.error("Openvidu 연결 실패:", err);
-        alert("스터디가 없거나 이미 접속중 입니다.");
-        if (process.env.REACT_APP_FRONTEND_URL) {
-          window.location.href=process.env.REACT_APP_FRONTEND_URL;
-        }
-      });
+
+
     return () => {
       client.disconnect();
     };
