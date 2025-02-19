@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "concurrently": "^7.0.0"
+  },
+  "resolutions": {
+    "@codemirror/view": "6.36.2"
   }
 }
