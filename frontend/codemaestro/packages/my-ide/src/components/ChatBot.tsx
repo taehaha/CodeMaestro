@@ -162,27 +162,32 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
         setIsStreaming(true);
         setStreamingMessage("");
         let accumulatedText = "";
-
+        let buffer = ""; 
+        
         const response = await fetch(process.env.REACT_APP_CONCURRENCY_BACKEND_URL + "/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(reviewPayload),
         });
-
+        
         if (!response.body) throw new Error("스트림 응답을 받을 수 없습니다.");
-
+        
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
         let done = false;
-
+        
         while (!done) {
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
-          const chunkValue = decoder.decode(value, { stream: true });
-          const lines = chunkValue.split("\n").filter(line => line.trim() !== "");
-
-          let buffer = "";
-
+          
+          // 받아온 데이터를 버퍼에 누적
+          buffer += decoder.decode(value, { stream: true });
+          
+          // 버퍼를 줄 단위로 분리
+          const lines = buffer.split("\n");
+          // 마지막 줄, 미완성 데이터일 수 있으므로 다시 버퍼 할당
+          buffer = lines.pop() || "";
+          
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               const dataPart = line.replace(/^data: /, "").trim();
@@ -190,36 +195,28 @@ const ChatBot: React.FC<ChatBotProps> = ({ onToggleChatBot, currentCode, updateC
                 done = true;
                 break;
               }
-              buffer += dataPart;
+              
               try {
-                const parsed = JSON.parse(buffer);
-                if (
-                  parsed &&
-                  parsed.choices &&
-                  Array.isArray(parsed.choices) &&
-                  parsed.choices.length > 0
-                ) {
+                const parsed = JSON.parse(dataPart);
+                if (parsed && parsed.choices && Array.isArray(parsed.choices)) {
                   const content = parsed.choices[0]?.delta?.content || "";
                   accumulatedText += content;
                   setStreamingMessage(accumulatedText);
                 } else {
-                  console.warn("Unexpected response structure:", parsed);
+                  console.warn("예상치 못한 응답 구조:", parsed);
                 }
-                buffer = "";
               } catch (err) {
-                if (
-                  err instanceof SyntaxError &&
-                  err.message.includes("Unexpected end of JSON input")
-                ) {
+                // 완전한 JSON이 아니라면 무시하고 다음 청크.
+                if (err instanceof SyntaxError && err.message.includes("Unexpected end of JSON input")) {
                   continue;
                 } else {
-                  console.error("JSON 파싱 오류:", err, "버퍼 내용:", buffer);
-                  buffer = "";
+                  console.error("JSON 파싱 오류:", err, "데이터:", dataPart);
                 }
               }
             }
           }
         }
+        
 
         setMessages(prev => [
           ...prev,
