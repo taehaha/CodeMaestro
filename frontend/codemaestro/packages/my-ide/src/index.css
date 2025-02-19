@@ -8,6 +8,25 @@
 .App {
   text-align: center;
 }
+@font-face {
+  font-family: 'NanumSquare_acB';
+  src: url('./fonts/NanumSquare_acB.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'EditorFont';
+  src: url('./fonts/monaco.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+html, body {
+  font-family: 'NanumSquare_acB', sans-serif;
+}
+
 
 .rainbow-border {
   position: relative; 

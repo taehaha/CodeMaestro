@@ -6,6 +6,7 @@ import "./EmailAuth.css";
 import SignUpValidationSchema from "./SignUpValidationSchema";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Swal from "sweetalert2";
+
 const EmailAuth = () => {
   // Step 1 (이메일 인증) 관련 상태
   const [email, setEmail] = useState("");
@@ -19,8 +20,22 @@ const EmailAuth = () => {
   // 회원가입 완료 후 표시할 닉네임 (Step 3)
   const [registeredNickname, setRegisteredNickname] = useState("");
 
+  // 닉네임 중복 체크 상태
+  const [duplicateCheck, setDuplicateCheck] = useState(false); // 기본값은 false
+
+
+
+
   // 인증번호 전송 (이메일 중복 체크 및 인증번호 요청)
   const handleResendCode = async () => {
+
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setMessage("유효한 이메일 주소를 입력해 주세요.");
+      return;
+    }
+
     if (!email) {
       setMessage("이메일을 입력하세요.");
       return;
@@ -49,6 +64,9 @@ const EmailAuth = () => {
   // 이메일 인증 제출
   const handleEmailVerification = async (e) => {
     e.preventDefault();
+
+
+    
     if (!email || !code) {
       setEmailMessage("모든 필드를 입력하세요.");
       return;
@@ -98,7 +116,7 @@ const EmailAuth = () => {
         {step === 1 && (
           <div>
             <h2>이메일 인증</h2>
-            <p>Code Master에 가입하기 위해서 이메일 인증이 필요합니다!</p>
+            <p>코드 마에스트로에 가입하기 위해서 이메일 인증이 필요합니다!</p>
             <form className="signup-form" onSubmit={handleEmailVerification}>
               <div className="form-row">
                 <label htmlFor="email">이메일</label>
@@ -150,16 +168,23 @@ const EmailAuth = () => {
         {step === 2 && (
           <div>
             <h2>프로필 입력</h2>
-            <p>Code Master에 가입하기 위해 필요한 정보를 입력해주세요!</p>
+            <p>코드 마에스트로에 가입하기 위해 필요한 정보를 입력해주세요!</p>
             <Formik
               initialValues={{
                 nickname: "",
                 password: "",
+                passwordCheck: "",
                 description: "",
                 agreement: false,
               }}
               validationSchema={SignUpValidationSchema}
               onSubmit={async (values, { setSubmitting, setStatus }) => {
+                // duplicateCheck가 false일 경우, 가입 진행되지 않도록 함
+                if (!duplicateCheck) {                  
+                  setStatus("닉네임 중복 확인을 먼저 해주세요.");
+                  setSubmitting(false);
+                  return;
+                }
                 try {
                   // 이메일 정보도 함께 전달하여 회원가입 API 호출
                   const res = await signup({
@@ -186,17 +211,22 @@ const EmailAuth = () => {
               {({ isSubmitting, status, values, setFieldError, setFieldTouched }) => (
                 <Form className="signup-form step-2">
                   <div className="form-group">
-                    <label htmlFor="nickname">닉네임</label>
+                    <label htmlFor="nickname"
+                    style={{marginBottom:"-15px"}}>닉네임</label>
                     <div className="input-group">
                       <Field
                         type="text"
                         id="nickname"
                         name="nickname"
                         placeholder="닉네임 입력"
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                        style={{ width: "100%", borderColor: "#ccc", padding: "8px", borderRadius: "5px", marginBottom:"-20px"}}
                       />
                       <button 
                         type="button" 
                         className="duplication-btn" 
+                        style={{ marginBottom:"-20px"}}
+
                         onClick={async () => {
                           if (!values.nickname) {
                             setFieldError("nickname", "닉네임을 입력하세요.");
@@ -204,21 +234,34 @@ const EmailAuth = () => {
                           }
                           try {
                             const response = await nicknameCheck(values.nickname);
-                            
+
                             if (response === 200) {
                               // 사용 가능하면 에러 메시지를 지웁니다.
                               Swal.fire({
-                                title:"사용이 가능한 닉네임입니다.",
+                                title:"사용이 가능한 닉네임 입니다.",
                                 icon:"success",
+                                iconColor:"#5FD87D",
+                                width: "500px",
+                                background: "#f8f9fa",
+                                confirmButtonColor: "#FFCC00",
+                                confirmButtonText: "확인",
+                                customClass: {
+                                  popup: "swal-custom-popup",       // 전체 팝업 스타일
+                                  title: "swal-custom-title",       // 제목 스타일
+                                  htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+                                  confirmButton: "swal-custom-button" // 버튼 스타일
+                                }
                               })
+                              await setDuplicateCheck(true); // 중복이 아니면 true
                               setFieldError("nickname", "");
                               setFieldTouched("nickname", true, false);
-                  
                             } else {
                               setFieldError("nickname", "이미 사용 중인 닉네임입니다.");
+                              setDuplicateCheck(false); // 중복이면 false
                             }
                           } catch (error) {
                             setFieldError("nickname", "서버 오류. 다시 시도해 주세요.");
+                            setDuplicateCheck(false); // 오류 발생 시 false
                           }
                         }}
                       >
@@ -234,8 +277,16 @@ const EmailAuth = () => {
                       name="password"
                       placeholder="비밀번호 입력"
                     />
-                    
                     <ErrorMessage name="password" component="div" className="error-message" />
+                    
+                    <label htmlFor="passwordCheck">비밀번호 확인</label>
+                    <Field
+                      type="password"
+                      id="passwordCheck"
+                      name="passwordCheck"
+                      placeholder="비밀번호 입력"
+                    />
+                    <ErrorMessage name="passwordCheck" component="div" className="error-message" />
 
                     <label htmlFor="description">자기소개</label>
                     <Field
@@ -245,7 +296,7 @@ const EmailAuth = () => {
                       placeholder="자기소개 입력 (최대 255자)"
                     />
                     <ErrorMessage name="description" component="div" className="error-message" />
-                    
+
                     <div className="signup-agreement">
                       <Field type="checkbox" id="agreement" name="agreement" />
                       <label htmlFor="agreement">
@@ -253,7 +304,6 @@ const EmailAuth = () => {
                       </label>
                     </div>
                     <ErrorMessage name="agreement" component="div" className="error-message mt-0" />
-
 
                     {status && <div className="status-message">{status}</div>}
 
@@ -272,7 +322,7 @@ const EmailAuth = () => {
           <div className="signup-complete">
             <h1>회원가입 완료</h1>
             <p>{registeredNickname}님 반가워요</p>
-            <p>Code Master에서 다양한 기능을 사용해보세요!</p>
+            <p>코드 마에스트로에서 다양한 기능을 사용해보세요!</p>
             <Link to="/login" className="signup-btn">
               로그인
             </Link>

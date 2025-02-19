@@ -85,17 +85,17 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
   return (
     <div className="wrapper" onClick={toggleFlipped}>
       <div
-        className={`flip-card card shadow-md p-4 bg-white text-center rounded-sm transition-transform duration-300 ${
+        className={`flip-card card shadow-md bg-white text-center rounded-lg transition-transform duration-300 ${
           isFlipped ? "flipped" : ""
         }`}
       >
         {/* 앞면 */}
         <div className="front">
           <div className="card-body">
-            <h3 className="card-title text-md font-medium mx-auto text-gray-800">
+            <h3 className="card-title text-md mx-auto text-gray-800">
               {history.conferenceTitle}
             </h3>
-            <hr className="font-extrabold my-2" />
+            <hr className="my-2" />
             <p className="text-gray-600 text-sm">
               참여 시간:{" "}
               {history.duration ? formatDuration(history.duration) : "미기록"}
@@ -108,10 +108,10 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
           {/* 메모가 없는 상태 */}
           {!memo && !isEdit && (
             <div className="card-body flex flex-col items-center justify-center gap-2 text-gray-600">
-              <AiOutlineInfoCircle className="w-8 h-8 mb-1 text-gray-400" />
+              <AiOutlineInfoCircle className="w-8 h-10 mb-1 text-gray-400" />
               <p className="text-sm">아직 메모가 작성되지 않았습니다.</p>
               <button 
-                className="btn btn-primary rounded-sm"
+                className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md btn-sm"
                 onClick={handleAddMemo}
               >
                 메모 작성하기
@@ -125,19 +125,29 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
               <p className="text-gray-600 text-xl whitespace-pre-wrap">
                 {memo.studyContent}
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center">
                 {/* 수정 아이콘 */}
-                <AiFillEdit
+                <button className="post-edit-btn cursor-pointer bg-blue-500 text-sm hover:text-blue-700"
+                  onClick={handleEditClick}
+                  style={{background: "#ddd"}}
+                  >
+                    수정
+                </button>
+                <button
+                className="post-delete-btn cursor-pointer text-red-500 text-sm hover:text-red-700"
+                onClick={handleDeleteMemo}
+                style={{background: "#ddd"}}
+                >
+                  삭제
+                </button>
+                {/* <AiFillEdit
                   className="cursor-pointer text-blue-500 text-xl hover:text-blue-700"
                   onClick={handleEditClick}
                   title="메모 수정"
                 />
-                {/* 삭제 아이콘 */}
                 <AiOutlineDelete
-                  className="cursor-pointer text-red-500 text-xl hover:text-red-700"
-                  onClick={handleDeleteMemo}
                   title="메모 삭제"
-                />
+                /> */}
               </div>
             </div>
           )}
@@ -146,20 +156,20 @@ const StudyHistoryCard = ({ history, formatDuration, toggleModal }) => {
           {isEdit && (
             <div className="card-body flex flex-col items-center gap-3">
               <textarea
-                className="textarea textarea-bordered w-full h-1/3"
+                className="textarea textarea-bordered w-full h-20"
                 rows={4}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
               />
               <div className="flex gap-2">
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn bg-[#ffcc00] hover:bg-[#f0cc00] btn-sm"
                   onClick={handleSaveEdit}
                 >
                   저장
                 </button>
                 <button
-                  className="btn btn-ghost btn-sm"
+                  className="btn bg-[#ddd] btn-sm"
                   onClick={handleCancelEdit}
                 >
                   취소

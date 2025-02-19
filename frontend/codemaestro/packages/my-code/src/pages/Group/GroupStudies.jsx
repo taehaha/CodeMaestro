@@ -159,7 +159,7 @@ const GroupStudies = ({ groupId,userRole }) => {
 
       {/* 오른쪽 섹션 */}
 
-      <div className="flex-1 bg-gray-100 rounded-sm shadow-lg p-6 overflow-y-auto">
+      <div className="flex-1 bg-gray-100 rounded-sm shadow-lg p-6">
         {/* --- 탭 영역 --- */}
         <div className="flex flex-col lg:flex-row justify-center items-center p-6 w-4xl">
         <div className="rounded-lg flex flex-col items-center">

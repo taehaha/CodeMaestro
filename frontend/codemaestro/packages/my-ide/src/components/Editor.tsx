@@ -363,14 +363,16 @@ const Editor: React.FC<EditorProps> = ({
   return (
     <>
       <style>{`
-        .cm-content,
-        .cm-scroller,
-        .cm-editor,
-        .cm-line {
-          border: none !important;
-          box-shadow: none !important;
-          outline: none !important;
-        }
+  .cm-content,
+  .cm-scroller,
+  .cm-editor,
+  .cm-line {
+    font-family: 'EditorFont', monospace !important;
+    text-decoration: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
       `}</style>
       <CollaborativeEditor
         code={code}

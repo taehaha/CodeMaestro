@@ -6,9 +6,8 @@ import { setLoggedOut } from "../reducer/userSlice";
 // =======================================
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
-export const baseURL = "https://api.codemaestro.site"
-// export const baseURL = "https://test.api.codemaestro.site"
-
+export const baseURL = import.meta.env.REACT_APP_BACKEND_URL;
+//export const baseURL = "https://test.api.codemaestro.site"
 const UserAxios = axios.create({
   baseURL:baseURL,  // 실제 API 주소로 변경
   timeout: 10000,                      
@@ -106,24 +105,6 @@ async function handleLogoutAndRedirect() {
   //userSlice store userAxios 순환참조를 피하기 위한 동적 호출
 
   tokenStorage.removeAccessToken(); // 로컬 토큰 삭제
-  
-  // 사용자 알림
-  await Swal.fire({
-    title: "세션 만료",
-    text: "로그인 세션이 만료되었습니다. 다시 로그인해주세요.",
-    icon: "warning",
-    width: "500px",
-    background: "#f8f9fa",
-    confirmButtonColor: "#FFCC00",
-    confirmButtonText: "확인",
-    customClass: {
-    popup: "swal-custom-popup",       // 전체 팝업 스타일
-    title: "swal-custom-title",       // 제목 스타일
-    htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-    confirmButton: "swal-custom-button" // 버튼 스타일
-    }
-  });
-
   // 로그인 페이지로 강제 이동
   store.dispatch(setLoggedOut());
   window.location.href = "/login";

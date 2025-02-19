@@ -16,7 +16,7 @@ const EditProfile = ({ user, onClose, onDelete }) => {
   const [description, setDescription] = useState(user.description || "");
   const [profileImage, setProfileImage] = useState(null); // 파일 객체
   const [previewImage, setPreviewImage] = useState(user.profileImage || null); // 미리보기 URL
-
+  
   useEffect(() => {
     setNickname(user.nickname || "");
     setDescription(user.description || "");
@@ -175,10 +175,24 @@ const EditProfile = ({ user, onClose, onDelete }) => {
       </div>
 
       {/* 이메일 (수정 불가) */}
-      <div className="edit-input-group">
+      {user.loginProvider === "LOCAL" && (<div className="edit-input-group">
         <label className="edit-input-label">이메일</label>
         <input type="email" value={user.email} disabled className="input-field disabled" />
-      </div>
+      </div>)}
+
+      {user.loginProvider !== "LOCAL" && (
+        <div className="edit-input-group">
+          <label className="edit-input-label">소셜아이디</label>
+          <input type="email" value={user.loginId} disabled className="input-field input-disabled" />
+          <img 
+            src={`/${user.loginProvider.toLowerCase()}.png`} 
+            alt={user.loginProvider} 
+            className="w-8 h-8"
+          />
+        </div>
+      )}
+
+
 
       {/* 닉네임 수정 */}
       <div className="edit-input-group">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import UserAxios from '../../api/userAxios';
 import './ForgotPassword.css';
 import Swal from 'sweetalert2';
 
@@ -28,11 +28,11 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await axios.post('/auth/forgot-password', {
+      const response = await UserAxios.post('/auth/find-password', {
         email: email
       });
 
-      if (response.data.success) {
+      if (response.status===200) {
         Swal.fire({
           title: "성공",
           text: "비밀번호 재설정 링크가 이메일로 전송되었습니다.",
@@ -67,21 +67,40 @@ const ForgotPassword = () => {
         });
       }
     } catch (error) {
-      Swal.fire({
-        title: "오류",
-        text: "서버와의 통신에 실패했습니다. 다시 시도해주세요.",
-        icon: "error",
-        width: "500px",
-        background: "#f8f9fa",
-        confirmButtonColor: "#FFCC00",
-        confirmButtonText: "확인",
-        customClass: {
-          popup: "swal-custom-popup",       // 전체 팝업 스타일
-          title: "swal-custom-title",       // 제목 스타일
-          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-          confirmButton: "swal-custom-button" // 버튼 스타일
-        }
-      });
+      if (error.response.status === 404) {
+        Swal.fire({
+          title: "오류",
+          text: "존재하지 않는 이메일입니다",
+          icon: "error",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "오류",
+          text: "서버와의 통신에 실패했습니다. 다시 시도해주세요.",
+          icon: "error",
+          width: "500px",
+          background: "#f8f9fa",
+          confirmButtonColor: "#FFCC00",
+          confirmButtonText: "확인",
+          customClass: {
+            popup: "swal-custom-popup",       // 전체 팝업 스타일
+            title: "swal-custom-title",       // 제목 스타일
+            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+            confirmButton: "swal-custom-button" // 버튼 스타일
+          }
+        });
+      }
+   
     }
   };
 

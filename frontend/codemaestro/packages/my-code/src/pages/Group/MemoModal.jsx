@@ -20,7 +20,7 @@ const MemoModal = ({ onClose, onCreate, historyId }) => {
         <button className="close-btn" onClick={onClose}>
           &times;
         </button>
-        <h2>그룹 생성하기</h2>
+        <h2>스터디 메모 기록</h2>
         <label> 설명 (최대 255자)</label>
         <textarea  
           value={description}
@@ -32,7 +32,7 @@ const MemoModal = ({ onClose, onCreate, historyId }) => {
         </div>
 
         <div className="modal-buttons">
-          <button className="cancel-btn" onClick={onClose}>취소</button>
+          <button className="group-cancel-btn" onClick={onClose}>취소</button>
           <button className="confirm-btn" onClick={handleCreate}>완료</button>
         </div>
       </div>

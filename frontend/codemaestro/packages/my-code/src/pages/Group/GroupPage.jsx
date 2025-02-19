@@ -232,11 +232,22 @@ const GroupDetail = () => {
     if (isConferenceOngoing) {
       // 302 응답 시 이미 진행 중인 회의 참여
       const result = await Swal.fire({
-        title: "이미 진행 중인 회의가 있습니다.",
-        text: "현재 진행 중인 회의로 이동하시겠습니까?",
+        title: "이미 진행 중인 스터디가 있습니다.",
+        text: "현재 진행 중인 스터디로 이동하시겠습니까?",
         showCancelButton: true,
         confirmButtonText: "이동",
         cancelButtonText: "취소",
+        width: "500px",
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        cancelButtonColor: "#ddd",
+        customClass: {
+          popup: "swal-custom-popup",       // 전체 팝업 스타일
+          title: "swal-custom-title",       // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button", // 버튼 스타일
+          cancelButton: "swal-custom-button2" // 버튼 스타일
+        }
       });
   
       if (result.isConfirmed) {
@@ -245,14 +256,31 @@ const GroupDetail = () => {
     } else {
       try {
         // 회의 생성
-        const response = await createGroupConference(groupId, { tagNameList: null });
+        const response = await createGroupConference(groupId, { tagNameList: [] });
         // 회의 생성 후 201 응답을 받으면 회의실로 이동
         if (response) {
-          const inviteLink = `/ide?roomId=${response.conferenceId}`;
-          navigate(inviteLink);  // 회의실로 이동
+          Swal.fire({title:"생성 완료",
+            text:"그룹 스터디가 생성되었습니다. 스터디룸으로 이동합니다.",
+            icon:"success",
+            iconColor:"#5FD87D",
+            width: "500px",
+            background: "#f8f9fa",
+            confirmButtonColor: "#FFCC00",
+            confirmButtonText: "확인",
+            customClass: {
+              popup: "swal-custom-popup",       // 전체 팝업 스타일
+              title: "swal-custom-title",       // 제목 스타일
+              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+              confirmButton: "swal-custom-button" // 버튼 스타일
+            }
+          }).then((res)=>{
+            if (res.isConfirmed) {
+              navigate(`/meeting/${response.conferenceId}`);  // 회의실로 이동
+            }
+          })
         }
       } catch (error) {
-        console.error("회의 생성 중 오류 발생:", error);
+        console.error("스터디 생성 중 오류 발생:", error);
       }
     }
   };
@@ -310,32 +338,39 @@ const GroupDetail = () => {
                         </button>
                       )}
                       
-
                       {userRole === ROLE.MEMBER && !isConferenceOngoing && (
                         <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
-                          그룹회의 생성
+                          그룹스터디 생성
                         </button>
                       )}
 
                       {userRole === ROLE.MEMBER && isConferenceOngoing && (
-                        <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
-                          <MdFiberManualRecord color="red" size={20} /> 그룹회의 참여
+                        <button className="btn bg-[#ffcc00] hover:bg-[#f0cc00] rounded-md" onClick={handleConferenceAction}>
+                          <MdFiberManualRecord color="red" size={20} /> 그룹스터디 참여
                         </button>
                       )}
 
                       {userRole === ROLE.ADMIN && (
                         <div className="flex gap-2">
-                          <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
-                            그룹회의 생성
-                          </button>
-                          <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="btn bg-[#ddd] rounded-md border-none hover:bg-[#ccc]"
-                          >
+                          {/* 그룹스터디 생성/참여 버튼 */}
+                          {!isConferenceOngoing ? (
+                            <button className="btn bg-[#ffcc00] btn-success rounded-md border-none hover:bg-[#f0c000]" onClick={handleConferenceAction}>
+                              그룹스터디 생성
+                            </button>
+                          ) : (
+                            <button className="btn bg-[#ffcc00] rounded-md" onClick={handleConferenceAction}>
+                              <MdFiberManualRecord color="red" size={20} /> 그룹스터디 참여
+                            </button>
+                          )}
+
+                          {/* 그룹 관리 버튼 */}
+                          <button onClick={() => setIsModalOpen(true)} className="btn bg-[#ddd] rounded-md border-none hover:bg-[#ccc]">
                             그룹 관리
                           </button>
                         </div>
                       )}
+
+            
 
                       <button
                         onClick={() => navigate("/mypage?tab=groups")}
@@ -388,7 +423,17 @@ const GroupDetail = () => {
         )}
         {activeTab === "studies" && (
           <div className="text-center text-gray-700">
-            <GroupStudies groupId={groupId} userRole={userRole} />
+            {userRole !== ROLE.NONE ? (
+              <>
+                <GroupStudies groupId={groupId} userRole={userRole} />
+                <div className="flex justify-center items-center h-40 text-gray-500">
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-center items-center h-40 text-gray-500">
+                <p>스터디 그룹에 가입하여 기록을 확인할 수 있습니다.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -411,10 +456,6 @@ const GroupDetail = () => {
             >
               ✕
             </button>
-            <GroupManagement
-            group={group}
-            />
-            
             <GroupManagement group={group} />
           </div>
 
