@@ -15,7 +15,7 @@
 /dist
 
 # ydoc
-/server/yjs-docs
+/server/yjs-docs/*
 
 # misc
 .DS_Store
