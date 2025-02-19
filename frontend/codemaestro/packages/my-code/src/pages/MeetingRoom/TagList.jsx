@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import propTypes from "prop-types";
-
+import {AiOutlineExclamationCircle} from 'react-icons/ai';
 const TagList = ({ rooms, selectTag }) => {
   const [populartags, setPopularTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]); // 선택된 태그를 상태로 관리
@@ -88,7 +88,10 @@ const TagList = ({ rooms, selectTag }) => {
               </button>
             ))
           ) : (
-            <p className="px-2 py-1">현재 태그를 지정한 스터디가 존재하지 않습니다</p>
+            <div className="py-1 flex">
+            <AiOutlineExclamationCircle className="text-red-500 text-xl mr-1" />
+            현재 태그를 지정한 스터디가 존재하지 않습니다
+            </div>
           )
         ) : (
           recommendedTags.map((tag, index) => (
