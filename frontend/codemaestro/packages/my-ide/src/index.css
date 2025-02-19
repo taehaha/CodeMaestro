@@ -1,0 +1,126 @@
+/* src/index.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.App {
+  text-align: center;
+}
+
+.rainbow-border {
+  position: relative; 
+  border: 3px solid transparent; /* 투명한 테두리 */
+  border-radius: 0.5rem; 
+  overflow: hidden; 
+}
+
+.rainbow-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+  background-size: 400% 400%;
+  animation: rainbow-border-animation 10s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+@keyframes rainbow-border-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.chat-container {
+  max-height: 600px; 
+  overflow: auto;
+  border: 1px solid #ccc;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 스크롤바 */
+
+::-webkit-scrollbar {
+  width: 8px; 
+  height: 8px; 
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #FFCC00; 
+  border-radius: 4px; 
+  border: 2px solid transparent; 
+  background-clip: content-box;
+  
+
+  background-image: repeating-linear-gradient(
+    45deg,
+    #FFCC00 0%,
+    #FFCC00 10%,
+    transparent 10%,
+    transparent 20%
+  );
+  background-size: 100% 100%;
+  transition: background-color 0.3s, background-image 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #e6b800; 
+  
+ 
+  background-image: repeating-linear-gradient(
+    45deg,
+    #e6b800 0%,
+    #e6b800 10%,
+    transparent 10%,
+    transparent 20%
+  );
+}

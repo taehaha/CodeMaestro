@@ -1,0 +1,18 @@
+{
+  "name": "codemaestro",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build-all": "yarn workspace my-code build && yarn workspace my-ide build",
+    "start-server": "concurrently \"yarn workspace server start\" \"yarn workspace my-ide start:socket\"",
+    "start-prod": "yarn build-all && yarn start-server"
+  },
+  "dependencies": {
+    "concurrently": "^7.0.0"
+  },
+  "resolutions": {
+    "@codemirror/view": "6.36.2"
+  }
+}

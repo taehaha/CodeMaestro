@@ -1,0 +1,106 @@
+/* src/App.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 사용자 제공 커스텀 CSS */
+
+.App {
+  text-align: center;
+}
+
+.rainbow-border {
+  position: relative; /* 상대 위치 설정 */
+  border: 3px solid transparent; /* 투명한 테두리 설정 */
+  border-radius: 0.5rem; /* rounded-lg과 일치 */
+  overflow: hidden; /* 자식 요소가 넘치지 않도록 설정 */
+}
+
+.rainbow-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+  background-size: 400% 400%;
+  animation: rainbow-border-animation 10s linear infinite;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+@keyframes rainbow-border-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.chat-container {
+  max-height: 600px; /* 원하는 값으로 */
+  overflow: auto;
+  border: 1px solid #ccc;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.scrollbar-thin-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin-custom::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.scrollbar-thin-custom::-webkit-scrollbar-thumb {
+  background-color: #FFCC00; 
+  border-radius: 4px; 
+  border: 2px solid transparent; 
+  background-clip: content-box; 
+  transition: background-color 0.3s;
+}
+
+.scrollbar-thin-custom::-webkit-scrollbar-thumb:hover {
+  background-color: #e6b800; 
+}
