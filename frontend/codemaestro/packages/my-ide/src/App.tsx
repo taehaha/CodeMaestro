@@ -19,6 +19,7 @@ import { Publisher, StreamManager, Subscriber } from "openvidu-browser";
 import UserVideoComponent from "./components/UserVideoComponent";
 import ScreenVideoComponent from "./components/ScreenVideoComponent";
 import ManageModalComponent from "./components/ManageModalComponenet";
+import { checkCamAndMic } from "./util/OpenviduUtil";
 
 const getAuthStatus = () => {
   // 토큰을 가져옴.
@@ -72,7 +73,7 @@ const App: React.FC = () => {
   }, [isAuthenticated]);
 
   // 아래 모든 Hook은 조건에 상관없이 항상 호출되어야 함
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [currentLeftTab, setCurrentLeftTab] = useState<
     "chat" | "chatbot" | "screen_share"
   >("chat");
@@ -316,6 +317,7 @@ const App: React.FC = () => {
     const initInfo = getOvInitInfo();
 
     console.log("쿼리 파라미터에서 가져온 roomId:", roomId);
+    checkCamAndMic();
 
     if (!roomId || isNaN(Number(roomId))) {
       console.error("유효하지 않은 roomId입니다.");

@@ -220,7 +220,6 @@ class OpenviduClient {
     this.session.on("sessionDisconnected", (event) => {
       if (process.env.REACT_APP_FRONTEND_URL) {
         window.location.href=`${process.env.REACT_APP_FRONTEND_URL}/meeting`;
-        this.session.disconnect();
       }
     })
 

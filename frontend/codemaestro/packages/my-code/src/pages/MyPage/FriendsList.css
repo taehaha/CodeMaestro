@@ -1,4 +1,5 @@
 .friends-list {
+  flex: 1;
   padding: 20px;
 }
 
@@ -31,14 +32,4 @@
   color: gray;
   font-size: 14px;
   margin-top: 10px;
-}
-.friends-list-container {
-  width: 100%;
-  min-height: 650px; /* 기존보다 높이 증가 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 25px;
-  border-radius: 12px;
-  background: #f9f9f9;
 }

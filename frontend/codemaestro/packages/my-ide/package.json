@@ -56,7 +56,7 @@
     "yjs": "^13.6.23"
   },
   "scripts": {
-    "prestart": "cp ../../.env .env",
+    "prestart": "shx cp ../../.env .env",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "dev": "react-scripts start",
@@ -92,6 +92,7 @@
     "cross-env": "^7.0.3",
     "electron": "^34.0.0",
     "postcss": "^8.4.49",
+    "shx": "^0.3.4",
     "tailwindcss": "^3.4.17",
     "wait-on": "^8.0.2"
   }
