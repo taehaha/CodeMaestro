@@ -60,6 +60,7 @@ export const getFriends = createAsyncThunk("user/getFriends", async (userId) => 
   return response;
 })
 
+
 // Slice
 const userSlice = createSlice({
   name: "user",

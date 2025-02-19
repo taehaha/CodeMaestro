@@ -209,7 +209,7 @@ export const algorithmTag= [
     "삼성 B형",
     "SWEA",
     "파이썬 (Python)",
-    "자바 (JAVE)",
+    "자바 (JAVA)",
     "C",
     "C++"
   ]

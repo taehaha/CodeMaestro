@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite';
+import envCompatible from 'vite-plugin-env-compatible';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export default defineConfig({
-  plugins: [react()],
+  envPrefix: "REACT_APP_",
+  plugins: [
+    react(),
+    envCompatible()
+  ],
   resolve: {
     alias: {
       // "my-ide"를 my-ide 패키지의 src 폴더로 매핑합니다.

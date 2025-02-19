@@ -34,3 +34,11 @@
 .back {
   transform: rotateY(180deg);
 }
+
+/* StudyHistoryCard.css */
+.back .textarea {
+  resize: none; /* 크기 조정 금지 */
+  max-height: 100px; /* 최대 높이 제한 */
+  height: auto; /* 자동 높이 조정 */ 
+
+}

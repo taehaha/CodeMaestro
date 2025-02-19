@@ -11,29 +11,32 @@ import "./FriendsList.css";
 import { set } from "lodash";
 
 const FriendsList = () => {
-  const [friends, setFriends] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
   const [checkedUsers, setCheckedUsers] = useState([]);
 
   const user = useSelector((state) => state.user.myInfo);
   const dispatch = useDispatch();
-  const fetchfriends = useSelector((state) => state.user.friends);
 
   useEffect(() => {
     const fetchFriends = async () => {
       setIsLoading(true);
       try {
+        // 친구 목록을 가져옴
         await dispatch(getFriends(user.userId));
-        setFriends(fetchfriends);
       } catch (error) {
         console.error("친구 정보를 가져오는 중 오류 발생:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchFriends();
-  }, [dispatch, user.userId, fetchfriends]);
+  
+    if (user.userId) {
+      fetchFriends();
+    }
+  }, [user.userId, dispatch]); // 의존성 배열에서 fetchfriends 제거
+  
+  const friends = useSelector((state) => state.user.friends);
 
   const openAddFriendPage = () => {
     setIsAddFriendModalOpen(true);

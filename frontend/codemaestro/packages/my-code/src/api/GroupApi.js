@@ -138,7 +138,10 @@ import UserAxios from "./userAxios";
             // 문자열(또는 숫자)은 그대로 append
             formData.append("title", payload.title);
             formData.append("description", payload.description ?? "");
-            formData.append("accessCode", payload.accessCode ?? null);
+            if (payload.accessCode) {
+                formData.append("accessCode", payload.accessCode);
+            }
+
             
             // 배열, 객체 형태로 보내야 한다면 JSON.stringify를 사용하는 방법이 일반적임
             formData.append("tagNameList", payload.tagNameList);
