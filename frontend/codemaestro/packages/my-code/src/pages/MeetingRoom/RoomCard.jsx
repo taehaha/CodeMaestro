@@ -59,7 +59,7 @@ const RoomCard = ({
       className="card w-72 bg-base-100 shadow-xl rounded-sm cursor-pointer"
       onClick={handleCardClick}
     >
-      <figure className="relative">
+      <figure className="relative w-full h-36">
         {/* 비밀번호가 있으면 자물쇠 표시 */}
         {isPassword && (
           <FaLock className="absolute right-2 top-2 text-red-500 text-xl" />
@@ -67,7 +67,7 @@ const RoomCard = ({
         <img
           src={thumbnailUrl}
           alt="Room Thumbnail"
-          className="w-full h-36 object-cover"
+          className="w-100% h-100% object-cover"
         />
       </figure>
 
