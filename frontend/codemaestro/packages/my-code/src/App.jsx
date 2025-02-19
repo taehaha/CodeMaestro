@@ -29,7 +29,8 @@ import ProtectedRoute from './router/ProtectedRoute';
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { persistor } from './reducer/store';
-
+import { logoutUser } from './reducer/userSlice';
+import { useDispatch } from 'react-redux';
 // 콘텍스트 API (파일 내 export 이름이 NotificationsProvider로 되어 있어야 합니다)
 import { NotificationsProvider } from './context/NotificationContext';
 import PostsProvider from './context/PostsContext';
@@ -37,8 +38,10 @@ import CommentsProvider from './context/CommentsContext';
 import PostCreate from './pages/Community/PostCreate';
 
 import ProtectedIDE from './router/ProtectedIDE';
-
 function App() {
+
+
+
   return (
     // <NotificationsProvider>
       <PostsProvider>
