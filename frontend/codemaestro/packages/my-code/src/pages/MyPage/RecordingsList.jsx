@@ -9,7 +9,7 @@ const RecordingsList = () => {
 
   return (
     <div className="recordings-list">
-      <h2>스터디디 녹화 목록</h2>
+      <h2>회의 녹화 목록</h2>
       <ul>
         {recordings.length > 0 ? (
           recordings.map((rec) => (

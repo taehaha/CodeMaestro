@@ -7,7 +7,7 @@ const tagValidation = Yup.array()
 
 export const CreateMeetingSchema = Yup.object().shape({
   title: Yup.string()
-    .required("스터디디 제목을 입력해주세요.")
+    .required("회의 제목을 입력해주세요.")
     .max(20, "제목은 최대 20자까지 가능합니다."),
   description: Yup.string()
     .max(20, "설명은 최대 20자까지 가능합니다."),
