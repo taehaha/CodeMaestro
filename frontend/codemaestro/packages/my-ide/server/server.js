@@ -18,11 +18,17 @@ const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
 
 const app = express();
 
+require("dotenv").config(path.resolve(__dirname, "../.env"));
+
+console.log("환경변수");
+console.log(process.env.OPENAI_API_KEY);
+console.log(process.env.REACT_APP_FRONTEND_URL);
+
 
 app.use(
   cors({
-    // origin: process.env.REACT_APP_FRONTEND_URL,
-    origin: "https://www.codemaestro.site",
+    origin: process.env.REACT_APP_FRONTEND_URL,
+    // origin: "https://www.codemaestro.site",
   })
 );
 app.use(express.json());
