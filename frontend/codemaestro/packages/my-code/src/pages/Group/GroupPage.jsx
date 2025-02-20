@@ -228,63 +228,75 @@ const GroupDetail = () => {
     }
   };
 
+  const showSwalPopup = (cancel,{ title, text, confirmText, cancelText, confirmAction, cancelAction }) => {
+    return Swal.fire({
+      title,
+      text,
+      showCancelButton: cancel,
+      confirmButtonText: confirmText,
+      cancelButtonText: cancelText,
+      width: "500px",
+      background: "#f8f9fa",
+      confirmButtonColor: "#FFCC00",
+      cancelButtonColor: "#ddd",
+      customClass: {
+        popup: "swal-custom-popup",       
+        title: "swal-custom-title",      
+        htmlContainer: "swal-custom-text", 
+        confirmButton: "swal-custom-button", 
+        cancelButton: "swal-custom-button2" 
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        confirmAction();
+      } else if (cancelAction) {
+        cancelAction();
+      }
+    });
+  };
+
   const handleConferenceAction = async () => {
     if (isConferenceOngoing) {
-      // 302 응답 시 이미 진행 중인 회의 참여
-      const result = await Swal.fire({
+      showSwalPopup(true,{
         title: "이미 진행 중인 스터디가 있습니다.",
         text: "현재 진행 중인 스터디로 이동하시겠습니까?",
-        showCancelButton: true,
-        confirmButtonText: "이동",
-        cancelButtonText: "취소",
-        width: "500px",
-        background: "#f8f9fa",
-        confirmButtonColor: "#FFCC00",
-        cancelButtonColor: "#ddd",
-        customClass: {
-          popup: "swal-custom-popup",       // 전체 팝업 스타일
-          title: "swal-custom-title",       // 제목 스타일
-          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-          confirmButton: "swal-custom-button", // 버튼 스타일
-          cancelButton: "swal-custom-button2" // 버튼 스타일
-        }
+        confirmText: "이동",
+        cancelText: "취소",
+        confirmAction: () => navigate(`/meeting/${conferenceId}`)
       });
-  
-      if (result.isConfirmed) {
-        navigate(`/meeting/${conferenceId}`);
-      }
     } else {
       try {
-        // 회의 생성
-        const response = await createGroupConference(groupId, { tagNameList: [] });
-        // 회의 생성 후 201 응답을 받으면 회의실로 이동
-        if (response) {
-          Swal.fire({title:"생성 완료",
-            text:"그룹 스터디가 생성되었습니다. 스터디룸으로 이동합니다.",
-            icon:"success",
-            iconColor:"#5FD87D",
-            width: "500px",
-            background: "#f8f9fa",
-            confirmButtonColor: "#FFCC00",
-            confirmButtonText: "확인",
-            customClass: {
-              popup: "swal-custom-popup",       // 전체 팝업 스타일
-              title: "swal-custom-title",       // 제목 스타일
-              htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-              confirmButton: "swal-custom-button" // 버튼 스타일
-            }
-          }).then((res)=>{
-            if (res.isConfirmed) {
-              navigate(`/meeting/${response.conferenceId}`);  // 회의실로 이동
-            }
-          })
+        const conferenceCheck = await isConference(groupId);
+        
+        if (conferenceCheck.status === 200) {
+          const response = await createGroupConference(groupId, { tagNameList: [] });
+  
+          if (response) {
+            showSwalPopup(false,{
+              title: "생성 완료",
+              text: "그룹 스터디가 생성되었습니다. 스터디룸으로 이동합니다.",
+              confirmText: "확인",
+              confirmAction: () => navigate(`/meeting/${response.conferenceId}`)
+            });
+          }
+        }} catch (error) {
+        if (error.response && error.response.status === 302) {
+          // 302 응답을 에러로 처리
+          setIsConferenceOngoing(true);
+          setConferenceId(error.response.data);  // 진행 중인 회의 ID
+          showSwalPopup(true,{
+            title: "이미 진행 중인 스터디가 있습니다.",
+            text: "현재 진행 중인 스터디로 이동하시겠습니까?",
+            confirmText: "이동",
+            cancelText: "취소",
+            confirmAction: () => navigate(`/meeting/${error.response.data}`)  // 회의실로 이동
+          });
+        } else {
+          console.error("스터디 생성 중 오류 발생:", error);
         }
-      } catch (error) {
-        console.error("스터디 생성 중 오류 발생:", error);
       }
     }
   };
-  
 
   // 날짜 포맷 (moment 사용 예시)
   const formattedDate = group?.createdAt
