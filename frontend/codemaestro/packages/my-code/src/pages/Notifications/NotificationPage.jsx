@@ -102,13 +102,13 @@ const NotificationModal = ({ onClose }) => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  className="px-3 py-1 bg-[#FFCC00] text-white rounded-sm hover:bg-[#ffbb00] transition-colors duration-200"
+                  className="px-3 py-1 bg-[#FFCC00] rounded-md hover:bg-[#ffbb00] transition-colors duration-200"
                   onClick={() => handleAccept(notification)}
                 >
                   수락
                 </button>
                 <button
-                  className="px-3 py-1 bg-[#DB4D4D] text-white rounded-sm hover:bg-red-600 transition-colors duration-200"
+                  className="px-3 py-1 bg-[#DB4D4D] text-white rounded-md hover:bg-red-600 transition-colors duration-200"
                   onClick={() => handleReject(notification)}
                 >
                   거절

@@ -9,22 +9,22 @@ import ai from '../../assets/ai.png'
 function Contents() {
   const features = [
     {
-      title: '실시간 화상 회의',
-      description: '팀원과 실시간으로 소통하며 효율적인 협업을 진행하세요.',
+      title: '온라인 화상 스터디',
+      description: '팀원들과 실시간으로 소통하며 효율적인 스터디를 진행하세요.',
       image: video,
     },
     {
-      title: '동시 편집 코드 툴',
-      description: '즉각적인 코드 리뷰와 피드백으로 개발 경험을 향상시켜 보세요.',
+      title: '코드 동시 편집 툴',
+      description: '실시간 코드 리뷰와 피드백으로 실력을 향상시켜 보세요.',
       image: edit,
     },
     {
-      title: '동시 편집 그림판',
+      title: '그림판 동시 편집 툴',
       description: '코드만으로 설명하기 어려운 개념을 직관적으로 표현하고 소통할 수 있습니다.',
       image: paint,
     },
     {
-      title: 'AI 활용 코드 리뷰',
+      title: 'AI 코드 리뷰',
       description: 'AI 용기쌤의 수준별 맞춤형 도움을 받아보세요!',
       image: ai,
     },
@@ -56,7 +56,7 @@ function Contents() {
   return (
     <section className="contents">
       <h2>다양한 기능 소개</h2> <br />
-      <p>이제 더욱 강력한 기능을 통해 실시간 협업 학습이 가능합니다!</p>
+      <p>이제 더욱 강력한 기능을 통해 온라인 학습이 가능합니다!</p>
       <div className="feature-list">
         {features.map((feature, index) => (
           <div
