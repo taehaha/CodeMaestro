@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const axios = require("axios");
 const cors = require("cors");
-require("dotenv").config();
 
 const WebSocket = require("ws");
 const url = require("url");
@@ -17,11 +16,12 @@ const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
 
 const app = express();
 
+require("dotenv").config(path.resolve(__dirname, "../.env"));
 
 app.use(
   cors({
-    // origin: process.env.REACT_APP_FRONTEND_URL,
-    origin: "https://www.codemaestro.site",
+    origin: process.env.REACT_APP_FRONTEND_URL,
+    // origin: "https://www.codemaestro.site",
   })
 );
 app.use(express.json());
