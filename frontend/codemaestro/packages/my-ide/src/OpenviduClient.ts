@@ -193,15 +193,19 @@ class OpenviduClient {
     );
 
     // 내가 송출하는 video를 중지하라는 명령이 들어오는 경우 실행
-    this.session.on("signal:unpublish-video", () => {
-      console.log("내 웹캠 강제 종료됨");
-      this.publisher.publishVideo(false);
+    this.session.on("signal:unpublish-video", (event: SignalEvent) => {
+      if (!event.from) {
+        console.log("내 웹캠 강제 종료됨");
+        this.publisher.publishVideo(false);
+      }
     });
 
     // 내가 송출하는 audio를 중지하라는 명령이 들어오는 경우 실행
-    this.session.on("signal:unpublish-audio", () => {
-      console.log("내 마이크 강제 종료됨");
-      this.publisher.publishAudio(false);
+    this.session.on("signal:unpublish-audio", (event: SignalEvent) => {
+      if (!event.from) {
+        console.log("내 마이크 강제 종료됨");
+        this.publisher.publishAudio(false);
+      }
     });
 
     // 채팅이 수신되면 실행. 데이터는 userId, nickname, message가 data로 들어옴
@@ -212,9 +216,11 @@ class OpenviduClient {
     });
 
     // 방장이 나로 바뀔 경우
-    this.session.on("signal:moderator-changed", (signalEvent: SignalEvent) => {
-      this.isModerator = true;
-      this.OnModeratorChanged(this.myConnectionData.userId);
+    this.session.on("signal:moderator-changed", (event: SignalEvent) => {
+      if (!event.from) {
+        this.isModerator = true;
+        this.OnModeratorChanged(this.myConnectionData.userId);
+      };
     });
 
     this.session.on("sessionDisconnected", (event) => {
