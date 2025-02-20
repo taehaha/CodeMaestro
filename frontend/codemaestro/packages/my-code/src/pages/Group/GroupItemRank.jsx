@@ -8,7 +8,7 @@ const GroupItemRank = ({rank, group}) => {
         onClick={()=>{navigate(`/group/${group.groupId}`)}} >
         <span className="text-gray-700 text-2xl font-medium">#{rank}</span>
             <h3 className="text-lg font-medium text-gray-800">{group.groupName}</h3>
-        <span className="text-gray-700 text-lg font-medium">{group.totalScore} Point</span>
+        <span className="text-gray-700 text-lg font-medium">{Math.round(group.totalScore)} Point</span>
 
     </li>
     )
