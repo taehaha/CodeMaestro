@@ -11,6 +11,8 @@ const { setupWSConnection } = require("y-websocket/bin/utils");
 const { LeveldbPersistence } = require("y-leveldb");
 const Y = require("yjs");
 
+require("dotenv").config({ path: '../.env'});
+
 // 절대경로로 데이터베이스 폴더 지정 (server.js 파일이 위치한 폴더 기준)
 const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
 

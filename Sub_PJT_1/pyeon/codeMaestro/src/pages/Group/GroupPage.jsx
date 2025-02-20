@@ -76,17 +76,6 @@ const GroupDetail = () => {
       showCancelButton: true,
       confirmButtonText: "확인",
       cancelButtonText: "취소",
-      width: "500px",
-      background: "#f8f9fa",
-      confirmButtonColor: "#FFCC00",
-      cancelButtonColor: "#ddd",
-      customClass: {
-        popup: "swal-custom-popup",       // 전체 팝업 스타일
-        title: "swal-custom-title",       // 제목 스타일
-        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-        confirmButton: "swal-custom-button", // 버튼 스타일
-        cancelButton: "swal-custom-button2" // 버튼 스타일
-      }
     }).then((result) => {
       if (result.isConfirmed) {
         // 실제 axios.post("/groups/join") 예시
@@ -103,17 +92,6 @@ const GroupDetail = () => {
       showCancelButton: true,
       confirmButtonText: "탈퇴하기",
       cancelButtonText: "취소",
-      width: "500px",
-      background: "#f8f9fa",
-      confirmButtonColor: "#FFCC00",
-      cancelButtonColor: "#ddd",
-      customClass: {
-        popup: "swal-custom-popup",       // 전체 팝업 스타일
-        title: "swal-custom-title",       // 제목 스타일
-        htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-        confirmButton: "swal-custom-button", // 버튼 스타일
-        cancelButton: "swal-custom-button2" // 버튼 스타일
-      }
     }).then((result) => {
       if (result.isConfirmed) {
         // 실제 axios.delete("/groups/{groupId}/{userId}")
@@ -229,7 +207,7 @@ const GroupDetail = () => {
 
         {userRole === ROLE.MEMBER && (
           <>
-            <button className="btn btn-success rounded-sm">그룹스터디 생성</button>
+            <button className="btn btn-success rounded-sm">그룹회의 생성</button>
             <button
               onClick={handleChangeToAdmin}
               className="btn btn-neutral rounded-sm"
