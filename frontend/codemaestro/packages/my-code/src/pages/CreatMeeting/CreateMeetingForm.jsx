@@ -46,7 +46,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
         allowOutsideClick: false,
         html: (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-            <p style={{ margin: "10px 0" }}>회의 초대 링크</p>
+            <p style={{ margin: "10px 0" }}>스터디디 초대 링크</p>
             <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
               <input
                 type="text"
@@ -86,7 +86,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
             </div>
           </div>
         ),
-        text: "회의 초대 링크가 생성되었습니다!",
+        text: "스터디디 초대 링크가 생성되었습니다!",
         icon: "success",
         iconColor: "#5FD87D",
         width: "500px",
