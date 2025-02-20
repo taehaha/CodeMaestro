@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const axios = require("axios");
 const cors = require("cors");
-require("dotenv").config();
 
 const WebSocket = require("ws");
 const url = require("url");
@@ -11,6 +10,8 @@ const path = require("path"); // 추가: path 모듈
 const { setupWSConnection } = require("y-websocket/bin/utils");
 const { LeveldbPersistence } = require("y-leveldb");
 const Y = require("yjs");
+
+require("dotenv").config({ path: '../.env'});
 
 // 절대경로로 데이터베이스 폴더 지정 (server.js 파일이 위치한 폴더 기준)
 const persistence = new LeveldbPersistence(path.resolve(__dirname, "yjs-docs"));
@@ -21,6 +22,7 @@ const app = express();
 app.use(
   cors({
     origin: process.env.REACT_APP_FRONTEND_URL,
+    // origin: "https://codemaestro.site",
   })
 );
 app.use(express.json());
