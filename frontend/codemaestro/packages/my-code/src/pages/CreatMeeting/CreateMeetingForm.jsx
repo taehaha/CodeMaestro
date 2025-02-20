@@ -86,7 +86,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
             </div>
           </div>
         ),
-        text: "회의 초대 링크가 생성되었습니다!",
+        text: "스터디룸 초대 링크가 생성되었습니다!",
         icon: "success",
         iconColor: "#5FD87D",
         width: "500px",

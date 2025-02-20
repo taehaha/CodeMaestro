@@ -38,7 +38,7 @@ const ManageModalComponent: React.FC<ManageModalComponentProps> = ({
       <div className="bg-white w-11/12 max-w-2xl rounded-lg shadow-lg p-4 relative">
         {/* 모달 헤더 */}
         <div className="flex justify-between items-center mb-4 border-b pb-2">
-          <h2 className="text-xl font-semibold text-gray-800">회의실 관리</h2>
+          <h2 className="text-xl font-semibold text-gray-800">스터디룸 관리</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"

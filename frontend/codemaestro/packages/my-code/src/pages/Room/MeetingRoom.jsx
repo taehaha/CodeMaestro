@@ -60,7 +60,7 @@ const MeetingRoom = () => {
 
   return (
     <div className="dark:text-darkText min-h-screen bg-base-200 p-4">
-      <h1 className="text-xl font-bold mb-4">{id}번 회의실</h1>
+      <h1 className="text-xl font-bold mb-4">{id}번 스터디룸</h1>
       
       {step === 1 && (
         <div className="modal modal-open">
@@ -71,7 +71,7 @@ const MeetingRoom = () => {
             >✕</button>
             <PasswordCheck
               roomId={id}
-              title={`${id}번 회의실`}
+              title={`${id}번 스터디룸`}
               onPasswordCheck={handlePasswordSuccess}
             />
           </div>

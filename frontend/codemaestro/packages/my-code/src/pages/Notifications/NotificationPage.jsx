@@ -23,7 +23,7 @@ const NotificationModal = ({ onClose }) => {
     if (notification.type === "invite") {
       Swal.fire({
         title: "요청 수락",
-        text: "초대받은 회의실로 이동합니다",
+        text: "초대받은 스터디룸으로 이동합니다",
         width: "500px",
         background: "#f8f9fa",
         confirmButtonColor: "#FFCC00",
