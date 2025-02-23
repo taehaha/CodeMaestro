@@ -90,7 +90,7 @@ const MeetingRoom = () => {
               ✕
             </button>
             <SettingPage
-              title={`${id}번 스터디룸`}
+              title={`${id}번 회의실`}
               onSettingCheck={handleSettingComplete}
             />
           </div>
