@@ -1,0 +1,47 @@
+.header {
+  display: flex; /* Flexbox 사용 */
+  justify-content: space-between; /* 로고와 메뉴를 양쪽 끝으로 정렬 */
+  align-items: center; /* 세로 정렬 */
+  padding: 20px 20px;
+  background-color: white;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.menu {
+  display: flex; /* Flexbox 사용 */
+  flex-direction: row; /* 가로 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  gap: 20px; /* 항목 간격 */
+}
+
+.menu a,
+.login-btn,
+.join-btn {
+  text-decoration: none;
+  color: black;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 10px 20px; /* 패딩 설정 */
+  transition: color 0.2s ease; /* 애니메이션 효과 */
+}
+
+.login-btn {
+  background-color: #E6E6E6;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.join-btn {
+  background-color: #3F4224;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
