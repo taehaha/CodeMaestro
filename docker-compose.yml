@@ -21,13 +21,6 @@ services:
     container_name: "codemaestro-${ENVIRONMENT}-frontend"
     build:
       context: ./frontend/codemaestro
-      args:
-        OPENAI_API_KEY: ${OPENAI_API_KEY}
-        REACT_APP_FRONTEND_URL: ${REACT_APP_FRONTEND_URL}
-        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
-        REACT_APP_CONCURRENCY_BACKEND_URL: ${REACT_APP_CONCURRENCY_BACKEND_URL}
-        REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL: ${REACT_APP_CONCURRENCY_BACKEND_WEBSOCKET_URL}
     restart: always
     ports:
       - "${REACT_PORT:-3000}:3000"
-      - "${WEBSOCKET_PORT:-3001}:3001"
