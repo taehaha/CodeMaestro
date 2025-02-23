@@ -17,8 +17,6 @@ psd
 thumb
 sketch
 
-# 모노레포용
-/dist
 
 ### VisualStudioCode ###
 .vscode/*
