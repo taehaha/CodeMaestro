@@ -7,11 +7,10 @@ import { setLoggedOut } from "../reducer/userSlice";
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
 export const baseURL = import.meta.env.REACT_APP_BACKEND_URL;
-//export const baseURL = "https://test.api.codemaestro.site"
 const UserAxios = axios.create({
-  baseURL:baseURL,  // 실제 API 주소로 변경
-  timeout: 10000,                      
-  withCredentials: true,                // 쿠키 전송 허용
+  baseURL: baseURL, // 실제 API 주소로 변경
+  timeout: 10000,
+  withCredentials: true, // 쿠키 전송 허용
 });
 
 // =======================================
@@ -30,7 +29,7 @@ const RefreshAxios = axios.create({
 //  - 매 요청마다 AccessToken을 헤더에 실어 보냄
 // ---------------------------------------
 UserAxios.interceptors.request.use(
- async (config) => {
+  async (config) => {
     const token = await tokenStorage.getAccessToken();
     if (token) {
       config.headers["Access"] = `${token}`;
@@ -108,7 +107,7 @@ async function handleLogoutAndRedirect() {
   // 로그인 페이지로 강제 이동
   store.dispatch(setLoggedOut());
   window.location.href = "/login";
-  return Promise.reject(); 
+  return Promise.reject();
 }
 
 export default UserAxios;
