@@ -386,9 +386,8 @@ const App: React.FC = () => {
       })
       .catch(() => {
         alert("이미 스터디에 접속중 입니다.");
-        window.location.href=`${process.env.REACT_APP_FRONTEND_URL}/meeting`;
+        window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/meeting`;
       });
-
 
     return () => {
       client.disconnect();
@@ -405,7 +404,11 @@ const App: React.FC = () => {
   // 브라우저 탭 제거 전 동작
   window.addEventListener("beforeunload", (event) => {
     if (!ovClient) return; // ovClient가 없으면 그냥 종료
+    event.preventDefault();
+  });
 
+  // Openvidu 연결 정리
+  window.addEventListener("unload", (event) => {
     if (ovIsModerator) {
       const participantsDatas = ovClient.gerParticipantDatas(); // 오타 수정
       if (participantsDatas.length >= 1) {
@@ -413,8 +416,18 @@ const App: React.FC = () => {
         ovClient.manageChangeModerator(targetUserId);
       }
     }
-  
+
     ovClient.disconnect(); // 안전한 종료
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (
+      event.key === "F5" ||
+      (event.ctrlKey && event.key === "r") ||
+      (event.metaKey && event.key === "r")
+    ) {
+      event.preventDefault(); // 기본 동작인 새로고침을 막음
+    }
   });
 
   return (

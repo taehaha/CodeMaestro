@@ -9,45 +9,50 @@ import { MdContentCopy } from "react-icons/md";
 import { createRoom } from "../../api/RoomApi";
 import { algorithmTag } from "../../utils/tags"; // ['수학','구현',... 등 긴 배열
 import { createGroupConference } from "../../api/GroupApi";
-const CreateMeetingForm = ({groupId, onClose}) => {
+const CreateMeetingForm = ({ groupId, onClose }) => {
   const MySwal = withReactContent(Swal);
   const navigate = useNavigate();
   // 폼 제출
   const handleSubmit = async (values, { setSubmitting }) => {
     setSubmitting(true);
     try {
-
       // 2) JSON payload 구성
       const payload = {
         title: values.title,
         description: values.description || "",
-        tagNameList:values.tags, 
+        tagNameList: values.tags,
         accessCode: values.isPrivate ? values.entry_password : null,
-        thumbnail:values.thumbnail ? values.thumbnail: null,
+        thumbnail: values.thumbnail ? values.thumbnail : null,
       };
 
-      let response
+      let response;
       // 3) 방 생성 API
       if (!groupId) {
         response = await createRoom(payload);
-
-      }
-
-      else{
-       response = await createGroupConference(groupId, payload);
+      } else {
+        response = await createGroupConference(groupId, payload);
       }
 
       const inviteLink = `${window.location.origin}/ide?roomId=${response.conferenceId}`;
-      
+
       // 4) SweetAlert로 결과 표시
       MySwal.fire({
         title: "스터디 생성 완료",
         showCloseButton: true,
         allowOutsideClick: false,
         html: (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-            <p style={{ margin: "10px 0" }}>회의 초대 링크</p>
-            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ margin: "10px 0" }}>스터디 초대 링크</p>
+            <div
+              style={{ display: "flex", gap: "8px", justifyContent: "center" }}
+            >
               <input
                 type="text"
                 readOnly
@@ -58,7 +63,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                   borderRadius: "5px",
                   border: "1px solid #ddd",
                   textAlign: "center",
-                  fontSize: "14px"
+                  fontSize: "14px",
                 }}
               />
               <button
@@ -69,7 +74,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                       toast: true,
                       position: "top-end",
                       showConfirmButton: false,
-                      timer: 1000
+                      timer: 1000,
                     });
                   });
                 }}
@@ -78,7 +83,7 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                   border: "1px solid #ddd",
                   borderRadius: "5px",
                   padding: "5px 10px",
-                  cursor: "pointer"
+                  cursor: "pointer",
                 }}
               >
                 <MdContentCopy size={18} />
@@ -97,18 +102,18 @@ const CreateMeetingForm = ({groupId, onClose}) => {
           popup: "swal-custom-popup",
           title: "swal-custom-title",
           htmlContainer: "swal-custom-text",
-          confirmButton: "swal-custom-button"
+          confirmButton: "swal-custom-button",
         },
       }).then(async (result) => {
         if (result.isConfirmed) {
           // "확인" 누르면 해당 링크로 이동
-          await localStorage.setItem("camera",false)
-          await localStorage.setItem("audio",false)
+          await localStorage.setItem("camera", false);
+          await localStorage.setItem("audio", false);
           if (values.entry_password) {
-            await localStorage.setItem("accessCode",values.entry_password)
+            await localStorage.setItem("accessCode", values.entry_password);
           }
 
-          window.location.href = inviteLink
+          window.location.href = inviteLink;
         }
       });
     } catch (error) {
@@ -118,16 +123,15 @@ const CreateMeetingForm = ({groupId, onClose}) => {
         text: "서버 오류가 발생했습니다. 다시 시도해주세요.",
         icon: "error",
         width: "500px",
-          background: "#f8f9fa",
-          confirmButtonColor: "#FFCC00",
-          confirmButtonText: "확인",
-          customClass: {
-            popup: "swal-custom-popup",       // 전체 팝업 스타일
-            title: "swal-custom-title",       // 제목 스타일
-            htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-            confirmButton: "swal-custom-button" // 버튼 스타일
-          }
-
+        background: "#f8f9fa",
+        confirmButtonColor: "#FFCC00",
+        confirmButtonText: "확인",
+        customClass: {
+          popup: "swal-custom-popup", // 전체 팝업 스타일
+          title: "swal-custom-title", // 제목 스타일
+          htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
+          confirmButton: "swal-custom-button", // 버튼 스타일
+        },
       });
     } finally {
       setSubmitting(false);
@@ -152,7 +156,6 @@ const CreateMeetingForm = ({groupId, onClose}) => {
         validationSchema={CreateMeetingSchema}
         onSubmit={handleSubmit}
       >
-
         {({ setFieldValue, values, isSubmitting }) => {
           // 로컬 상태: 사용자 입력(tagInput), 추천 목록(suggestions)
           const [tagInput, setTagInput] = useState("");
@@ -196,11 +199,11 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                 confirmButtonColor: "#FFCC00",
                 confirmButtonText: "확인",
                 customClass: {
-                  popup: "swal-custom-popup",       // 전체 팝업 스타일
-                  title: "swal-custom-title",       // 제목 스타일
+                  popup: "swal-custom-popup", // 전체 팝업 스타일
+                  title: "swal-custom-title", // 제목 스타일
                   htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-                  confirmButton: "swal-custom-button" // 버튼 스타일
-                }
+                  confirmButton: "swal-custom-button", // 버튼 스타일
+                },
               });
               return;
             }
@@ -214,11 +217,11 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                 confirmButtonColor: "#FFCC00",
                 confirmButtonText: "확인",
                 customClass: {
-                  popup: "swal-custom-popup",       // 전체 팝업 스타일
-                  title: "swal-custom-title",       // 제목 스타일
+                  popup: "swal-custom-popup", // 전체 팝업 스타일
+                  title: "swal-custom-title", // 제목 스타일
                   htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-                  confirmButton: "swal-custom-button" // 버튼 스타일
-                }
+                  confirmButton: "swal-custom-button", // 버튼 스타일
+                },
               });
               return;
             }
@@ -232,15 +235,14 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                 confirmButtonColor: "#FFCC00",
                 confirmButtonText: "확인",
                 customClass: {
-                  popup: "swal-custom-popup",       // 전체 팝업 스타일
-                  title: "swal-custom-title",       // 제목 스타일
+                  popup: "swal-custom-popup", // 전체 팝업 스타일
+                  title: "swal-custom-title", // 제목 스타일
                   htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-                  confirmButton: "swal-custom-button" // 버튼 스타일
-                }
+                  confirmButton: "swal-custom-button", // 버튼 스타일
+                },
               });
               return;
             }
-            
 
             // Formik의 tags 배열에 추가
             setFieldValue("tags", [...values.tags, trimTag]);
@@ -268,7 +270,11 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                   className="input input-bordered h-9 mb-1"
                   placeholder="예: 알고리즘 스터디"
                 />
-                <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
+                <ErrorMessage
+                  name="title"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
               </div>
 
               {/* 설명 */}
@@ -356,7 +362,9 @@ const CreateMeetingForm = ({groupId, onClose}) => {
                   className="file-input file-input-bordered h-9"
                 />
                 {values.thumbnail && (
-                  <p className="text-sm mt-1">선택된 파일: {values.thumbnail.name}</p>
+                  <p className="text-sm mt-1">
+                    선택된 파일: {values.thumbnail.name}
+                  </p>
                 )}
               </div>
 
@@ -364,7 +372,11 @@ const CreateMeetingForm = ({groupId, onClose}) => {
               <div className="form-control">
                 <label className="label cursor-pointer">
                   <span className="label font-semibold">비밀방 설정</span>
-                  <Field type="checkbox" name="isPrivate" className="toggle toggle-primary checked:bg-[#ffcc00]" />
+                  <Field
+                    type="checkbox"
+                    name="isPrivate"
+                    className="toggle toggle-primary checked:bg-[#ffcc00]"
+                  />
                 </label>
               </div>
 
@@ -388,7 +400,12 @@ const CreateMeetingForm = ({groupId, onClose}) => {
 
               {/* 제출 버튼 */}
               <div className="flex justify-end gap-2">
-              <button className="btn bg-[#ddd] hover:bg-[#ccc] btn-sm" onClick={() => navigate("/meeting")}>취소</button>
+                <button
+                  className="btn bg-[#ddd] hover:bg-[#ccc] btn-sm"
+                  onClick={() => navigate("/meeting")}
+                >
+                  취소
+                </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}

@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 // =======================================
 // ① 일반 요청을 담당하는 UserAxios 인스턴스
 // =======================================
-// export const baseURL = "https://api.codemaestro.site"
 export const baseURL = process.env.REACT_APP_BACKEND_URL;
 
 const UserAxios = axios.create({

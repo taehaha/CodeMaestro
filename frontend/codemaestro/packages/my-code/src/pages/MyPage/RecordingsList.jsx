@@ -14,7 +14,9 @@ const RecordingsList = () => {
         {recordings.length > 0 ? (
           recordings.map((rec) => (
             <li key={rec.id} className="recording-item">
-              <span>{rec.title} - {rec.date}</span>
+              <span>
+                {rec.title} - {rec.date}
+              </span>
               <button className="play-btn">재생</button>
             </li>
           ))

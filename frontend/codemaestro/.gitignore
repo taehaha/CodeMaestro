@@ -17,6 +17,9 @@ psd
 thumb
 sketch
 
+# dist 폴더 무시
+**/dist/
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

@@ -3,9 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { FaUserFriends, FaEnvelope, FaUsers, FaQuestion } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { AcceptFriendsRequest, RejectFriendsRequest } from "../../api/FriendApi";
+import {
+  AcceptFriendsRequest,
+  RejectFriendsRequest,
+} from "../../api/FriendApi";
 import { AcceptGroupRequest, RejectGroupRequest } from "../../api/GroupApi";
-import { fetchNotifications, removeNotification } from "../../reducer/notificationSlice";
+import {
+  fetchNotifications,
+  removeNotification,
+} from "../../reducer/notificationSlice";
 
 const NotificationModal = ({ onClose }) => {
   const notifications = useSelector((state) => state.notifications.items);
@@ -29,11 +35,11 @@ const NotificationModal = ({ onClose }) => {
         confirmButtonColor: "#FFCC00",
         confirmButtonText: "확인",
         customClass: {
-          popup: "swal-custom-popup",       // 전체 팝업 스타일
-          title: "swal-custom-title",       // 제목 스타일
+          popup: "swal-custom-popup", // 전체 팝업 스타일
+          title: "swal-custom-title", // 제목 스타일
           htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
-          confirmButton: "swal-custom-button" // 버튼 스타일
-        }
+          confirmButton: "swal-custom-button", // 버튼 스타일
+        },
       }).then(() => {
         navigate(`/meeting/${notification.conferenceId}`);
       });
@@ -62,7 +68,9 @@ const NotificationModal = ({ onClose }) => {
     <div className="notification-modal p-4 bg-white rounded-lg shadow-lg max-w-md mx-auto">
       <div className="flex justify-between items-center border-b pb-3 mb-3">
         <h3 className="text-lg font-bold">알림</h3>
-        <button className="text-gray-500" onClick={onClose}>✖</button>
+        <button className="text-gray-500" onClick={onClose}>
+          ✖
+        </button>
       </div>
       <ul className="space-y-3">
         {notifications.length > 0 ? (
@@ -91,9 +99,12 @@ const NotificationModal = ({ onClose }) => {
                 {notification.type === "group" && (
                   <div className="text-center">
                     <p className="font-semibold">
-                      {notification.userNickname}님의 {notification.groupName}그룹 가입 요청입니다.
+                      {notification.userNickname}님의 {notification.groupName}
+                      그룹 가입 요청입니다.
                     </p>
-                    <p className="text-xs text-gray-600">{notification.message}</p>
+                    <p className="text-xs text-gray-600">
+                      {notification.message}
+                    </p>
                   </div>
                 )}
                 {notification.type === "invite" && (
