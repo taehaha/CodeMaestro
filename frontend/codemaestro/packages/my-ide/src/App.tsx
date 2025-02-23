@@ -367,11 +367,7 @@ const App: React.FC = () => {
       setOvScreenStreamManager(null);
     });
     client.setModeratorChangedCallback((newModerator: number) => {
-      if (newModerator === ovClient.getMyConnectionData().userId) {
-        setOvIsModerator(true);
-      } else {
-        setOvIsModerator(false);
-      }
+      setOvIsModerator(true);
     });
 
     //TODO: 방 비밀번호 입력 시퀸스, 입장시 캠 설정 필요함
