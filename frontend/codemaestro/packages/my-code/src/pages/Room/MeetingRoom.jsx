@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import PasswordCheck from './PasswordCheck';
-import SettingPage from './SettingPage';
+import PasswordCheck from "./PasswordCheck";
+import SettingPage from "./SettingPage";
 
 const MeetingRoom = () => {
   const { id } = useParams();
@@ -45,12 +45,12 @@ const MeetingRoom = () => {
       confirmButtonColor: "#FFCC00",
       cancelButtonColor: "#ddd",
       customClass: {
-        popup: "swal-custom-popup",       // 전체 팝업 스타일
-        title: "swal-custom-title",       // 제목 스타일
+        popup: "swal-custom-popup", // 전체 팝업 스타일
+        title: "swal-custom-title", // 제목 스타일
         htmlContainer: "swal-custom-text", // 본문 텍스트 스타일
         confirmButton: "swal-custom-button", // 버튼 스타일
-        cancelButton: "swal-custom-button2" // 버튼 스타일
-      }
+        cancelButton: "swal-custom-button2", // 버튼 스타일
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.replace("/meeting");
@@ -61,14 +61,16 @@ const MeetingRoom = () => {
   return (
     <div className="dark:text-darkText min-h-screen bg-base-200 p-4">
       <h1 className="text-xl font-bold mb-4">{id}번 스터디룸</h1>
-      
+
       {step === 1 && (
         <div className="modal modal-open">
           <div className="modal-box relative">
-            <button 
+            <button
               className="btn btn-sm btn-circle absolute right-2 top-2"
               onClick={handleModalClose}
-            >✕</button>
+            >
+              ✕
+            </button>
             <PasswordCheck
               roomId={id}
               title={`${id}번 스터디룸`}
@@ -81,10 +83,12 @@ const MeetingRoom = () => {
       {step === 2 && (
         <div className="modal modal-open">
           <div className="modal-box relative">
-            <button 
+            <button
               className="btn btn-sm btn-circle absolute right-2 top-2"
               onClick={handleModalClose}
-            >✕</button>
+            >
+              ✕
+            </button>
             <SettingPage
               title={`${id}번 스터디룸`}
               onSettingCheck={handleSettingComplete}
