@@ -43,7 +43,8 @@ public class OpenViduUtil {
         jsonBody.put("session", conferenceId);
         jsonBody.set("to", connectionIds);
         jsonBody.put("type", signalType.toString());
-        jsonBody.put("data", data);
+        if (data != null) jsonBody.put("data", data);
+
 
         return openviduWebClient.post()
                 .uri("/openvidu/api/signal")
