@@ -1,0 +1,320 @@
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chatbot {
+  width: 350px;
+  height: 450px;
+  background-color: rgba(255, 255, 255, 0.95); /* 반투명 배경 */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.chatbot-header {
+  background: linear-gradient(135deg, #007bff, #0056b3); /* 그라데이션 */
+  color: #ffffff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  background-color: #ff4d4f; /* 초기 상태는 연결되지 않음 */
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: pulse 1.5s infinite;
+}
+
+.status-indicator.connected {
+  background-color: #52c41a; /* 연결되었을 때 초록색 */
+  animation: none;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.chatbot-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: rgba(249, 249, 249, 0.95); /* 반투명 배경 */
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.user,
+.bot {
+  margin: 10px 0;
+  display: flex;
+}
+
+.user {
+  justify-content: flex-end;
+}
+
+.bot {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: 100%; /* 버블이 부모 요소의 전체 너비를 사용할 수 있도록 조정 */
+  padding: 10px 15px;
+  border-radius: 20px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* 긴 내용이 있을 경우 가로 스크롤 */
+  overflow-y: hidden; /* 세로 내용이 넘치지 않도록 */
+}
+
+.user .message-bubble {
+  background: #e0e0e0; /* 회색 말풍선 */
+  color: #333333;
+  border-bottom-right-radius: 0;
+}
+
+.bot .message-bubble {
+  background: #FFCC00;
+
+
+  color: #000000;
+  border-top-left-radius: 0;
+}
+
+/* 코드 블록 스타일 */
+.message-bubble code,
+.message-bubble pre {
+  display: block; 
+  font-family: "Courier New", Courier, monospace; 
+  font-size: 12px; 
+  background: rgba(240, 240, 240, 0.9);
+  padding: 10px; 
+  border-radius: 5px;
+  white-space: pre; 
+  overflow-x: auto; 
+  max-width: 100%; 
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); 
+  color: #000000; 
+}
+
+
+.sender-label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+.skill-level-buttons button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+
+.skill-level-buttons button:nth-child(1) {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b); 
+}
+
+.skill-level-buttons button:nth-child(2) {
+  background: linear-gradient(135deg, #6a11cb, #2575fc); 
+}
+
+.skill-level-buttons button:nth-child(3) {
+  background: linear-gradient(135deg, #00c6ff, #0072ff); 
+}
+
+
+.skill-level-buttons button:hover {
+  transform: translateY(-3px); 
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); 
+  filter: brightness(1.1); 
+}
+
+
+.skill-level-buttons button:active {
+  transform: translateY(0); 
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); 
+}
+
+
+.message-text {
+  white-space: pre-wrap; 
+  word-break: break-word; 
+}
+
+
+.typing .message-text {
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  height: 8px;
+  width: 8px;
+  margin: 0 2px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: blink 1.4s infinite both;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 80%, 100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.input-container input[type="text"] {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #cccccc;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  background: rgba(247, 247, 247, 0.9); 
+}
+
+.upload-button {
+  background: #007bff; 
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.upload-button:hover {
+  background-color: #baae02;
+  transform: scale(1.05);
+}
+
+.upload-icon {
+  stroke: white;
+}
+
+.send-button {
+  background: #FFCC00;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #baae02;
+  transform: scale(1.05);
+}
+
+.arrow-icon {
+  stroke: white;
+}
+
+.chatbot-icon {
+  animation: spin-and-glow 2s infinite ease-in-out;
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 30px;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.chatbot-icon:hover {
+  transform: scale(1.1);
+  background-color: #ffffff;
+}
+
+@keyframes spin-and-glow {
+  0% {
+    transform: scale(1) rotate(0deg);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.8), 0 0 10px rgba(255, 165, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 1), 0 0 20px rgba(255, 165, 0, 0.8);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.8), 0 0 10px rgba(255, 165, 0, 0.6);
+  }
+}

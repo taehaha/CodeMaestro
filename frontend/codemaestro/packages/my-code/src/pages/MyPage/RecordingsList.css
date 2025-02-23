@@ -1,0 +1,34 @@
+.recordings-list {
+  padding: 20px;
+}
+
+.recordings-list h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.recording-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.play-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.play-btn:hover {
+  background: #0056b3;
+}
+
+.no-recordings {
+  color: gray;
+  font-size: 14px;
+  margin-top: 10px;
+}

@@ -1,0 +1,129 @@
+.contents {
+  padding: 80px 80px;
+  text-align: center;
+  position: relative;
+  background-color: #182235;
+  display: block;
+}
+
+.contents h2 {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 120px;
+}
+
+.contents h2,
+.contents p {
+  position: relative;
+  z-index: 20;
+  display: inline-block;
+  padding: 60px 10px 10px;
+}
+
+.contents p {
+  font-size: 20px;
+  margin-bottom: 100px;
+  color: #e1e5eb;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 120px; /* 간격 조정 */
+  position: relative;
+  z-index: 20;
+  align-items: center;
+}
+
+.feature-wrapper {
+  display: flex;
+  align-items: flex-start; /* 윗선 맞추기 */
+  gap: 0px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.feature-wrapper.left {
+  flex-direction: row-reverse;
+}
+
+.feature-wrapper.right {
+  flex-direction: row;
+}
+
+.feature-image-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #404f65;
+  border-radius: 10px;
+  width: 80%; /* 텍스트 박스와 같은 크기로 설정 */
+  height: 500px;
+  padding: 20px;
+}
+
+/* 이미지 크기 조정 */
+.feature-image {
+  width: 100%; /* 격자 내부에서 작게 배치 */
+  max-width: 800px; /* 최대 크기 제한 */
+  /* height: auto; */
+  object-fit: contain; /* 원본 비율 유지 */
+  border-radius: 10px;
+  opacity: 1;
+  transition: opacity 1.3s ease-out, transform 1.3s ease-out;
+}
+
+.feature-image.visible {
+  opacity: 1;
+}
+
+.feature-image:not(.visible) {
+  opacity: 0;
+}
+
+/* 텍스트 박스 크기 조정 */
+.feature-item {
+  background-color: transparent;
+  padding: 20px 10px;
+  border-radius: 10px;
+  border: 1px solid #404f65;
+  width: 40%;
+  height: auto; /* 높이를 자동 조정하여 윗선을 맞춤 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* 텍스트 상단 정렬 */
+}
+
+.feature-item h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.feature-item p {
+  font-size: 16px;
+  color: #e1e5eb;
+  margin-top: 0px;
+}
+
+/* 반응형 적용 */
+@media (max-width: 768px) {
+  .feature-wrapper {
+    flex-direction: column-reverse !important;
+    align-items: center; /* 모바일에서도 정렬 유지 */
+  }
+
+  .feature-image {
+    width: 100%;
+    height: auto;
+  }
+
+  .feature-item {
+    width: 80%;
+    text-align: center;
+  }
+}
