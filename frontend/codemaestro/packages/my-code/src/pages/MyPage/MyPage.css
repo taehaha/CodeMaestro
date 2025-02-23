@@ -1,0 +1,64 @@
+.mypage-container {
+  width: 100%; /* 부모 요소의 전체 너비 사용 */
+  /* height: 130vh; */
+  min-height: 100vh;
+  display: flex; /* 사이드바와 콘텐츠를 가로로 배치하려면 flex 적용 */
+  flex-direction: row; /* 가로 정렬 */
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  align-items: stretch; /* 높이를 동일하게 맞춤 */
+  padding: 0; /* 패딩 제거 */
+  margin: 0; /* 마진 제거 */
+}
+
+.content-area {
+  flex-grow: 1;
+  width: 100%;
+  min-height: calc(100vh - 60px);
+  max-width: 100%; /* 최대 너비 100% */
+  padding: 0px; /* 여백 조정 */
+  box-sizing: border-box; /* 패딩 포함한 크기 유지 */
+}
+
+.profile-content {
+  display: flex;
+  justify-content: flex-start; /* 유저 정보와 사이드바를 자연스럽게 정렬 */
+  align-items: flex-start;
+  max-width: 1200px; /* 전체 너비 조절 */
+  margin: 20px auto;
+}
+
+/* 유저 정보 영역이 차지하는 공간을 늘림 */
+.user-info {
+  flex: 1; /* 유저 정보가 왼쪽에서 차지하는 공간 */
+}
+
+.sidebar {
+  width: 250px;
+  background: #f4f4f4;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.sidebar-menu li {
+  list-style: none;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.sidebar-menu li:hover {
+  background: #ddd;
+}
+
+.sidebar-menu .active {
+  /* background: #007bff; */
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+
+/* .content-area {
+  flex: 1;
+  padding: 0px 10px;
+  padding-right: 25px;
+} */
