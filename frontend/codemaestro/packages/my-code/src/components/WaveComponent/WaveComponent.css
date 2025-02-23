@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  overflow-x: hidden; /* 좌우 스크롤 제거 */
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* 120%에서 100%로 변경 */
+  height: 100%;
+}
