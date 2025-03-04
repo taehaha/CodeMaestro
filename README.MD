@@ -16,13 +16,9 @@
 
 ## 배경
 
-알고리즘 문제 풀이의 중요성이 점점 커지면서 많은 개발자가 꾸준히 공부하고 있습니다.
+알고리즘 문제 풀이의 중요성이 날로 커지면서 많은 개발자들이 지속적으로 학습에 매진하고 있습니다. 이러한 흐름 속에서 다양한 알고리즘 스터디 그룹이 형성되고 있지만, 현재 온라인 스터디를 효율적으로 지원할 전용 플랫폼이 부족한 상황입니다. 기존의 화상회의 도구인 Zoom이나 Discord를 활용할 경우 여러 불편함이 존재하여, 이를 해결할 수 있는 전용 플랫폼의 필요성이 대두되었습니다.
 
-이러한 기조 속에 많은 알고리즘 스터디가 생겨나고 있습니다.
-
-하지만 온라인으로 알고리즘 스터디를 할 때 사용할 수 있는 온라인 플랫폼이 존재하지 않기 때문에, 일반적인 화상회의 프로그램인 Zoom, Discord를 이용하여 스터디를 진행하기에는 불편함이 많았고 이러한 부분을 채울 수 있는 플랫폼이 필요하다고 생각했습니다.
-
-CodeMaestro는 온라인 알고리즘 스터디를 위한 공동 편집, 캔버스, AI 분석 기능을 제공하는 온라인 알고리즘 스터디 플랫폼 입니다.
+CodeMaestro 는 온라인 알고리즘 스터디를 위한 공동 편집, 캔버스, AI 분석 기능 등을 제공하는 전용 플랫폼입니다. 이를 통해 개발자들이 보다 효율적이고 편리하게 학습을 진행할 수 있도록 지원하며, 협업 환경을 한층 강화합니다. CodeMaestro와 함께 더욱 체계적이고 효과적인 알고리즘 학습을 경험해보세요.
 
 ## 주요 기능
 
@@ -108,7 +104,6 @@ CodeMaestro는 온라인 알고리즘 스터디를 위한 공동 편집, 캔버�
     - 실시간 협업 기능
     - WebRTC v10.3.0, WebSocket v2.1.0 지원
   - Konva v9.3.18 & React Konva v19.0.2
-  - LiveBlocks Client v2.16.2
 - 스타일링
   - TailwindCSS v3.4.17
   - PostCSS v8.4.49
@@ -195,55 +190,77 @@ CodeMaestro는 온라인 알고리즘 스터디를 위한 공동 편집, 캔버�
   <tbody>
     <tr>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/김태영.png" width="100px;" alt=""/>
           <br />
             <sub><b>김태영(팀장, BE)</b></sub>
-        </a>
         <br />
       </td>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/황지원.png" width="100px;" alt=""/>
           <br />
             <sub><b>황지원(BE)</b></sub>
-        </a>
         <br />
       </td>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/정보규.png" width="100px;" alt=""/>
           <br />
             <sub><b>정보규(FE)</b></sub>
-        </a>
         <br />
       </td>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/편정웅.png" width="100px;" alt=""/>
           <br />
             <sub><b>편정웅(FE)</b></sub>
-        </a>
         <br />
       </td>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/이주영.png" width="100px;" alt=""/>
           <br />
             <sub><b>이주영(FE)</b></sub>
-        </a>
         <br />
       </td>
       <td align="center">
-        <a href="">
-          <img src="" width="100px;" alt=""/>
+          <img src="./readme_img/김태경.png" width="100px;" alt=""/>
           <br />
             <sub><b>김태경(INFRA)</b></sub>
-        </a>
         <br />
       </td>
     </tr>
   </tbody>
 </table>
 
-## 프로젝트 산출물
+## 프로젝트 기능 소개
+
+### 로그인
+
+![로그인](./readme_img/video/로그인.gif)
+
+### 방 생성
+
+![방 생성](./readme_img/video/방%20생성.gif)
+
+### 그룹
+
+![그룹 기능](./readme_img/video/그룹_기능.gif)
+
+### 동시편집 캔버스
+
+![캔버스](./readme_img/video/동시편집_캔버스.gif)
+
+### 동시편집 코드
+
+![코드](./readme_img/video/동시편집_코드.gif)
+
+### AI 기능
+
+![AI기능](./readme_img/video/AI기능.gif)
+
+### 화면 공유
+
+![화면 공유](./readme_img/video/화면공유.gif)
+
+### 방장 권한
+
+![방장 권한](./readme_img/video/방장_권한.gif)
+
+###
